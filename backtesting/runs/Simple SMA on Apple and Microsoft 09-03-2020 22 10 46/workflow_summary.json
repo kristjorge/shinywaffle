@@ -1,0 +1,23 @@
+{
+   "backtester": {
+      "base currency": "USD",
+      "broker": "Interactive Brokers",
+      "initial portfolio holding": 500,
+      "stocks": [
+         {
+            "name": "Equinor Energy",
+            "strategies": [
+               "SMA crossover"
+            ],
+            "ticker": "EQNR"
+         }
+      ]
+   },
+   "enable_stochastic": true,
+   "name": "Simple SMA on Apple and Microsoft",
+   "no_runs": 5,
+   "no_stochastic_runs": 3,
+   "no_sub_runs": 5,
+   "optimisation_datetimes": [
+      [
+         
