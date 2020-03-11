@@ -1,4 +1,3 @@
-from strategy.strategy import TradingStrategy
 from utils.bar import BarHolder
 from utils.time_series_data import TimeSeriesDataHolder
 from utils.time_series_data import TimeSeriesData
@@ -41,16 +40,9 @@ class Stock:
     def __init__(self, name, ticker):
         self.name = name
         self.ticker = ticker
-        self.strategies = dict()
         self.series = TimeSeriesDataHolder()
         self.stops = StopHolder()
         self.datetime_format = "%Y-%m-%d"
-
-    def add_strategy(self, strategy):
-        assert isinstance(strategy, TradingStrategy)
-        if strategy.name in self.strategies:
-            print("{} already exists. Replacing existing.".format(strategy.name))
-        self.strategies[strategy.name] = strategy
 
     def set_bars(self, bars, interval):
         assert isinstance(bars, BarHolder)
@@ -60,7 +52,6 @@ class Stock:
     def add_time_series(self, name, data_series):
         assert isinstance(data_series, TimeSeriesData)
         self.series.add(data_series, name)
-        # setattr(self.series, name, data_series)
 
     def set_stop(self, stop_object):
         if isinstance(stop_object, StopLoss):
@@ -74,6 +65,5 @@ class Stock:
         data = {
             'name': self.name,
             'ticker': self.ticker,
-            'strategies': [strat_name for strat_name, strat in self.strategies.items()]
         }
         return data

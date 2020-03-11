@@ -12,16 +12,18 @@ from utils.time_series_data import TimeSeriesDataReader
 portfolio = Portfolio(500, "USD")
 ib = InteractiveBrokers()
 alpha_vantage = AlphaVantage(os.environ['AlphaVantage_APItoken'])
+sma_strategy = AverageCrossOver("SMA crossover", short=UncertaintyVariable("short"), long=UncertaintyVariable("long"))
+
 
 # Equinor stocks
 equinor = Stock("Equinor Energy", "EQNR")
-equinor.add_strategy(AverageCrossOver("SMA crossover", short=UncertaintyVariable("short"), long=UncertaintyVariable("long")))
 equinor_bars = alpha_vantage.query("TIME_SERIES_DAILY_ADJUSTED", "EQNR", output_as_bars=True, reverse=True)
-# financial_reports = TimeSeriesDataReader().read_csv("D:/PythonProjects/shiny-waffle/tests/time_series_test.csv", "%Y-%m-%d")
-# equinor.add_time_series("financial_report", financial_reports)
+financial_reports = TimeSeriesDataReader().read_csv("D:/PythonProjects/shiny-waffle/tests/time_series_test.csv", "%Y-%m-%d")
+equinor.add_time_series("financial_report", financial_reports)
 equinor.set_bars(equinor_bars, "daily")
+sma_strategy.link_stock(equinor)
 
-backtester = Backtester(portfolio, ib, [equinor], "daily")
+backtester = Backtester(portfolio, ib, [equinor], [sma_strategy], "daily")
 workflow = BacktestWorkflow(backtester, "Simple SMA on Apple and Microsoft", path="D:/PythonProjects/shiny-waffle/backtesting/runs",
                             runs=5, sub_runs=5, out_of_sample_size=0.2, wfa='anchored', stochastic_runs=3)
 

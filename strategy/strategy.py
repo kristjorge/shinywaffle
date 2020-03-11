@@ -1,5 +1,6 @@
 import abc
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable
+from backtesting.stock.stock import Stock
 
 """ 
 
@@ -18,12 +19,26 @@ class TradingStrategy(abc.ABC):
 
     def __init__(self, name):
         self.name = name
+        self.stocks = dict()
 
     @abc.abstractmethod
     def generate_signal(self):
         pass
 
-    def set_param_value(self, param, value):
-        setattr(self, param, value)
+    def link_stock(self, stock):
+        assert isinstance(stock, Stock)
+        assert stock.name
+        assert stock.ticker
+
+        self.stocks[stock.ticker] = stock
+
+    def self2dict(self):
+        data = {
+            'name': self.name,
+            'stocks linked': ["{} - {}".format(stock.ticker, stock.name) for stock in self.stocks.values()]
+        }
+
+        return data
+
 
 

@@ -1,4 +1,3 @@
-from backtesting.prep.strings import *
 from backtesting.backtest import Backtester
 from backtesting.backtest import BacktestContainer
 from backtesting.workflow.test_train_split import TestTrainSplit

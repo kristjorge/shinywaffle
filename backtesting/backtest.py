@@ -1,9 +1,9 @@
-from datetime import datetime
 from datetime import timedelta
 from backtesting.portfolio import Portfolio
 from backtesting.broker.brokers import Broker
 from backtesting.stock.stock import Stock
-from event.event_loop import EventLoop
+from event.event_handler import EventHandler
+from strategy.strategy import TradingStrategy
 
 """
 Class for holding the backtesting code
@@ -23,17 +23,18 @@ intervals = ("1min",
 
 class Backtester:
 
-    def __init__(self, portfolio, broker, active_stocks, time_increment):
+    def __init__(self, portfolio, broker, stocks, strategies, time_increment):
         """
 
         :param portfolio: Object describing the trading account (type Account)
         :param broker: Broker object holding order logic and pricing (type Broker)
-        :param active_stocks: List of stocks used in the backtesting (type list)
+        :param stocks: List of stocks used in the backtesting (type list)
         """
 
         assert isinstance(portfolio, Portfolio)
         assert isinstance(broker, Broker)
-        assert isinstance(active_stocks, list)
+        assert isinstance(stocks, list)
+        assert isinstance(strategies, list)
 
         self.portfolio = portfolio
         self.broker = broker
@@ -41,18 +42,17 @@ class Backtester:
         self.strategies = dict()
         self.time_increment = time_increment
 
-        # Looping through the list of provided stocks and append them to the self.stocks dictionary with the
-        # ticker as they key and the Stock object as the value
-        for stock in active_stocks:
-            assert isinstance(stock, Stock), "All stocks in the list of stocks must of the \
-                                                                    correct class instance"
-            assert stock.strategies, "{} must have a specified trading strategy".format(stock.name)
+        # Looping through the list of provided stocks and strategies and append them to the self.stocks and
+        # self.strategies dictionary with the ticker as they key and the Stock object as the value
+        for stock in stocks:
+            assert isinstance(stock, Stock)
             assert hasattr(stock.series, "bars"), "{} must have historical price data attached to it".format(stock.name)
-
-            if stock.ticker in self.stocks:
-                print("Replacing previously specified stock with same ticker")
-
             self.stocks[stock.ticker] = stock
+
+        for strategy in strategies:
+            assert isinstance(strategy, TradingStrategy)
+            self.strategies[strategy.name] = strategy
+
         self.times = list()
         self.make_times()
 
@@ -78,7 +78,8 @@ class Backtester:
 
     def copy(self):
         stocks = [s for s in self.stocks.values()]
-        return Backtester(self.portfolio, self.broker, stocks, self.time_increment)
+        strategies = [s for s in self.strategies.values()]
+        return Backtester(self.portfolio, self.broker, stocks, strategies, self.time_increment)
 
     @property
     def backtest_from(self):
@@ -93,13 +94,14 @@ class Backtester:
             'initial portfolio holding': self.portfolio.holding,
             'base currency': self.portfolio.base_currency,
             'broker': self.broker.name,
-            'stocks': [stock.self2dict() for ticker, stock in self.stocks.items()],
+            'stocks': [stock.self2dict() for stock in self.stocks.values()],
+            'strategies': [strategy.self2dict() for strategy in self.strategies.values()]
         }
 
         return data
 
     def run(self):
-        EventLoop(self.stocks, self.portfolio, self.broker)
+        EventHandler(self.stocks, self.portfolio, self.strategies, self.broker, )
 
 
 class BacktestContainer:
