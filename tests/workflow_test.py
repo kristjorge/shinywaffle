@@ -22,7 +22,7 @@ equinor_bars = alpha_vantage.query("TIME_SERIES_DAILY_ADJUSTED", "EQNR", output_
 equinor.set_bars(equinor_bars, "daily")
 
 backtester = Backtester(portfolio, ib, [equinor], "daily")
-workflow = BacktestWorkflow(backtester, "Simple SMA on Apple and Microsoft", path="//Backtesting/runs",
+workflow = BacktestWorkflow(backtester, "Simple SMA on Apple and Microsoft", path="D:/PythonProjects/shiny-waffle/backtesting/runs",
                             runs=5, sub_runs=5, out_of_sample_size=0.2, wfa='anchored', stochastic_runs=3)
 
 workflow.set_uncertainty_parameter_values("D:/PythonProjects/shiny-waffle/tests/parameters.csv")
