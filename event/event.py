@@ -1,12 +1,9 @@
-import abc
-
 """
-Base class for events
+Super class for events
 """
 
 
-class Event(abc.ABC):
+class Event:
 
-    @abc.abstractmethod
-    def __init__(self):
-        pass
+    def __init__(self, event_type):
+        self.type = event_type
