@@ -1,3 +1,4 @@
+from event.event import Event
 
 """
 Container class for holding event objects
@@ -11,23 +12,24 @@ class EventStack:
         self.events = list()
 
     def add(self, event):
-        self.events.append(event)
+        if isinstance(event, Event):
+            self.events.append(event)
+        elif isinstance(event, list):
+            for e in event:
+                self.events.append(e)
 
     def get(self):
         """
 
         :return: event and True. If there are no more events in the even stack, return None and False
         """
-
-        if self.events:
+        try:
             event = self.events.pop()
-            return event, True
-        else:
-            return None, False
+            return event
+        except IndexError:
+            raise EventStackEmptyError
 
-    @property
-    def empty(self):
-        if self.events:
-            return True
-        else:
-            return False
+
+class EventStackEmptyError(Exception):
+    """ EventStack is empty"""
+    pass

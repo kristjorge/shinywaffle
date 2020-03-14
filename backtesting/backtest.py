@@ -44,9 +44,6 @@ class Backtester:
         self.time_increment = time_increment
 
         self.times = list()
-        self.make_times()
-
-        self.data_provider = BacktestingDataProvider(self.stocks, self.times)
 
         # Looping through the list of provided stocks and strategies and append them to the self.stocks and
         # self.strategies dictionary with the ticker as they key and the Stock object as the value
@@ -58,6 +55,9 @@ class Backtester:
         for strategy in strategies:
             assert isinstance(strategy, TradingStrategy)
             self.strategies[strategy.name] = strategy
+
+        self.make_times()
+        self.data_provider = BacktestingDataProvider(self.stocks, self.times)
 
     def make_times(self):
         # Creating a list of datetime objects between backtest_from to backtest_to with the time_increment step size
