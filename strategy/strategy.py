@@ -1,6 +1,5 @@
 import abc
-from backtesting.workflow.uncertainty_variable import UncertaintyVariable
-from backtesting.stock.stock import Stock
+from financial_assets.stock import Stock
 
 """ 
 

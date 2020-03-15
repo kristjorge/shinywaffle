@@ -1,3 +1,4 @@
+from financial_assets.financial_asset import FinancialAsset
 from utils.bar import BarHolder
 from utils.time_series_data import TimeSeriesDataHolder
 from utils.time_series_data import TimeSeriesData
@@ -17,10 +18,10 @@ intervals = ("1min",
              "yearly")
 
 
-class Stock:
+class Stock(FinancialAsset):
 
     """
-    Class representing a tradable stock
+    Class representing a common stock extending the FinancialAsset base class
 
     Member variables
         - ticker (string):
@@ -37,11 +38,8 @@ class Stock:
 
     """
 
-    def __init__(self, name, ticker):
-        self.name = name
-        self.ticker = ticker
-        self.series = TimeSeriesDataHolder()
-        self.stops = StopHolder()
+    def __init__(self, name, ticker, base_currency):
+        super().__init__(name, ticker, base_currency)
         self.datetime_format = "%Y-%m-%d"
 
     def set_bars(self, bars, interval):
@@ -60,10 +58,3 @@ class Stock:
             setattr(self.stops, "trailing_stop", stop_object)
         elif isinstance(stop_object, TargetStop):
             setattr(self.stops, "target_stop", stop_object)
-
-    def self2dict(self):
-        data = {
-            'name': self.name,
-            'ticker': self.ticker,
-        }
-        return data

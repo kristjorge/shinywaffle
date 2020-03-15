@@ -1,10 +1,9 @@
 import os
 from tools.alpha_vantage import AlphaVantage
 from backtesting.backtest import Backtester
-from backtesting.stock.stock import Stock
+from financial_assets.stock import Stock
 from backtesting.portfolio import Portfolio
 from backtesting.broker.brokers import InteractiveBrokers
-from backtesting.workflow.backtest_workflow import BacktestWorkflow
 from strategy.sma_crossover import AverageCrossOver
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable
 from utils.time_series_data import TimeSeriesDataReader

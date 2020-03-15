@@ -1,10 +1,7 @@
 from tools.rest_api import API
-from utils.bar import Bar
 from utils.time_series_data import TimeSeriesDataObject
-from datetime import datetime
 from utils.bar import BarHolder
 import requests
-import time
 
 """
 
