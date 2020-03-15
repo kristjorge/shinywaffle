@@ -17,30 +17,37 @@ class EventHandler:
             # Specific for backtesting only
             if isinstance(self.data_provider, BacktestingDataProvider):
                 if self.data_provider.backtest_is_active:
-                    print("Backtesting is still active")
                     pass
                 else:
-                    print("Backtesting is no longer active")
                     break
 
             # Detecting any new events.
             # Common for live and backtesting
-            self.event_stack.add(self.data_provider.detect_market_events())
+            self.event_stack.add(self.data_provider.detect_time_series_event())
 
             # Looping over events in event stack and handling them accordingly
             while True:
                 try:
-                    print("Getting event")
                     event = self.event_stack.get()
-                    print("Number of events left in the stack: {}".format(len(self.event_stack.events)))
+                    self.handle_event(event)
                 except EventStackEmptyError:
                     break
-                else:
-                    if event:
-                        self.handle_event()
 
-    def handle_event(self):
-        pass
+    def handle_event(self, event):
+
+        if event.event_type == "TIME_SERIES":
+            pass
+        elif event.event_type == "SIGNAL":
+            pass
+        elif event.event_type == "STOP":
+            pass
+        elif event.event_type == "ORDER":
+            pass
+        elif event.event_type == "FILL":
+            pass
+
+
+
         
 
 

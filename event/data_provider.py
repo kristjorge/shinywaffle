@@ -1,7 +1,6 @@
 from utils.time_series_data import TimeSeriesData
 from datetime import datetime
-from event.event import Event
-from event.event import MarketEvent
+from event.event import TimeSeriesEvent
 
 
 class DataProvider:
@@ -20,7 +19,7 @@ class BacktestingDataProvider(DataProvider):
 
         assert isinstance(self.stocks, dict)
 
-    def detect_market_events(self):
+    def detect_time_series_event(self):
         """
         Gathering a dictionary of the time series data for all the stocks in the backtester
             "times" stores the historical report steps generated in the backtester. Every time this method is called,
@@ -30,7 +29,7 @@ class BacktestingDataProvider(DataProvider):
         """
 
         time_series_data = dict()
-        market_events = list()
+        time_series_events = list()
         new_time = self.times.pop(0)
         time_series_data["times"] = new_time
         print(new_time.strftime("%d-%m-%Y"))
@@ -45,14 +44,14 @@ class BacktestingDataProvider(DataProvider):
                 # time_series_data[stock.name][series[0]] = series_list
 
                 if series_list:
-                    market_events.append(MarketEvent(stock.name))
+                    time_series_events.append(TimeSeriesEvent(stock.name))
                     continue
 
             # if time_series_data[stock.name] is not None:
             #     market_events.append(MarketEvent(stock.name))
 
         self.latest_past_time = time_series_data["times"]
-        return market_events
+        return time_series_events
 
     @property
     def backtest_is_active(self):
