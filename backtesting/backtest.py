@@ -4,6 +4,7 @@ from backtesting.broker.brokers import Broker
 from backtesting.stock.stock import Stock
 from event.event_handler import EventHandler
 from strategy.strategy import TradingStrategy
+from event.data_provider import BacktestingDataProvider
 
 """
 Class for holding the backtesting code
@@ -42,6 +43,8 @@ class Backtester:
         self.strategies = dict()
         self.time_increment = time_increment
 
+        self.times = list()
+
         # Looping through the list of provided stocks and strategies and append them to the self.stocks and
         # self.strategies dictionary with the ticker as they key and the Stock object as the value
         for stock in stocks:
@@ -53,8 +56,8 @@ class Backtester:
             assert isinstance(strategy, TradingStrategy)
             self.strategies[strategy.name] = strategy
 
-        self.times = list()
         self.make_times()
+        self.data_provider = BacktestingDataProvider(self.stocks, self.times)
 
     def make_times(self):
         # Creating a list of datetime objects between backtest_from to backtest_to with the time_increment step size
@@ -101,7 +104,7 @@ class Backtester:
         return data
 
     def run(self):
-        EventHandler(self.stocks, self.portfolio, self.strategies, self.broker, )
+        EventHandler(self.portfolio, self.strategies, self.broker, self.data_provider)
 
 
 class BacktestContainer:
