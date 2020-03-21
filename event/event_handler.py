@@ -1,6 +1,6 @@
 from event.event_stack import EventStack
 from event.event_stack import EventStackEmptyError
-from event.data_provider import BacktestingDataProvider
+from data.data_provider import BacktestingDataProvider
 
 
 class EventHandler:

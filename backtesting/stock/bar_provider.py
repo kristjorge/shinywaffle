@@ -1,7 +1,7 @@
 import pandas as pd
-from utils.bar import Bar
+from data.bar import Bar
 from datetime import datetime
-from utils.bar import BarHolder
+from data.bar import BarContainer
 
 """
 Providing historical data for stocks
@@ -67,7 +67,7 @@ class BarProvider:
                       row["Volume"])
             bars.append(bar)
 
-        self.bars = BarHolder(bars)
+        self.bars = BarContainer(bars)
 
     def get_bars(self):
         return self.bars

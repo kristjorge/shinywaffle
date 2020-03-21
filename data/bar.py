@@ -1,47 +1,53 @@
 from datetime import datetime
-from utils.time_series_data import TimeSeriesData
+from data.time_series_data import DataObject
+
+intervals = ("1min",
+             "5min",
+             "15min",
+             "30min",
+             "60min",
+             "daily",
+             "weekly",
+             "monthly"
+             "yearly")
 
 
-class BarHolder(TimeSeriesData):
+class BarContainer(DataObject):
 
     """
         bars: List of Bar objects
 
     """
 
-    def __init__(self, bars, resolution):
-        super().__init__()
-        assert type(bars) == list
+    def __init__(self, bars, interval):
+        super().__init__(interval)
+        assert isinstance(bars, list)
+        assert interval in intervals
         self.data = bars
-        self.resolution = resolution
 
-    # @property
-    # def datetime(self):
-    #     return [b.datetime for b in self.data]
-    #
-    # @property
-    # def open(self):
-    #     return [b.open for b in self.data]
-    #
-    # @property
-    # def close(self):
-    #     return [b.close for b in self.data]
-    #
-    # @property
-    # def high(self):
-    #     return [b.high for b in self.data]
-    #
-    # @property
-    # def low(self):
-    #     return [b.low for b in self.data]
-    #
-    # @property
-    # def volume(self):
-    #     return [b.volume for b in self.data]
-    #
-    # @property
-    # def adjusted_close(self):
-    #     return [b.adjusted_close for b in self.data]
+    @property
+    def datetime(self):
+        return [b.datetime for b in self.data]
+
+    @property
+    def open(self):
+        return [b.open for b in self.data]
+
+    @property
+    def close(self):
+        return [b.close for b in self.data]
+
+    @property
+    def high(self):
+        return [b.high for b in self.data]
+
+    @property
+    def low(self):
+        return [b.low for b in self.data]
+
+    @property
+    def volume(self):
+        return [b.volume for b in self.data]
 
 
 class Bar:
@@ -61,7 +67,7 @@ class Bar:
 
     def __init__(self, timestamp, opn, close, high, low, volume):
         super().__init__()
-        self.timestamp = timestamp
+        self.datetime = timestamp
         self.open = float(opn)
         self.close = float(close)
         self.high = float(high)
@@ -76,18 +82,19 @@ class Bar:
         assert isinstance(self.volume, int)
 
     def __add__(self, other):
+        timestamp = max(self.datetime, other.datetime)
         opn = self.open + other.open
         close = self.close + other.close
         high = self.high + other.high
         low = self.low + other.low
         volume = self.volume + other.volume
 
-        return Bar(None, opn, close, high, low, volume)
+        return Bar(timestamp, opn, close, high, low, volume)
 
     def __truediv__(self, f):
         assert isinstance(f, int) or isinstance(f, float)
-        return Bar(None, self.open/f, self.close/f, self.high/f, self.low/f, self.volume/f)
+        return Bar(self.datetime, self.open / f, self.close / f, self.high / f, self.low / f, self.volume / f)
 
     def __mul__(self, f):
         assert isinstance(f, int) or isinstance(f, float)
-        return Bar(None, self.open*f, self.close*f, self.high*f, self.low*f, self.volume*f)
+        return Bar(self.datetime, self.open * f, self.close * f, self.high * f, self.low * f, self.volume * f)

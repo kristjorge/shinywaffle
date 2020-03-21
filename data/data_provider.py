@@ -1,54 +1,54 @@
-from utils.time_series_data import TimeSeriesData
+import abc
+from data.time_series_data import DataObject
 from datetime import datetime
 from event.event import TimeSeriesEvent
 
 
-class DataProvider:
+class DataProvider(abc.ABC):
 
     def __init__(self):
+        pass
+
+    @abc.abstractmethod
+    def detect_time_series_event(self):
         pass
 
 
 class BacktestingDataProvider(DataProvider):
 
-    def __init__(self, stocks, times):
+    def __init__(self, assets, times):
         super().__init__()
-        self.stocks = stocks
+        self.assets = assets
         self.times = times
         self.latest_past_time = datetime(1900, 1, 1)
 
-        assert isinstance(self.stocks, dict)
+        assert isinstance(self.assets, dict)
 
     def detect_time_series_event(self):
+
         """
         Gathering a dictionary of the time series data for all the stocks in the backtester
             "times" stores the historical report steps generated in the backtester. Every time this method is called,
             the first item is popped to advance the historical time. When all the items are popped, then the backtest
             stops.
-        :return:
+        :return: dict with TimeSeriesEvents for each asset that has seen a new event
         """
 
         time_series_data = dict()
         time_series_events = list()
         new_time = self.times.pop(0)
         time_series_data["times"] = new_time
-        print(new_time.strftime("%d-%m-%Y"))
 
-        for stock in self.stocks.values():
-            # time_series_data[stock.name] = dict()
-            time_series = [(s, getattr(stock.series, s)) for s in dir(stock.series) if
-                           isinstance(getattr(stock.series, s), TimeSeriesData)]
+        for asset in self.assets.values():
+            time_series = [(s, getattr(asset.series, s)) for s in dir(asset.series) if
+                           isinstance(getattr(asset.series, s), DataObject)]
 
             for series in time_series:
                 series_list = [s for s in series[1] if self.latest_past_time < s.datetime <= new_time]
-                # time_series_data[stock.name][series[0]] = series_list
 
                 if series_list:
-                    time_series_events.append(TimeSeriesEvent(stock.name))
+                    time_series_events.append(TimeSeriesEvent(asset.name))
                     continue
-
-            # if time_series_data[stock.name] is not None:
-            #     market_events.append(MarketEvent(stock.name))
 
         self.latest_past_time = time_series_data["times"]
         return time_series_events

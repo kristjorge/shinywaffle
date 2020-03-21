@@ -1,15 +1,11 @@
 from datetime import timedelta
 from backtesting.portfolio import Portfolio
 from backtesting.broker.brokers import Broker
-from financial_assets.stock import Stock
+from financial_assets.financial_assets import FinancialAsset
 from event.event_handler import EventHandler
 from strategy.strategy import TradingStrategy
-from event.data_provider import BacktestingDataProvider
+from data.data_provider import BacktestingDataProvider
 
-"""
-Class for holding the backtesting code
-
-"""
 
 intervals = ("1min",
              "5min",
@@ -24,40 +20,45 @@ intervals = ("1min",
 
 class Backtester:
 
-    def __init__(self, portfolio, broker, stocks, strategies, time_increment):
+    """
+    Class for holding the backtesting code
+
+    """
+
+    def __init__(self, portfolio, broker, trading_assets, strategies, time_increment):
         """
 
         :param portfolio: Object describing the trading account (type Account)
         :param broker: Broker object holding order logic and pricing (type Broker)
-        :param stocks: List of stocks used in the backtesting (type list)
+        :param trading_assets: List of stocks used in the backtesting (type list)
         """
 
         assert isinstance(portfolio, Portfolio)
         assert isinstance(broker, Broker)
-        assert isinstance(stocks, list)
+        assert isinstance(trading_assets, list)
         assert isinstance(strategies, list)
 
         self.portfolio = portfolio
         self.broker = broker
-        self.stocks = dict()
+        self.assets = dict()
         self.strategies = dict()
         self.time_increment = time_increment
 
         self.times = list()
 
-        # Looping through the list of provided stocks and strategies and append them to the self.stocks and
+        # Looping through the list of provided assets and strategies and append them to the self.stocks and
         # self.strategies dictionary with the ticker as they key and the Stock object as the value
-        for stock in stocks:
-            assert isinstance(stock, Stock)
-            assert hasattr(stock.series, "bars"), "{} must have historical price data attached to it".format(stock.name)
-            self.stocks[stock.ticker] = stock
+        for asset in trading_assets:
+            assert isinstance(asset, FinancialAsset)
+            assert hasattr(asset.data, "bars"), "{} must have historical price data attached to it".format(asset.name)
+            self.assets[asset.ticker] = asset
 
         for strategy in strategies:
             assert isinstance(strategy, TradingStrategy)
             self.strategies[strategy.name] = strategy
 
         self.make_times()
-        self.data_provider = BacktestingDataProvider(self.stocks, self.times)
+        self.data_provider = BacktestingDataProvider(self.assets, self.times)
 
     def make_times(self):
         # Creating a list of datetime objects between backtest_from to backtest_to with the time_increment step size
@@ -80,24 +81,24 @@ class Backtester:
         self.times = [self.backtest_from + i*timedelta(days=dt) for i in range(0, num_steps)]
 
     def copy(self):
-        stocks = [s for s in self.stocks.values()]
+        stocks = [s for s in self.assets.values()]
         strategies = [s for s in self.strategies.values()]
         return Backtester(self.portfolio, self.broker, stocks, strategies, self.time_increment)
 
     @property
     def backtest_from(self):
-        return min([s.series.bars[0].datetime for ticker, s in self.stocks.items()])
+        return min([s.data.bars[0].datetime for ticker, s in self.assets.items()])
 
     @property
     def backtest_to(self):
-        return max([s.series.bars[-1].datetime for ticker, s in self.stocks.items()])
+        return max([s.data.bars[-1].datetime for ticker, s in self.assets.items()])
 
     def self2dict(self):
         data = {
             'initial portfolio holding': self.portfolio.holding,
             'base currency': self.portfolio.base_currency,
             'broker': self.broker.name,
-            'stocks': [stock.self2dict() for stock in self.stocks.values()],
+            'stocks': [stock.self2dict() for stock in self.assets.values()],
             'strategies': [strategy.self2dict() for strategy in self.strategies.values()]
         }
 

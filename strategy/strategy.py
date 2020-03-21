@@ -1,40 +1,37 @@
 import abc
-from financial_assets.stock import Stock
+from financial_assets.financial_assets import FinancialAsset
 
-""" 
+
+class TradingStrategy(abc.ABC):
+
+    """
 
 Base class for trading strategies used in either backtesting or live trading.
-All implemented strategies must inherit from this super class 
+All implemented strategies must inherit from this super class
 
 Functions:
-    - read: Returns the TradingStrategy object 
+    - read: Returns the TradingStrategy object
     - generate_signal: Evaluates data and generates a signal either "buy" or "sell"
 
 
 """
 
-
-class TradingStrategy(abc.ABC):
-
     def __init__(self, name):
         self.name = name
-        self.stocks = dict()
+        self.assets = dict()
 
     @abc.abstractmethod
     def generate_signal(self):
         pass
 
-    def link_stock(self, stock):
-        assert isinstance(stock, Stock)
-        assert stock.name
-        assert stock.ticker
-
-        self.stocks[stock.ticker] = stock
+    def link(self, asset):
+        assert isinstance(asset, FinancialAsset)
+        self.assets[asset.ticker] = asset
 
     def self2dict(self):
         data = {
             'name': self.name,
-            'stocks linked': ["{} - {}".format(stock.ticker, stock.name) for stock in self.stocks.values()]
+            'applied to': ["{} - {}".format(asset.ticker, asset.name) for asset in self.assets.values()]
         }
 
         return data
