@@ -1,12 +1,12 @@
 from event.event import Event
 
-"""
-Container class for holding event objects
-
-"""
-
 
 class EventStack:
+
+    """
+        Container class for holding event objects
+
+    """
 
     def __init__(self):
         self.events = list()
