@@ -4,7 +4,7 @@ from backtesting.workflow.test_train_split import TestTrainSplit
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable
 from data.bar import BarContainer
 from data.bar import Bar
-from data.time_series_data import DataObject
+from data.time_series_data import DataSeries
 import pandas as pd
 import os
 import types
@@ -160,9 +160,9 @@ class BacktestWorkflow:
                     self.substitute_uncertainty_variable(self.backtests[-1].backtester, run_no)
 
                     # Modifying all time series data. Removing all data points that lie outside the optimisation window
-                    for ticker, stock in self.backtests[-1].backtester.stocks.items():
-                        for time_series in [getattr(stock.series, a) for a in dir(stock.series) if
-                                            isinstance(getattr(stock.series, a), DataObject)]:
+                    for ticker, asset in self.backtests[-1].backtester.stocks.items():
+                        for time_series in [getattr(asset.series, a) for a in dir(asset.series) if
+                                            isinstance(getattr(asset.series, a), DataSeries)]:
 
                             to_be_deleted = list()
                             for i, time_series_object in enumerate(time_series):

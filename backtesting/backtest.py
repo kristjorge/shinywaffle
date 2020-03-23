@@ -1,4 +1,5 @@
 from datetime import timedelta
+from datetime import datetime
 from backtesting.portfolio import Portfolio
 from backtesting.broker.brokers import Broker
 from financial_assets.financial_assets import FinancialAsset
@@ -25,7 +26,7 @@ class Backtester:
 
     """
 
-    def __init__(self, portfolio, broker, trading_assets, strategies, time_increment):
+    def __init__(self, portfolio, broker, trading_assets, strategies, time_increment, run_from=None, run_to=None):
         """
 
         :param portfolio: Object describing the trading account (type Account)
@@ -44,13 +45,21 @@ class Backtester:
         self.strategies = dict()
         self.time_increment = time_increment
 
+        self.run_from = run_from
+        self.run_to = run_to
+
+        if self.run_from is not None:
+            assert isinstance(self.run_from, datetime)
+        if self.run_to is not None:
+            assert isinstance(self.run_to, datetime)
+
         self.times = list()
 
         # Looping through the list of provided assets and strategies and append them to the self.stocks and
         # self.strategies dictionary with the ticker as they key and the Stock object as the value
         for asset in trading_assets:
             assert isinstance(asset, FinancialAsset)
-            assert hasattr(asset.data, "bars"), "{} must have historical price data attached to it".format(asset.name)
+            assert hasattr(asset, "bars"), "{} must have historical price data attached to it".format(asset.name)
             self.assets[asset.ticker] = asset
 
         for strategy in strategies:
@@ -87,11 +96,17 @@ class Backtester:
 
     @property
     def backtest_from(self):
-        return min([s.data.bars[0].datetime for ticker, s in self.assets.items()])
+        if self.run_from is not None:
+            return self.run_from
+        else:
+            return min([s.bars[0].datetime for ticker, s in self.assets.items()])
 
     @property
     def backtest_to(self):
-        return max([s.data.bars[-1].datetime for ticker, s in self.assets.items()])
+        if self.run_to is not None:
+            return self.run_to
+        else:
+            return max([s.bars[-1].datetime for ticker, s in self.assets.items()])
 
     def self2dict(self):
         data = {
@@ -105,7 +120,10 @@ class Backtester:
         return data
 
     def run(self):
-        EventHandler(self.portfolio, self.strategies, self.broker, self.data_provider)
+        EventHandler(portfolio=self.portfolio,
+                     broker=self.broker,
+                     strategies=self.strategies,
+                     data_provider=self.data_provider)
 
 
 class BacktestContainer:

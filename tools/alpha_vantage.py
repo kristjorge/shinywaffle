@@ -117,7 +117,9 @@ class AlphaVantage(API):
             if ascending:
                 bars.reverse()
 
-            response = BarContainer(bars, interval)
+            bar_container = BarContainer(interval)
+            bar_container.set(bars)
+            response = bar_container
             return response
 
         # Return as link to the API
@@ -220,7 +222,9 @@ class AlphaVantage(API):
             if ascending:
                 bars.reverse()
 
-            response = BarContainer(bars, interval)
+            bar_container = BarContainer(interval)
+            bar_container.set(bars)
+            response = bar_container
             return response
         else:
             return AlphaVantageLink(url, json_header, datetime_format, interval, opn, close, high, low, "volume", ascending)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from data.time_series_data import DataObject
+from data.time_series_data import DataSeries
 
 intervals = ("1min",
              "5min",
@@ -12,42 +12,16 @@ intervals = ("1min",
              "yearly")
 
 
-class BarContainer(DataObject):
+class BarContainer(DataSeries):
 
     """
         bars: List of Bar objects
 
     """
 
-    def __init__(self, bars, interval):
-        super().__init__(interval)
-        assert isinstance(bars, list)
+    def __init__(self, interval):
         assert interval in intervals
-        self.data = bars
-
-    @property
-    def datetime(self):
-        return [b.datetime for b in self.data]
-
-    @property
-    def open(self):
-        return [b.open for b in self.data]
-
-    @property
-    def close(self):
-        return [b.close for b in self.data]
-
-    @property
-    def high(self):
-        return [b.high for b in self.data]
-
-    @property
-    def low(self):
-        return [b.low for b in self.data]
-
-    @property
-    def volume(self):
-        return [b.volume for b in self.data]
+        super().__init__(interval)
 
 
 class Bar:

@@ -3,8 +3,7 @@ from datetime import datetime
 from utils.misc import get_datetime_format
 
 
-
-class DataObjectContainer:
+class DataSeriesContainer:
 
     """
     A container class for data in an financial instrument class.
@@ -17,11 +16,11 @@ class DataObjectContainer:
         pass
 
     def add(self, data_source, name):
-        assert isinstance(data_source, DataObject)
+        assert isinstance(data_source, DataSeries)
         setattr(self, name, data_source)
 
 
-class DataObject(list):
+class DataSeries:
 
     """
     A container class for time series data.
@@ -52,9 +51,24 @@ class DataObject(list):
         return self.data[i]
 
     def set(self, data):
+        """
+        Setting self.data equals to the data argument.
+        In addition this method creates attributes for the attributes for the items in the data list
+        :param data: List of data points (not necessarily the class below)
+        :return: None
+        """
         from tools.api_link import APILink
         assert isinstance(data, list) or isinstance(data, APILink)
         self.data = data
+
+        data_type = type(self.data[0])
+        assert (all(isinstance(d, data_type) for d in self.data))
+
+        attributes = [a for a in dir(self.data[0]) if not a.startswith("_")
+                      and a not in dir("__builtins__")]
+
+        for attrib in attributes:
+            setattr(self, attrib, [getattr(d, attrib) for d in self.data])
 
     def get(self, attrib_name):
         """
@@ -116,7 +130,7 @@ class TimeSeriesDataReader:
             row_data["datetime"] = datetime.strptime(getattr(row, "datetime"), datetime_format)
             data_objects.append(DataPoint(row_data))
 
-        time_series_data = DataObject(interval)
+        time_series_data = DataSeries(interval)
         time_series_data.set(data_objects)
         return time_series_data
 

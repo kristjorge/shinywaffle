@@ -1,11 +1,11 @@
 import abc
-from data.time_series_data import DataObject
+from data.time_series_data import DataSeries
 from backtesting.stock.stops import TrailingStop
 from backtesting.stock.stops import StopLoss
 from backtesting.stock.stops import TargetStop
 from backtesting.stock.stops import StopHolder
 from data.bar import BarContainer
-from data.time_series_data import DataObjectContainer
+from data.time_series_data import DataSeriesContainer
 from tools.api_link import APILink
 
 intervals = ("1min",
@@ -34,7 +34,7 @@ class FinancialAsset(abc.ABC):
         self.base_currency = base_currency
         self.datetime_format = "%Y-%m-%d"
         self.bars = None
-        self.data = DataObjectContainer()
+        self.data = DataSeriesContainer()
         self.stops = StopHolder()
 
     def set_bars(self, bars):
@@ -42,7 +42,7 @@ class FinancialAsset(abc.ABC):
         self.bars = bars
 
     def add_data_object(self, name, data_series):
-        assert isinstance(data_series, DataObject)
+        assert isinstance(data_series, DataSeries)
         self.data.add(data_series, name)
 
     def set_stop(self, stop_object):

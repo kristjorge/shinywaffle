@@ -13,7 +13,6 @@ Functions:
     - read: Returns the TradingStrategy object
     - generate_signal: Evaluates data and generates a signal either "buy" or "sell"
 
-
 """
 
     def __init__(self, name):
@@ -21,7 +20,7 @@ Functions:
         self.assets = dict()
 
     @abc.abstractmethod
-    def generate_signal(self):
+    def generate_signal(self, asset):
         pass
 
     def link(self, asset):

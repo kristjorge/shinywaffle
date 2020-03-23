@@ -1,30 +1,30 @@
 import abc
-from data.time_series_data import DataObject
+from tools.api_link import APILink
+from data.time_series_data import DataSeries
 from datetime import datetime
 from event.event import TimeSeriesEvent
 
 
 class DataProvider(abc.ABC):
 
-    def __init__(self):
-        pass
+    def __init__(self, assets):
+        self.assets = assets
 
     @abc.abstractmethod
-    def detect_time_series_event(self):
+    def detect_time_series_event(self, event_stack):
         pass
 
 
 class BacktestingDataProvider(DataProvider):
 
     def __init__(self, assets, times):
-        super().__init__()
-        self.assets = assets
+        super().__init__(assets)
         self.times = times
-        self.latest_past_time = datetime(1900, 1, 1)
+        self.latest_past_time = datetime(1900, 1, 1, 0, 0, 0)
 
         assert isinstance(self.assets, dict)
 
-    def detect_time_series_event(self):
+    def detect_time_series_event(self, event_stack):
 
         """
         Gathering a dictionary of the time series data for all the stocks in the backtester
@@ -40,18 +40,19 @@ class BacktestingDataProvider(DataProvider):
         time_series_data["times"] = new_time
 
         for asset in self.assets.values():
-            time_series = [(s, getattr(asset.series, s)) for s in dir(asset.series) if
-                           isinstance(getattr(asset.series, s), DataObject)]
+            time_series = [(s, getattr(asset.data, s)) for s in dir(asset.data) if
+                           isinstance(getattr(asset.data, s), DataSeries)]
+
+            time_series.append(("bars", asset.bars))
 
             for series in time_series:
-                series_list = [s for s in series[1] if self.latest_past_time < s.datetime <= new_time]
-
-                if series_list:
-                    time_series_events.append(TimeSeriesEvent(asset.name))
-                    continue
+                if [s for s in series[1] if self.latest_past_time < s.datetime <= new_time]:
+                    time_series_events.append(TimeSeriesEvent(asset))
+                    break
 
         self.latest_past_time = time_series_data["times"]
-        return time_series_events
+        event_stack.add(time_series_events)
+        # return time_series_events
 
     @property
     def backtest_is_active(self):
@@ -63,6 +64,10 @@ class BacktestingDataProvider(DataProvider):
 
 class LiveDataProvider(DataProvider):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, assets):
+        assert all(isinstance(asset.bar, APILink) for asset in assets)
+        super().__init__(assets)
+
+    def detect_time_series_event(self, event_stack):
+        pass
 
