@@ -22,5 +22,7 @@ equinor.set_bars(equinor_bars)
 equinor.add_data_series("exxon_bars", exxon_bars)
 sma_strategy.link(equinor)
 
+test_sample = equinor_bars.sample_datetime(datetime(2019, 6, 1))
+
 backtester = Backtester(portfolio, ib, [equinor], [sma_strategy], "daily", run_to=datetime(2020, 1, 1))
 backtester.run()

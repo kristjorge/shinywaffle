@@ -24,7 +24,7 @@ class EventHandler:
             if isinstance(self.data_provider, BacktestDataProvider):
                 if self.data_provider.backtest_is_active:
                     day_of_the_week = get_weekday(data_provider.current_time.weekday())
-                    print("Currently at time: {} {}".format(day_of_the_week, data_provider.latest_past_time))
+                    print("Currently at time: {} {}".format(day_of_the_week, data_provider.current_time))
                 else:
                     break
 

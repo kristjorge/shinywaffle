@@ -4,7 +4,6 @@ from backtesting.stock.stops import TrailingStop
 from backtesting.stock.stops import StopLoss
 from backtesting.stock.stops import TargetStop
 from backtesting.stock.stops import StopHolder
-from data.bar import BarContainer
 from data.time_series_data import DataSeriesContainer
 from tools.api_link import APILink
 
@@ -38,7 +37,7 @@ class FinancialAsset(abc.ABC):
         self.stops = StopHolder()
 
     def set_bars(self, bars):
-        assert isinstance(bars, BarContainer) or isinstance(bars, APILink)
+        assert isinstance(bars, DataSeries) or isinstance(bars, APILink)
         self.bars = bars
 
     def add_data_series(self, name, data_series):

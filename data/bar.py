@@ -1,5 +1,4 @@
 from datetime import datetime
-from data.time_series_data import DataSeries
 
 
 class Bar:

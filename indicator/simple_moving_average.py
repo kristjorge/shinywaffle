@@ -1,4 +1,4 @@
-from data.bar import BarContainer
+from data.time_series_data import DataSeries
 import numpy as np
 
 
@@ -13,7 +13,7 @@ def simple_moving_average(bars, window, offset=0, ohcl=False):
     :return: a number for the simple moving average
     """
 
-    assert isinstance(bars, BarContainer)
+    assert isinstance(bars, DataSeries)
     close_bars = np.array([bars.close[offset:offset + window]])
     if len(close_bars) == window:
 

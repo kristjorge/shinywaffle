@@ -30,6 +30,16 @@ class DataSeriesContainer:
         assert isinstance(data_source, DataSeries)
         setattr(self, name, data_source)
 
+    def time_series(self):
+        """
+        :return: A tuple of the name of the attribute and the attribute object
+        """
+        return [(s, getattr(self, s)) for s in dir(self) if isinstance(getattr(self, s), DataSeries)]
+
+    def __iter__(self):
+        for t in self.time_series():
+            yield t
+
 
 class DataSeries:
 
@@ -55,12 +65,18 @@ class DataSeries:
     def __len__(self):
         return len(self.data)
 
+    def __getitem__(self, i):
+        return self.data[i]
+
     def __iter__(self):
         for d in self.data:
             yield d
 
-    def __getitem__(self, i):
-        return self.data[i]
+    def sample_datetime(self, timestamp):
+        assert isinstance(timestamp, datetime)
+        data_series = DataSeries(self.interval)
+        data_series.set([d for d in self.data if d.datetime <= timestamp])
+        return data_series
 
     def set(self, data):
         """

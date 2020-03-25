@@ -43,9 +43,7 @@ class BacktestDataProvider(DataProvider):
         time_series_data["times"] = new_time
 
         for asset in self.assets.values():
-            time_series = [(s, getattr(asset.data, s)) for s in dir(asset.data) if
-                           isinstance(getattr(asset.data, s), DataSeries)]
-
+            time_series = asset.data.time_series()
             time_series.append(("bars", asset.bars))
 
             for series in time_series:
@@ -61,11 +59,11 @@ class BacktestDataProvider(DataProvider):
         for asset in self.assets.values():
 
             time_series_data[asset.ticker] = {}
-            time_series = [(s, getattr(asset.data, s)) for s in dir(asset.data)]
+            time_series = asset.data.time_series()
             time_series.append(("bars", asset.bars))
 
             for series in time_series:
-                time_series_data[asset.ticker][series[0]] = [s for s in series[1] if s.datetime <= self.current_time]
+                time_series_data[asset.ticker][series[0]] = series[1].sample_datetime(self.current_time)
 
         return time_series_data
 

@@ -2,7 +2,7 @@ import abc
 import requests
 from datetime import datetime
 from data.bar import Bar
-from data.bar import BarContainer
+from data.time_series_data import DataSeries
 
 
 class APILink(abc.ABC):
@@ -75,7 +75,7 @@ class AlphaVantageLink(APILink):
             bars.append(bar)
 
         # bars.reverse()
-        bar_container = BarContainer(self.interval)
+        bar_container = DataSeries(self.interval)
         bar_container.set(bars)
         response = bar_container
         return response
