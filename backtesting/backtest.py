@@ -5,7 +5,7 @@ from backtesting.broker.brokers import Broker
 from financial_assets.financial_assets import FinancialAsset
 from event.event_handler import EventHandler
 from strategy.strategy import TradingStrategy
-from data.data_provider import BacktestingDataProvider
+from data.data_provider import BacktestDataProvider
 
 
 intervals = ("1min",
@@ -67,7 +67,7 @@ class Backtester:
             self.strategies[strategy.name] = strategy
 
         self.make_times()
-        self.data_provider = BacktestingDataProvider(self.assets, self.times)
+        self.data_provider = BacktestDataProvider(self.assets, self.times)
 
     def make_times(self):
         # Creating a list of datetime objects between backtest_from to backtest_to with the time_increment step size
@@ -99,14 +99,14 @@ class Backtester:
         if self.run_from is not None:
             return self.run_from
         else:
-            return min([s.bars[0].datetime for ticker, s in self.assets.items()])
+            return min([s.bars[-1].datetime for ticker, s in self.assets.items()])
 
     @property
     def backtest_to(self):
         if self.run_to is not None:
             return self.run_to
         else:
-            return max([s.bars[-1].datetime for ticker, s in self.assets.items()])
+            return max([s.bars[0].datetime for ticker, s in self.assets.items()])
 
     def self2dict(self):
         data = {

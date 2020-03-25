@@ -55,3 +55,8 @@ class TrailingStopEvent(Event):
         super().__init__(asset)
         self.event_type = "TRAILING_STOP"
         self.quantity = quantity
+
+
+class OrderFillEvent(Event):
+    def __init__(self, asset):
+        super().__init__(asset)

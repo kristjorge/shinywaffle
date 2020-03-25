@@ -1,4 +1,4 @@
-from event.event import Event
+from event.events import Event
 
 
 class EventStack:

@@ -19,7 +19,7 @@ sma_strategy = AverageCrossOver("SMA crossover", short=UncertaintyVariable("shor
 equinor = Stock("Equinor Energy", "EQNR", "USD")
 equinor_bars = alpha_vantage.query("TIME_SERIES_DAILY", "EQNR", reverse=True)
 financial_reports = TimeSeriesDataReader().read_csv("D:/PythonProjects/shiny-waffle/tests/time_series_test.csv", "daily")
-equinor.add_data_object("financial_report", financial_reports)
+equinor.add_data_series("financial_report", financial_reports)
 equinor.set_bars(equinor_bars)
 sma_strategy.link(equinor)
 

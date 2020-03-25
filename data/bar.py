@@ -1,28 +1,6 @@
 from datetime import datetime
 from data.time_series_data import DataSeries
 
-intervals = ("1min",
-             "5min",
-             "15min",
-             "30min",
-             "60min",
-             "daily",
-             "weekly",
-             "monthly"
-             "yearly")
-
-
-class BarContainer(DataSeries):
-
-    """
-        bars: List of Bar objects
-
-    """
-
-    def __init__(self, interval):
-        assert interval in intervals
-        super().__init__(interval)
-
 
 class Bar:
 

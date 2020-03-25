@@ -22,7 +22,7 @@ class APILink(abc.ABC):
 
 class AlphaVantageLink(APILink):
 
-    def __init__(self, url, json_header, datetime_format, interval, opn, close, high, low, volume, ascending):
+    def __init__(self, url, json_header, datetime_format, interval, opn, close, high, low, volume):
         super().__init__(url)
         self.json_header = json_header
         self.datetime_format = datetime_format
@@ -32,7 +32,6 @@ class AlphaVantageLink(APILink):
         self.high = high
         self.low = low
         self.volume = volume
-        self.ascending = ascending
 
     def fetch(self):
         response = requests.get(self.url).json()
@@ -75,10 +74,10 @@ class AlphaVantageLink(APILink):
 
             bars.append(bar)
 
-        if self.ascending:
-            bars.reverse()
-
-        response = BarContainer(bars, self.interval)
+        # bars.reverse()
+        bar_container = BarContainer(self.interval)
+        bar_container.set(bars)
+        response = bar_container
         return response
 
 

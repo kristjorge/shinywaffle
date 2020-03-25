@@ -10,8 +10,9 @@ Base class for trading strategies used in either backtesting or live trading.
 All implemented strategies must inherit from this super class
 
 Functions:
-    - read: Returns the TradingStrategy object
+    - link: Link the strategy object to a financial asset object
     - generate_signal: Evaluates data and generates a signal either "buy" or "sell"
+    - self2dict: Generating the main meta data for the objects in a dict that can be dumped into a json file
 
 """
 
@@ -20,7 +21,7 @@ Functions:
         self.assets = dict()
 
     @abc.abstractmethod
-    def generate_signal(self, asset):
+    def generate_signal(self, asset, time_series_data):
         pass
 
     def link(self, asset):

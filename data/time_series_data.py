@@ -3,6 +3,17 @@ from datetime import datetime
 from utils.misc import get_datetime_format
 
 
+intervals = ("1min",
+             "5min",
+             "15min",
+             "30min",
+             "60min",
+             "daily",
+             "weekly",
+             "monthly"
+             "yearly")
+
+
 class DataSeriesContainer:
 
     """
@@ -38,6 +49,7 @@ class DataSeries:
         """
         super().__init__()
         self.data = list()
+        assert interval in intervals
         self.interval = interval
 
     def __len__(self):

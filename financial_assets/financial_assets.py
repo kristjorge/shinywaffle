@@ -26,7 +26,7 @@ class FinancialAsset(abc.ABC):
         - Stocks
         - Forex
         - Cryptocurrencies
-"""
+    """
 
     def __init__(self, name, ticker, base_currency):
         self.name = name
@@ -41,7 +41,7 @@ class FinancialAsset(abc.ABC):
         assert isinstance(bars, BarContainer) or isinstance(bars, APILink)
         self.bars = bars
 
-    def add_data_object(self, name, data_series):
+    def add_data_series(self, name, data_series):
         assert isinstance(data_series, DataSeries)
         self.data.add(data_series, name)
 

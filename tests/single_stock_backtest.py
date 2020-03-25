@@ -15,11 +15,11 @@ sma_strategy = AverageCrossOver("SMA crossover", short=20, long=50)
 
 # Equinor stocks
 equinor = Stock("Equinor Energy", "EQNR", "USD")
-equinor_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "EQNR", ascending=True, outputsize="full")
-exxon_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "XON", ascending=True, outputsize="full")
+equinor_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "EQNR", outputsize="full")
+exxon_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "XON", outputsize="full")
 
 equinor.set_bars(equinor_bars)
-equinor.add_data_object("exxon_bars", exxon_bars)
+equinor.add_data_series("exxon_bars", exxon_bars)
 sma_strategy.link(equinor)
 
 backtester = Backtester(portfolio, ib, [equinor], [sma_strategy], "daily", run_to=datetime(2020, 1, 1))
