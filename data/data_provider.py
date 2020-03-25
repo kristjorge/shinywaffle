@@ -55,6 +55,11 @@ class BacktestDataProvider(DataProvider):
         return time_series_events
 
     def get_time_series_data(self):
+        """
+
+        :return: time_series_data as a dictionary with keys of asset.ticker. Each value is a dictionary with
+                 keys with the name of the data series in the time_series
+        """
         time_series_data = {}
         for asset in self.assets.values():
 

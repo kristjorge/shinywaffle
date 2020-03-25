@@ -24,7 +24,7 @@ class EventHandler:
             if isinstance(self.data_provider, BacktestDataProvider):
                 if self.data_provider.backtest_is_active:
                     day_of_the_week = get_weekday(data_provider.current_time.weekday())
-                    print("Currently at time: {} {}".format(day_of_the_week, data_provider.current_time))
+                    print("Currently at time is {} {}".format(day_of_the_week, data_provider.current_time))
                 else:
                     break
 
@@ -75,11 +75,8 @@ class EventHandler:
             new_event = strategy.generate_signal(event.asset, self.time_series_data)
             if new_event is not None:
                 generated_events.append(new_event)
+                print("Total number of buy events generated: {}".format(events.SignalEventBuy.num_events))
+                print("Total number of sell events generated: {}".format(events.SignalEventSell.num_events))
 
         self.event_stack.add(generated_events)
-
-
-
-
-
 
