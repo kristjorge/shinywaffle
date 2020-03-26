@@ -13,16 +13,20 @@ def simple_moving_average(data_series, window, attributes, offset=0):
     """
 
     assert isinstance(data_series, DataSeries)
-    assert isinstance(attributes, list)
+    assert isinstance(attributes, list) or isinstance(attributes, str)
+
+    if type(attributes) != list:
+        attributes = [attributes]
 
     arrays = []
     for attrib in attributes:
         assert hasattr(data_series[0], attrib), "{} is not an attribute in the data series".format(attrib)
-        arrays.append(np.array([getattr(data_series, attrib)[offset:offset + window]]))
+        arrays.append(np.array(getattr(data_series, attrib)[offset:offset + window]))
 
-    average = np.mean(sum(arrays) / len(arrays))
+    avg_array = sum(arrays) / len(arrays)
+    moving_average = np.mean(avg_array)
     if arrays[0].size >= window:
-        return average
+        return moving_average
     else:
         return None
 

@@ -79,12 +79,14 @@ class DataSeries:
         return data_series
 
     def set(self, data):
+
         """
         Setting self.data equals to the data argument.
         In addition this method creates attributes for the attributes for the items in the data list
         :param data: List of data points (not necessarily the class below)
         :return: None
         """
+
         from tools.api_link import APILink
         assert isinstance(data, list) or isinstance(data, APILink)
         self.data = data

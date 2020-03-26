@@ -1,9 +1,8 @@
 from strategy.strategy import TradingStrategy
 from event import events
-from financial_assets.financial_assets import FinancialAsset
-from random import random
 from technical_indicators.simple_moving_average import simple_moving_average
-from data.time_series_data import DataSeries
+from technical_indicators.rsi import rsi
+from technical_indicators.exponential_moving_average import exponential_moving_average
 
 
 class AverageCrossOver(TradingStrategy):
@@ -30,11 +29,11 @@ class AverageCrossOver(TradingStrategy):
 
         assert isinstance(time_series_data, dict)
         bars = time_series_data[asset.ticker]["bars"]
-        short_current = simple_moving_average(bars, self.short, ["close"], offset=0)
-        short_previous = simple_moving_average(bars, self.short, ["close"], offset=1)
+        short_current = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=0)
+        short_previous = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=1)
 
-        long_current = simple_moving_average(bars, self.long, ["close"], offset=0)
-        long_previous = simple_moving_average(bars, self.long, ["close"], offset=1)
+        long_current = simple_moving_average(bars, self.long, ["close", "high", "low"], offset=0)
+        long_previous = simple_moving_average(bars, self.long, ["close", "high", "low"], offset=1)
 
         try:
             if short_current > long_current and short_previous < long_previous:

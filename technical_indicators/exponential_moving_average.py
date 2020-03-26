@@ -5,22 +5,27 @@ import numpy as np
 def exponential_moving_average(data_series, window, attributes, offset=0):
 
     assert isinstance(data_series, DataSeries)
-    assert isinstance(attributes, list)
+    assert isinstance(attributes, list) or isinstance(attributes, str)
+
+    if type(attributes) != list:
+        attributes = [attributes]
 
     arrays = []
-    ema_list = [0]*window
     for attrib in attributes:
         assert hasattr(data_series[0], attrib), "{} is not an attribute in the data series".format(attrib)
-        arrays.append([getattr(data_series, attrib)[offset:offset + window]])
+        arrays.append(np.array(getattr(data_series, attrib)[offset:offset + window]))
 
-    average = np.mean(sum(arrays) / len(arrays))
-    arr = np.array(average)
+    avg_array = sum(arrays) / len(arrays)
     k = 2 / (window + 1)
-
-    for i, ema in reversed(ema_list):
-        if i == -1:
-            ema = arr[-1]
+    ema_list = [0]*avg_array.size
+    ema_list[-1] = avg_array[-1]
+    for i, ema in reversed(list(enumerate(ema_list))):
+        if i == len(ema_list)-1:
+            continue
         else:
-            ema = arr[i]*k + ema[i-1] * (1-k)
+            ema_list[i] = avg_array[i]*k + ema_list[i+1] * (1-k)
 
-    return ema_list[0]
+    if len(ema_list) >= window:
+        return ema_list[0]
+    else:
+        return None
