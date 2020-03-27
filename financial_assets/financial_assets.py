@@ -6,19 +6,21 @@ from backtesting.stock.stops import TargetStop
 from backtesting.stock.stops import StopHolder
 from data.time_series_data import DataSeriesContainer
 from tools.api_link import APILink
-
-intervals = ("1min",
-             "5min",
-             "15min",
-             "30min",
-             "60min",
-             "daily",
-             "weekly",
-             "monthly"
-             "yearly")
+from strategy.strategy import TradingStrategy
 
 
 class FinancialAsset(abc.ABC):
+
+    intervals = ("1min",
+                 "5min",
+                 "15min",
+                 "30min",
+                 "60min",
+                 "daily",
+                 "weekly",
+                 "monthly"
+                 "yearly")
+
 
     """
     Base class for tradable financial_assets. Classes that inherit from financial_assets are:
@@ -35,10 +37,18 @@ class FinancialAsset(abc.ABC):
         self.bars = None
         self.data = DataSeriesContainer()
         self.stops = StopHolder()
+        self.strategies = dict()
 
     def set_bars(self, bars):
         assert isinstance(bars, DataSeries) or isinstance(bars, APILink)
         self.bars = bars
+
+    def add_strategy(self, strategy_object):
+        assert isinstance(strategy_object, TradingStrategy)
+        if strategy_object.name in self.strategies:
+            print("Strategy already exists in asset. Skipped.")
+        else:
+            self.strategies[strategy_object.name] = strategy_object
 
     def add_data_series(self, name, data_series):
         assert isinstance(data_series, DataSeries)

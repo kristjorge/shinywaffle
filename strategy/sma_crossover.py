@@ -16,7 +16,7 @@ class AverageCrossOver(TradingStrategy):
         self.short = short
         self.long = long
 
-    def generate_signal(self, asset, time_series_data):
+    def generate_signal(self, time_series_data):
 
         """
         :param asset: Asset that have generated a market signal in the event handler
@@ -27,7 +27,8 @@ class AverageCrossOver(TradingStrategy):
         """
 
         assert isinstance(time_series_data, dict)
-        bars = time_series_data[asset.ticker]["bars"]
+        bars = time_series_data["bars"]
+        ticker = time_series_data["asset"]
         short_current = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=0)
         short_previous = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=1)
 
@@ -36,9 +37,9 @@ class AverageCrossOver(TradingStrategy):
 
         try:
             if short_current > long_current and short_previous < long_previous:
-                return events.SignalEventBuy(asset.ticker)
+                return events.SignalEventBuy(ticker)
             elif short_current < long_current and short_previous > long_previous:
-                return events.SignalEventSell(asset.ticker)
+                return events.SignalEventSell(ticker)
             else:
                 return None
         except TypeError:

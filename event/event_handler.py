@@ -1,29 +1,28 @@
 from event.event_stack import EventStack
 from event.event_stack import EventStackEmptyError
 from data.data_provider import BacktestDataProvider
-from data.data_provider import LiveDataProvider
-from data.data_provider import DataProvider
-from utils.misc import get_weekday
 from event import events
+import utils.misc
+import data.data_provider
 
 
 class EventHandler:
 
-    def __init__(self, portfolio, broker, strategies, data_provider):
+    def __init__(self, portfolio, broker, assets, data_provider):
         self.portfolio = portfolio
         self.broker = broker
-        self.strategies = strategies
+        self.assets = assets
         self.data_provider = data_provider
         self.event_stack = EventStack()
         self.time_series_data = {}
 
-        assert isinstance(self.data_provider, DataProvider)
+        assert isinstance(self.data_provider, data.data_provider.DataProvider)
 
         while True:
             # Specific for backtesting only
             if isinstance(self.data_provider, BacktestDataProvider):
                 if self.data_provider.backtest_is_active:
-                    day_of_the_week = get_weekday(data_provider.current_time.weekday())
+                    day_of_the_week = utils.misc.get_weekday(data_provider.current_time.weekday())
                     print("Currently at time is {} {}".format(day_of_the_week, data_provider.current_time))
                 else:
                     break
@@ -70,13 +69,12 @@ class EventHandler:
         # Create list of strategy objects that are linked to the asset that have generated the events (same ticker)
         # Loop over the strategies with the generated events and call generate_signal method
         generated_events = []
-        strategies = [s for s in self.strategies.values() if event.asset.ticker in s.assets]
-        for strategy in strategies:
-            new_event = strategy.generate_signal(event.asset, self.time_series_data)
+        for strategy in [s for s in self.assets[event.asset.ticker].strategies.values()]:
+            time_series_data = self.time_series_data[event.asset.ticker]
+            time_series_data["asset"] = event.asset.ticker
+            new_event = strategy.generate_signal(time_series_data)
             if new_event is not None:
                 generated_events.append(new_event)
-                print("Total number of buy events generated: {}".format(events.SignalEventBuy.num_events))
-                print("Total number of sell events generated: {}".format(events.SignalEventSell.num_events))
 
         self.event_stack.add(generated_events)
 

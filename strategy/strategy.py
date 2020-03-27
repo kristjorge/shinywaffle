@@ -1,5 +1,4 @@
 import abc
-from financial_assets.financial_assets import FinancialAsset
 
 
 class TradingStrategy(abc.ABC):
@@ -18,20 +17,14 @@ Functions:
 
     def __init__(self, name):
         self.name = name
-        self.assets = dict()
 
     @abc.abstractmethod
-    def generate_signal(self, asset, time_series_data):
+    def generate_signal(self, time_series_data):
         pass
-
-    def link(self, asset):
-        assert isinstance(asset, FinancialAsset)
-        self.assets[asset.ticker] = asset
 
     def self2dict(self):
         data = {
-            'name': self.name,
-            'applied to': ["{} - {}".format(asset.ticker, asset.name) for asset in self.assets.values()]
+            'name': self.name
         }
 
         return data
