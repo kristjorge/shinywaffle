@@ -102,7 +102,7 @@ class Backtester:
 
     def self2dict(self):
         data = {
-            'initial portfolio holding': self.portfolio.holding,
+            'initial portfolio holding': self.portfolio.cash,
             'base currency': self.portfolio.base_currency,
             'broker': self.broker.name,
             'assets': [asset.self2dict() for asset in self.assets.values()],

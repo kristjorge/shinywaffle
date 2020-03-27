@@ -24,6 +24,15 @@ class EventHandler:
                 if self.data_provider.backtest_is_active:
                     day_of_the_week = utils.misc.get_weekday(data_provider.current_time.weekday())
                     print("Currently at time is {} {}".format(day_of_the_week, data_provider.current_time))
+
+                    # Updating last bars on assets
+                    for asset in self.assets.values():
+                        if asset.ticker in self.time_series_data:
+                            asset.latest_bar = self.time_series_data[asset.ticker]['bars'][0]
+
+                    # Updating portfolio value
+                    self.portfolio.update_asset_values()
+
                 else:
                     break
 

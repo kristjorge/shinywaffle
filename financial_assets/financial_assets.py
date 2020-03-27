@@ -11,17 +11,6 @@ from strategy.strategy import TradingStrategy
 
 class FinancialAsset(abc.ABC):
 
-    intervals = ("1min",
-                 "5min",
-                 "15min",
-                 "30min",
-                 "60min",
-                 "daily",
-                 "weekly",
-                 "monthly"
-                 "yearly")
-
-
     """
     Base class for tradable financial_assets. Classes that inherit from financial_assets are:
         - Stocks
@@ -38,6 +27,7 @@ class FinancialAsset(abc.ABC):
         self.data = DataSeriesContainer()
         self.stops = StopHolder()
         self.strategies = dict()
+        self.latest_bar = None
 
     def set_bars(self, bars):
         assert isinstance(bars, DataSeries) or isinstance(bars, APILink)

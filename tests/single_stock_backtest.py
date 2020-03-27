@@ -7,7 +7,7 @@ from backtesting.broker.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from datetime import datetime
 
-portfolio = Portfolio(500, "USD")
+
 ib = InteractiveBrokers()
 alpha_vantage = AlphaVantage(os.environ['AlphaVantage_APItoken'])
 sma_strategy = AverageCrossOver("SMA crossover", short=20, long=50)
@@ -21,6 +21,9 @@ exxon_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "XON", outputsize="
 equinor.set_bars(equinor_bars)
 equinor.add_data_series("exxon_bars", exxon_bars)
 equinor.add_strategy(sma_strategy)
+
+
+portfolio = Portfolio(500, "USD", [equinor])
 
 test_sample = equinor_bars.sample_datetime(datetime(2019, 6, 1))
 
