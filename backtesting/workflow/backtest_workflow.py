@@ -11,12 +11,6 @@ from datetime import datetime, timedelta
 import json
 
 
-""" 
-    Class for setting up for a workflow to allow for many consecutive backtests.
-
-"""
-
-
 skippable_types = (str,
                    float,
                    int,
@@ -29,6 +23,11 @@ skippable_types = (str,
 
 
 class BacktestWorkflow:
+
+    """
+    Class for setting up for a workflow to allow for many consecutive backtests.
+
+    """
 
     wfa_types = ("rolling", "anchored")
 
@@ -54,7 +53,6 @@ class BacktestWorkflow:
         self.wfa = wfa
         self.total_number_of_runs = self.no_sub_runs * self.no_runs * self.no_stochastic_runs
         self.enable_stochastic = True if stochastic_runs > 1 else False
-        self.workflow_run_path = None
         self.parameters = dict()
         self.sim_paths = list()
         self.backtests = list()
@@ -150,16 +148,18 @@ class BacktestWorkflow:
                     path = self.workflow_run_path + "/run_{}".format(run_no) + "/sub_run_{}".format(sub_run_no)
                     backtest_from = self._optimisation_datetimes[sub_run_no][0]
                     backtest_to = self._optimisation_datetimes[sub_run_no][1]
-                    name = self.workflow_name + "_run_{}_sub_run_{}".format(run_no, sub_run_no)
+                    # name = self.workflow_name + "_run_{}_sub_run_{}".format(run_no, sub_run_no)
+                    name = "run_{} sub_run_{}".format(run_no, sub_run_no)
 
                     if self.enable_stochastic:
-                        name += "_stochastic_{}".format(stochastic_run_no)
+                        name += " stochastic_{}".format(stochastic_run_no)
                     assets_list = [s for s in self._backtester.assets.values()]
                     new_backtester = Backtester(self._backtester.portfolio,
                                                 self._backtester.broker,
                                                 assets_list,
                                                 self._backtester.time_increment,
-                                                backtest_from, backtest_to)
+                                                backtest_from, backtest_to,
+                                                path, name)
 
                     # Append to list of backtests
                     self.backtests.append(BacktestContainer(name, params, new_backtester,
@@ -169,23 +169,23 @@ class BacktestWorkflow:
                     self.substitute_uncertainty_variable(self.backtests[-1].backtester, run_no)
 
                     # Modifying all time series data. Removing all data points that lie outside the optimisation window
-                    for ticker, asset in self.backtests[-1].backtester.assets.items():
-                        for time_series in [getattr(asset.data, a) for a in dir(asset.data) if
-                                            isinstance(getattr(asset.data, a), DataSeries)]:
-
-                            to_be_deleted = list()
-                            for i, time_series_object in enumerate(time_series):
-                                if time_series_object.datetime < backtest_from:
-                                    to_be_deleted.append(i)
-                                elif time_series_object.datetime > backtest_to:
-                                    to_be_deleted.append(i)
-
-                            to_be_deleted.reverse()
-                            for idx in to_be_deleted:
-                                time_series.data.pop(idx)
-
-                    # Make new times list based on the updated bars
-                    self.backtests[-1].backtester.make_times()
+                    # for ticker, asset in self.backtests[-1].backtester.assets.items():
+                    #     for time_series in [getattr(asset.data, a) for a in dir(asset.data) if
+                    #                         isinstance(getattr(asset.data, a), DataSeries)]:
+                    #
+                    #         to_be_deleted = list()
+                    #         for i, time_series_object in enumerate(time_series):
+                    #             if time_series_object.datetime < backtest_from:
+                    #                 to_be_deleted.append(i)
+                    #             elif time_series_object.datetime > backtest_to:
+                    #                 to_be_deleted.append(i)
+                    #
+                    #         to_be_deleted.reverse()
+                    #         for idx in to_be_deleted:
+                    #             time_series.data.pop(idx)
+                    #
+                    # # Make new times list based on the updated bars
+                    # self.backtests[-1].backtester.make_times()
 
         # Check that all parameters provided in list of parameters are actually subbed out
         to_be_removed = list()
@@ -240,30 +240,20 @@ class BacktestWorkflow:
                 self.substitute_uncertainty_variable(new_obj, param_no)
 
     def _setup2json(self):
-
-        assert self.workflow_run_path is not None
-        data = dict()
-
-        attributes = [a for a in dir(self) if not a.startswith("__")
-                      and not callable(getattr(self, a))
-                      and a != "backtests"]
-
-        for attr in attributes:
-            display_name = attr
-            if attr.startswith("_"):
-                # Remove the "_" for protected attributes
-                display_name = attr[1:len(attr)]
-            if isinstance(getattr(self, attr), Backtester):
-                data[display_name] = getattr(self, attr).self2dict()
-            elif isinstance(getattr(self, attr), BacktestContainer):
-                pass
-            elif display_name == "optimisation_datetimes" or display_name == "out_of_sample_datetimes":
-                continue
-            else:
-                data[display_name] = getattr(self, attr)
-
-        data['parameters'] = {param: param_values for param, param_values in self.parameters.items()}
-        data['runs'] = [b.self2dict() for b in self.backtests]
+        data = {
+            'name': self.workflow_name,
+            'path': self.path,
+            'number of runs': self.no_runs,
+            'number of sub runs': self.no_sub_runs,
+            'number of stochastic runs': self.no_stochastic_runs,
+            'total number of runs': self.total_number_of_runs,
+            'walk-forward analysis': self.wfa,
+            'out of sample size': self.out_of_sample_size,
+            'optimisation datetimes': [(d[0].strftime("%d-%m-%Y %H:%M:%S"), d[1].strftime("%d-%m-%Y %H:%M:%S")) for d in self._optimisation_datetimes],
+            'out of sample datetimes': [(d[0].strftime("%d-%m-%Y %H:%M:%S"), d[1].strftime("%d-%m-%Y %H:%M:%S")) for d in self._out_of_sample_datetimes],
+            'parameters': {param: param_values for param, param_values in self.parameters.items()},
+            'runs': [b.self2dict() for b in self.backtests]
+        }
 
         # Dump as json to file
         with open(self.workflow_run_path + "/workflow_summary.json", "w") as json_out:

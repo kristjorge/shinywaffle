@@ -71,8 +71,8 @@ class TestTrainSplit:
             from_split = split[0]
             to_split = split[1]
             out_of_sample_datetimes.append(
-                ((date_from + timedelta(days=from_split * dt.days)).strftime("%d.%m.%Y"),
-                 (date_from + timedelta(days=to_split * dt.days)).strftime("%d.%m.%Y"))
+                ((date_from + timedelta(days=from_split * dt.days)),
+                 (date_from + timedelta(days=to_split * dt.days)))
             )
         self.out_of_sample_datetimes = out_of_sample_datetimes
         return out_of_sample_datetimes
