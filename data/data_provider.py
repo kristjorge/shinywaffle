@@ -53,7 +53,7 @@ class BacktestDataProvider(DataProvider):
                 time_series.append(("bars", asset.bars))
 
                 for series in time_series:
-                    time_series_data[asset.ticker][series[0]] = series[1].sample_datetime(self.current_time)
+                    time_series_data[asset.ticker][series[0]] = series[1].sample_datetime(new_time)
 
                 for series in time_series:
                     # If there are any items in a list consisting of data series elements between the previous time and
@@ -64,25 +64,6 @@ class BacktestDataProvider(DataProvider):
 
             self.current_time = time_series_data["times"]
             return time_series_events, time_series_data
-
-    def placeholder_for_old_function(self):
-        pass
-    #     """
-    #
-    #     :return: time_series_data as a dictionary with keys of asset.ticker. Each value is a dictionary with
-    #              keys with the name of the data series in the time_series
-    #     """
-    #     time_series_data = {}
-    #     for asset in self.assets.values():
-    #
-    #         time_series_data[asset.ticker] = {}
-    #         time_series = asset.data.time_series()
-    #         time_series.append(("bars", asset.bars))
-    #
-    #         for series in time_series:
-    #             time_series_data[asset.ticker][series[0]] = series[1].sample_datetime(self.current_time)
-    #
-    #     return time_series_data
 
     @property
     def backtest_is_active(self):

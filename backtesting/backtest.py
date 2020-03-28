@@ -4,19 +4,8 @@ from backtesting.portfolio import Portfolio
 from backtesting.broker.brokers import Broker
 from financial_assets.financial_assets import FinancialAsset
 from event.event_handler import EventHandler
-from strategy.strategy import TradingStrategy
 from data.data_provider import BacktestDataProvider
-
-
-intervals = ("1min",
-             "5min",
-             "15min",
-             "30min",
-             "60min",
-             "daily",
-             "weekly",
-             "monthly"
-             "yearly")
+from backtesting.reporter import Reporter
 
 
 class Backtester:
@@ -42,6 +31,7 @@ class Backtester:
         self.broker = broker
         self.assets = dict()
         self.time_increment = time_increment
+        self.reporter = Reporter()
 
         self.run_from = run_from
         self.run_to = run_to
@@ -83,8 +73,8 @@ class Backtester:
         self.times = [self.backtest_from + i*timedelta(days=dt) for i in range(0, num_steps)]
 
     def copy(self):
-        stocks = [s for s in self.assets.values()]
-        return Backtester(self.portfolio, self.broker, stocks, self.time_increment)
+        assets = [s for s in self.assets.values()]
+        return Backtester(self.portfolio, self.broker, assets, self.time_increment, self.run_from, self.run_to)
 
     @property
     def backtest_from(self):
@@ -106,8 +96,7 @@ class Backtester:
             'base currency': self.portfolio.base_currency,
             'broker': self.broker.name,
             'assets': [asset.self2dict() for asset in self.assets.values()],
-            # 'strategies': [strategy.self2dict() for strategy in self.strategies.values()]
-            'strategies': {asset.strategies.keys() for asset in self.assets}
+            'strategies': {asset.name: [s for s in asset.strategies.keys()] for asset in self.assets.values()}
         }
 
         return data
@@ -132,14 +121,6 @@ class BacktestContainer:
         self.json_path = path + "_summary.json"
 
     def self2dict(self):
-        # data = {}
-        # attributes = [a for a in dir(self) if not a.startswith("__")
-        #               and not callable(getattr(self, a))
-        #               and not isinstance(getattr(self, a), Backtester)]
-        #
-        # for attr in attributes:
-        #     data[attr] = getattr(self, attr)
-
         data = {
             "name": self.name,
             "parameters": self.parameters,
