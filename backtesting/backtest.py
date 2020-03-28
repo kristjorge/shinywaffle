@@ -17,7 +17,7 @@ class Backtester:
     """
 
     def __init__(self, portfolio, broker, trading_assets, time_increment, run_from=None, run_to=None, path=os.getcwd(),
-                 filename="Summary {}".format(datetime.now().strftime("%d-%m-%Y %H:%M:%S"))):
+                 filename="Summary {}".format(datetime.now().strftime("%d-%m-%Y %H%M%S"))):
         """
 
         :param portfolio: Object describing the trading account (type Account)
@@ -123,7 +123,7 @@ class BacktestContainer:
         self.run_no = run_no
         self.sub_run_no = sub_run_no
         self.stochastic_run_no = stochastic_run_no
-        self.json_path = path + "_summary.json"
+        self.json_path = self.backtester.reporter.path + "/" + self.backtester.reporter.filename + ".json"
 
     def self2dict(self):
         data = {

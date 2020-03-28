@@ -148,17 +148,18 @@ class BacktestWorkflow:
                     path = self.workflow_run_path + "/run_{}".format(run_no) + "/sub_run_{}".format(sub_run_no)
                     backtest_from = self._optimisation_datetimes[sub_run_no][0]
                     backtest_to = self._optimisation_datetimes[sub_run_no][1]
-                    name = self.workflow_name + "_run_{}_sub_run_{}".format(run_no, sub_run_no)
+                    # name = self.workflow_name + "_run_{}_sub_run_{}".format(run_no, sub_run_no)
+                    name = "run_{} sub_run_{}".format(run_no, sub_run_no)
 
                     if self.enable_stochastic:
-                        name += "_stochastic_{}".format(stochastic_run_no)
+                        name += " stochastic_{}".format(stochastic_run_no)
                     assets_list = [s for s in self._backtester.assets.values()]
                     new_backtester = Backtester(self._backtester.portfolio,
                                                 self._backtester.broker,
                                                 assets_list,
                                                 self._backtester.time_increment,
                                                 backtest_from, backtest_to,
-                                                path, )
+                                                path, name)
 
                     # Append to list of backtests
                     self.backtests.append(BacktestContainer(name, params, new_backtester,
