@@ -11,10 +11,6 @@ class DataProvider(abc.ABC):
         self.assets = assets
 
     @abc.abstractmethod
-    def detect_time_series_event(self):
-        pass
-
-    @abc.abstractmethod
     def get_time_series_data(self):
         pass
 
