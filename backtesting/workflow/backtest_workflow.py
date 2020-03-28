@@ -2,7 +2,6 @@ from backtesting.backtest import Backtester
 from backtesting.backtest import BacktestContainer
 from backtesting.workflow.test_train_split import TestTrainSplit
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable
-from data.bar import BarContainer
 from data.bar import Bar
 from data.time_series_data import DataSeries
 import pandas as pd
@@ -17,7 +16,7 @@ import json
 
 """
 
-wfa_types = ("rolling", "anchored")
+
 skippable_types = (str,
                    float,
                    int,
@@ -26,25 +25,27 @@ skippable_types = (str,
                    types.BuiltinMethodType,
                    types.BuiltinFunctionType,
                    Bar,
-                   BarContainer)
+                   DataSeries)
 
 
 class BacktestWorkflow:
 
+    wfa_types = ("rolling", "anchored")
+
     def __init__(self, backtester, name, runs, sub_runs=1, stochastic_runs=1, path=os.getcwd(),
-                 out_of_sample_size=0.2, wfa='rolling', ):
+                 out_of_sample_size=0.2, wfa='rolling'):
 
         assert isinstance(backtester, Backtester)
         assert isinstance(name, str)
         assert isinstance(path, str)
         assert isinstance(out_of_sample_size, float)
-        assert isinstance(wfa, str)
+        assert isinstance(wfa, str) and wfa in BacktestWorkflow.wfa_types
         assert isinstance(runs, int) and runs > 0
         assert isinstance(sub_runs, int) and sub_runs > 0
         assert isinstance(stochastic_runs, int) and stochastic_runs > 0
 
         self._backtester = backtester
-        self.name = name
+        self.workflow_name = name
         self.path = path
         self.no_runs = runs
         self.no_sub_runs = sub_runs
@@ -60,14 +61,15 @@ class BacktestWorkflow:
         self.subbed_parameters = list()
 
         # Setting up folder structure
-        workflow_run_path = self.path + "/" + self.name + " " + datetime.now().strftime("%d-%m-%Y %H %M %S")
-        self.workflow_run_path = workflow_run_path
-        os.mkdir(workflow_run_path)
+        self.workflow_run_path = self.path + "/" + self.workflow_name + " " + datetime.now().strftime("%d-%m-%Y %H %M %S")
+        os.mkdir(self.workflow_run_path)
 
         # Making tuples with optimisation splits and out of sample splits
         # Tuples consist of from an to splits in terms of percentage of the total data set
-        datetime_from = min([s.series.bars[0].datetime for ticker, s in self._backtester.assets.items()])
-        datetime_to = max([s.series.bars[-1].datetime for ticker, s in self._backtester.assets.items()])
+        # datetime_from = min([s.bars[0].datetime for ticker, s in self._backtester.assets.items()])
+        # datetime_to = max([s.bars[-1].datetime for ticker, s in self._backtester.assets.items()])
+        datetime_from = self._backtester.times[0]
+        datetime_to = self._backtester.times[-1]
 
         test_train_split = TestTrainSplit(self.wfa, self.out_of_sample_size, self.no_sub_runs)
         self._optimisation_datetimes = test_train_split.calc_optimisation_datetimes(datetime_from, datetime_to)
@@ -75,7 +77,7 @@ class BacktestWorkflow:
 
         # Create folder structure
         for run_no in range(self.no_runs):
-            run_path = workflow_run_path + "/run_{}".format(run_no)
+            run_path = self.workflow_run_path + "/run_{}".format(run_no)
             os.mkdir(run_path)
 
             # Create one folder per sub run folder under each run folder
@@ -121,18 +123,19 @@ class BacktestWorkflow:
         1) Prepare backtest objects
         2) Summarise the folder structure with runs in a json file
 
-        :return:
         """
 
         # Preparations
         self._prepare_backtests()
         self._setup2json()
+        for backtest in self.backtests:
+            backtest.backtester.run()
 
     def _prepare_backtests(self):
 
         """
-        This method prepares the list of backtests in the workflow object. The backtests is a container object for
-        backtester objects as well as other information as name, path, number of runs etc
+        This method prepares the list of backtests in the workflow object. The backtests is a list of container object
+         for backtester objects as well as other information as name, path, number of runs etc
 
         Substituting uncertainty parameters from the uncertainty parameters list to the appropriate parameters in the
         various objects
@@ -147,22 +150,28 @@ class BacktestWorkflow:
                     path = self.workflow_run_path + "/run_{}".format(run_no) + "/sub_run_{}".format(sub_run_no)
                     backtest_from = self._optimisation_datetimes[sub_run_no][0]
                     backtest_to = self._optimisation_datetimes[sub_run_no][1]
-                    name = self.name + "_run_{}_sub_run_{}".format(run_no, sub_run_no)
+                    name = self.workflow_name + "_run_{}_sub_run_{}".format(run_no, sub_run_no)
 
                     if self.enable_stochastic:
                         name += "_stochastic_{}".format(stochastic_run_no)
+                    assets_list = [s for s in self._backtester.assets.values()]
+                    new_backtester = Backtester(self._backtester.portfolio,
+                                                self._backtester.broker,
+                                                assets_list,
+                                                self._backtester.time_increment,
+                                                backtest_from, backtest_to)
 
                     # Append to list of backtests
-                    self.backtests.append(BacktestContainer(name, params, self._backtester.copy(),
+                    self.backtests.append(BacktestContainer(name, params, new_backtester,
                                                             path, run_no, sub_run_no, stochastic_run_no))
 
                     # Substitute parameters. Storing the variables that were substituted in a list
                     self.substitute_uncertainty_variable(self.backtests[-1].backtester, run_no)
 
                     # Modifying all time series data. Removing all data points that lie outside the optimisation window
-                    for ticker, asset in self.backtests[-1].backtester.stocks.items():
-                        for time_series in [getattr(asset.series, a) for a in dir(asset.series) if
-                                            isinstance(getattr(asset.series, a), DataSeries)]:
+                    for ticker, asset in self.backtests[-1].backtester.assets.items():
+                        for time_series in [getattr(asset.data, a) for a in dir(asset.data) if
+                                            isinstance(getattr(asset.data, a), DataSeries)]:
 
                             to_be_deleted = list()
                             for i, time_series_object in enumerate(time_series):

@@ -4,19 +4,9 @@ from backtesting.stock.stops import TrailingStop
 from backtesting.stock.stops import StopLoss
 from backtesting.stock.stops import TargetStop
 from backtesting.stock.stops import StopHolder
-from data.bar import BarContainer
 from data.time_series_data import DataSeriesContainer
 from tools.api_link import APILink
-
-intervals = ("1min",
-             "5min",
-             "15min",
-             "30min",
-             "60min",
-             "daily",
-             "weekly",
-             "monthly"
-             "yearly")
+from strategy.strategy import TradingStrategy
 
 
 class FinancialAsset(abc.ABC):
@@ -26,7 +16,7 @@ class FinancialAsset(abc.ABC):
         - Stocks
         - Forex
         - Cryptocurrencies
-"""
+    """
 
     def __init__(self, name, ticker, base_currency):
         self.name = name
@@ -36,12 +26,21 @@ class FinancialAsset(abc.ABC):
         self.bars = None
         self.data = DataSeriesContainer()
         self.stops = StopHolder()
+        self.strategies = dict()
+        self.latest_bar = None
 
     def set_bars(self, bars):
-        assert isinstance(bars, BarContainer) or isinstance(bars, APILink)
+        assert isinstance(bars, DataSeries) or isinstance(bars, APILink)
         self.bars = bars
 
-    def add_data_object(self, name, data_series):
+    def add_strategy(self, strategy_object):
+        assert isinstance(strategy_object, TradingStrategy)
+        if strategy_object.name in self.strategies:
+            print("Strategy already exists in asset. Skipped.")
+        else:
+            self.strategies[strategy_object.name] = strategy_object
+
+    def add_data_series(self, name, data_series):
         assert isinstance(data_series, DataSeries)
         self.data.add(data_series, name)
 

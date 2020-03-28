@@ -3,6 +3,17 @@ from datetime import datetime
 from utils.misc import get_datetime_format
 
 
+intervals = ("1min",
+             "5min",
+             "15min",
+             "30min",
+             "60min",
+             "daily",
+             "weekly",
+             "monthly"
+             "yearly")
+
+
 class DataSeriesContainer:
 
     """
@@ -18,6 +29,16 @@ class DataSeriesContainer:
     def add(self, data_source, name):
         assert isinstance(data_source, DataSeries)
         setattr(self, name, data_source)
+
+    def time_series(self):
+        """
+        :return: A tuple of the name of the attribute and the attribute object
+        """
+        return [(s, getattr(self, s)) for s in dir(self) if isinstance(getattr(self, s), DataSeries)]
+
+    def __iter__(self):
+        for t in self.time_series():
+            yield t
 
 
 class DataSeries:
@@ -38,25 +59,34 @@ class DataSeries:
         """
         super().__init__()
         self.data = list()
+        assert interval in intervals
         self.interval = interval
 
     def __len__(self):
         return len(self.data)
 
+    def __getitem__(self, i):
+        return self.data[i]
+
     def __iter__(self):
         for d in self.data:
             yield d
 
-    def __getitem__(self, i):
-        return self.data[i]
+    def sample_datetime(self, timestamp):
+        assert isinstance(timestamp, datetime)
+        data_series = DataSeries(self.interval)
+        data_series.set([d for d in self.data if d.datetime <= timestamp])
+        return data_series
 
     def set(self, data):
+
         """
         Setting self.data equals to the data argument.
         In addition this method creates attributes for the attributes for the items in the data list
         :param data: List of data points (not necessarily the class below)
         :return: None
         """
+
         from tools.api_link import APILink
         assert isinstance(data, list) or isinstance(data, APILink)
         self.data = data

@@ -1,7 +1,7 @@
 from tools.rest_api import API
 from tools.api_link import AlphaVantageLink
-from data.bar import BarContainer
 from data.bar import Bar
+from data.time_series_data import DataSeries
 from datetime import datetime
 import requests
 
@@ -20,7 +20,7 @@ class AlphaVantage(API):
         super().__init__(token)
         self.base_url = "https://www.alphavantage.co/query?function="
 
-    def query_stocks(self, function, symbol, return_as_link=False, ascending=False, interval="60min", outputsize="full", use_adjusted_close=False):
+    def query_stocks(self, function, symbol, return_as_link=False, interval="60min", outputsize="full", use_adjusted_close=False):
 
         """
         Function to create query string used to get stock data from the VantageAlpha API
@@ -114,19 +114,18 @@ class AlphaVantage(API):
 
                 bars.append(bar)
 
-            if ascending:
-                bars.reverse()
+            # bars.reverse()
 
-            bar_container = BarContainer(interval)
+            bar_container = DataSeries(interval)
             bar_container.set(bars)
             response = bar_container
             return response
 
         # Return as link to the API
         else:
-            return AlphaVantageLink(url, json_header, datetime_format, interval, opn, close, high, low, volume, ascending)
+            return AlphaVantageLink(url, json_header, datetime_format, interval, opn, close, high, low, volume)
 
-    def query_forex(self, function, from_currency, to_currency, return_as_link=False, ascending=False, interval="60min", outputsize="full"):
+    def query_forex(self, function, from_currency, to_currency, return_as_link=False, interval="60min", outputsize="full"):
 
         """
         Function to create query string used to get forex data from the VantageAlpha API
@@ -219,10 +218,9 @@ class AlphaVantage(API):
 
                 bars.append(bar)
 
-            if ascending:
-                bars.reverse()
+            # bars.reverse()
 
-            bar_container = BarContainer(interval)
+            bar_container = DataSeries(interval)
             bar_container.set(bars)
             response = bar_container
             return response
