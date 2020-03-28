@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from datetime import datetime
 from backtesting.portfolio import Portfolio
@@ -15,7 +16,8 @@ class Backtester:
 
     """
 
-    def __init__(self, portfolio, broker, trading_assets, time_increment, run_from=None, run_to=None):
+    def __init__(self, portfolio, broker, trading_assets, time_increment, run_from=None, run_to=None, path=os.getcwd(),
+                 filename="Summary {}".format(datetime.now().strftime("%d-%m-%Y %H:%M:%S"))):
         """
 
         :param portfolio: Object describing the trading account (type Account)
@@ -31,7 +33,7 @@ class Backtester:
         self.broker = broker
         self.assets = dict()
         self.time_increment = time_increment
-        self.reporter = Reporter()
+        self.reporter = Reporter(path=path, filename=filename)
 
         self.run_from = run_from
         self.run_to = run_to
@@ -96,7 +98,9 @@ class Backtester:
             'base currency': self.portfolio.base_currency,
             'broker': self.broker.name,
             'assets': [asset.self2dict() for asset in self.assets.values()],
-            'strategies': {asset.name: [s for s in asset.strategies.keys()] for asset in self.assets.values()}
+            'strategies': {asset.name: [s for s in asset.strategies.keys()] for asset in self.assets.values()},
+            'backtest from': self.backtest_from.strftime("%d-%m-%Y %H:%M:%S"),
+            'backtest to': self.backtest_to.strftime("%d-%m-%Y %H:%M:%S")
         }
 
         return data
@@ -106,6 +110,7 @@ class Backtester:
                      broker=self.broker,
                      assets=self.assets,
                      data_provider=self.data_provider)
+        self.reporter.aggregate_report(self.self2dict())
 
 
 class BacktestContainer:
@@ -122,13 +127,13 @@ class BacktestContainer:
 
     def self2dict(self):
         data = {
-            "name": self.name,
-            "parameters": self.parameters,
-            "path": self.path,
-            "run number": self.run_no,
-            "sub run number": self.sub_run_no,
-            "stochastic run number": self.stochastic_run_no,
-            "summary file path": self.json_path
+            'name': self.name,
+            'parameters': self.parameters,
+            'path': self.path,
+            'run number': self.run_no,
+            'sub run number': self.sub_run_no,
+            'stochastic run number': self.stochastic_run_no,
+            'summary file path': self.json_path,
         }
 
         return data
