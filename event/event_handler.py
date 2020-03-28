@@ -19,27 +19,13 @@ class EventHandler:
         assert isinstance(self.data_provider, data.data_provider.DataProvider)
 
         while True:
-            # Specific for backtesting only
-            if isinstance(self.data_provider, BacktestDataProvider):
-                if self.data_provider.backtest_is_active:
-                    day_of_the_week = utils.misc.get_weekday(data_provider.current_time.weekday())
-                    print("Currently at time is {} {}".format(day_of_the_week, data_provider.current_time))
-
-                    # Updating last bars on assets
-                    for asset in self.assets.values():
-                        if asset.ticker in self.time_series_data:
-                            asset.latest_bar = self.time_series_data[asset.ticker]['bars'][0]
-
-                    # Updating portfolio value
-                    self.portfolio.update_asset_values()
-
-                else:
-                    break
-
-            # Detecting any new events and getting the latest time series data
-            new_events = self.data_provider.detect_time_series_event()
-            self.time_series_data = self.data_provider.get_time_series_data()
-            self.event_stack.add(new_events)
+            try:
+                # Detecting any new events and getting the latest time series data
+                new_events, self.time_series_data = self.data_provider.get_time_series_data()
+            except data.data_provider.BacktestCompleteException:
+                break
+            else:
+                self.event_stack.add(new_events)
 
             # Looping over events in event stack and handling them accordingly
             while True:
@@ -48,6 +34,15 @@ class EventHandler:
                     self.handle_event(event)
                 except EventStackEmptyError:
                     break
+
+            if type(data_provider) == BacktestDataProvider:
+                # Updating last bars on assets
+                for asset in self.assets.values():
+                    if asset.ticker in self.time_series_data:
+                        asset.latest_bar = self.time_series_data[asset.ticker]['bars'][0]
+
+                # Updating portfolio value
+                self.portfolio.update_asset_values()
 
     def handle_event(self, event):
         if type(event) == events.TimeSeriesEvent:

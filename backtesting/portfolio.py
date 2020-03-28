@@ -28,7 +28,7 @@ class Portfolio:
         total_value = self.cash
         for asset in self.assets.values():
             try:
-                asset['value'] = asset['holding']*asset['asset_data'].latest_bar[0].close
+                asset['value'] = asset['holding'] * asset['asset_data'].latest_bar.close
             except TypeError:
                 asset['value'] = 0
             total_value += asset['value']

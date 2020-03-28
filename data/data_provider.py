@@ -1,8 +1,8 @@
 import abc
 from tools.api_link import APILink
-from data.time_series_data import DataSeries
 from datetime import datetime
 from event.events import TimeSeriesEvent
+import utils.misc
 
 
 class DataProvider(abc.ABC):
@@ -27,7 +27,7 @@ class BacktestDataProvider(DataProvider):
         self.current_time = datetime(1900, 1, 1, 0, 0, 0)
         assert isinstance(self.assets, dict)
 
-    def detect_time_series_event(self):
+    def get_time_series_data(self):
 
         """
         Gathering a dictionary of the time series data for all the stocks in the backtester
@@ -37,40 +37,56 @@ class BacktestDataProvider(DataProvider):
         :return: dict with TimeSeriesEvents for each asset that has seen a new event
         """
 
-        time_series_data = {}
-        time_series_events = []
-        new_time = self.times.pop(0)
-        time_series_data["times"] = new_time
+        try:
+            new_time = self.times.pop(0)
+        except IndexError:
+            raise BacktestCompleteException
 
-        for asset in self.assets.values():
-            time_series = asset.data.time_series()
-            time_series.append(("bars", asset.bars))
+        else:
 
-            for series in time_series:
-                if [s for s in series[1] if self.current_time < s.datetime <= new_time]:
-                    time_series_events.append(TimeSeriesEvent(asset))
-                    break
+            time_series_data = {}
+            time_series_events = []
+            time_series_data["times"] = new_time
 
-        self.current_time = time_series_data["times"]
-        return time_series_events
+            day_of_the_week = utils.misc.get_weekday(new_time.weekday())
+            print("Currently at time is {} {}".format(day_of_the_week, new_time))
 
-    def get_time_series_data(self):
-        """
+            for asset in self.assets.values():
+                time_series_data[asset.ticker] = {}
+                time_series = asset.data.time_series()
+                time_series.append(("bars", asset.bars))
 
-        :return: time_series_data as a dictionary with keys of asset.ticker. Each value is a dictionary with
-                 keys with the name of the data series in the time_series
-        """
-        time_series_data = {}
-        for asset in self.assets.values():
+                for series in time_series:
+                    time_series_data[asset.ticker][series[0]] = series[1].sample_datetime(self.current_time)
 
-            time_series_data[asset.ticker] = {}
-            time_series = asset.data.time_series()
-            time_series.append(("bars", asset.bars))
+                for series in time_series:
+                    # If there are any items in a list consisting of data series elements between the previous time and
+                    # the new current time, then add a TimeSeriesEvent and break the loop for that asset
+                    if [s for s in series[1] if self.current_time < s.datetime <= new_time]:
+                        time_series_events.append(TimeSeriesEvent(asset))
+                        break
 
-            for series in time_series:
-                time_series_data[asset.ticker][series[0]] = series[1].sample_datetime(self.current_time)
+            self.current_time = time_series_data["times"]
+            return time_series_events, time_series_data
 
-        return time_series_data
+    def placeholder_for_old_function(self):
+        pass
+    #     """
+    #
+    #     :return: time_series_data as a dictionary with keys of asset.ticker. Each value is a dictionary with
+    #              keys with the name of the data series in the time_series
+    #     """
+    #     time_series_data = {}
+    #     for asset in self.assets.values():
+    #
+    #         time_series_data[asset.ticker] = {}
+    #         time_series = asset.data.time_series()
+    #         time_series.append(("bars", asset.bars))
+    #
+    #         for series in time_series:
+    #             time_series_data[asset.ticker][series[0]] = series[1].sample_datetime(self.current_time)
+    #
+    #     return time_series_data
 
     @property
     def backtest_is_active(self):
@@ -92,3 +108,8 @@ class LiveDataProvider(DataProvider):
     def get_time_series_data(self):
         pass
 
+
+class BacktestCompleteException(Exception):
+    def __init__(self):
+        super().__init__()
+        print("Backtest complete!")
