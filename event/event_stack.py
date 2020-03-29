@@ -13,10 +13,17 @@ class EventStack:
 
     def add(self, event):
         if isinstance(event, Event):
-            self.events.append(event)
+            if event is not None:
+                self.events.append(event)
+            else:
+                pass
+
         elif isinstance(event, list):
             for e in event:
-                self.events.append(e)
+                if e is not None:
+                    self.events.append(e)
+                else:
+                    continue
 
     def get(self):
         """
@@ -31,5 +38,5 @@ class EventStack:
 
 
 class EventStackEmptyError(Exception):
-    """ EventStack is empty"""
+    # EventStack is empty
     pass

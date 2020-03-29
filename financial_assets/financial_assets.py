@@ -66,6 +66,7 @@ class Stock(FinancialAsset):
     def __init__(self, name, ticker, base_currency):
         super().__init__(name, ticker, base_currency)
         self.type = "stock"
+        self.lowest_quantity = 1
 
 
 class Forex(FinancialAsset):
@@ -73,6 +74,7 @@ class Forex(FinancialAsset):
     def __init__(self, name, ticker, base_currency):
         super().__init__(name, ticker, base_currency)
         self.type = "forex"
+        self.lowest_quantity = 0.01
 
 
 class Cryptocurrency(FinancialAsset):
@@ -80,4 +82,5 @@ class Cryptocurrency(FinancialAsset):
     def __init__(self, name, ticker, base_currency):
         super().__init__(name, ticker, base_currency)
         self.type = "cryptocurrency"
+        self.lowest_quantity = 0.000000001
 

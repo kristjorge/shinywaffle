@@ -1,3 +1,4 @@
+from financial_assets import financial_assets
 
 """
 Event base class is used as super for all other classes
@@ -7,6 +8,7 @@ Classes for the different types of events
 
 class Event:
     def __init__(self, asset):
+        assert isinstance(asset, financial_assets.FinancialAsset)
         self.asset = asset
 
 
@@ -35,45 +37,50 @@ class SignalEventSell(Event):
 
 
 class LimitOrderEvent(Event):
-    num_events = 0
+    num_events = {'buy': 0, 'sell': 0}
 
-    def __init__(self, asset, quantity, price):
+    def __init__(self, asset, order_size, price, order_type):
         super().__init__(asset)
-        self.quantity = quantity
+        self.order_size = order_size
         self.price = price
-        LimitOrderEvent.num_events += 1
+        self.type = order_type
+        LimitOrderEvent.num_events[self.type]  += 1
 
 
 class MarketOrderEvent(Event):
-    num_events = 0
+    num_events = {'buy': 0, 'sell': 0}
 
-    def __init__(self, asset, quantity):
+    def __init__(self, asset, order_size, order_type):
         super().__init__(asset)
-        self.quantity = quantity
-        MarketOrderEvent.num_events += 1
+        self.order_size = order_size
+        self.type = order_type
+        MarketOrderEvent.num_events[self.type] += 1
 
 
 class StopLossEvent(Event):
     num_events = 0
 
-    def __init__(self, asset, quantity):
+    def __init__(self, asset, order_size):
         super().__init__(asset)
-        self.quantity = quantity
+        self.order_size = order_size
         StopLossEvent.num_events += 1
 
 
 class TrailingStopEvent(Event):
     num_events = 0
 
-    def __init__(self, asset, quantity):
+    def __init__(self, asset, order_size):
         super().__init__(asset)
-        self.quantity = quantity
+        self.order_size = order_size
         TrailingStopEvent.num_events += 1
 
 
-class OrderFillEvent(Event):
-    num_events = 0
+class OrderFilledEvent(Event):
+    num_events = {'buy': 0, 'sell': 0}
 
-    def __init__(self, asset):
+    def __init__(self, asset, price, order_size, order_type):
         super().__init__(asset)
-        OrderFillEvent.num_events += 1
+        self.price = price
+        self.order_size = order_size
+        self.type = order_type  # buy or sell
+        OrderFilledEvent.num_events[self.type] += 1

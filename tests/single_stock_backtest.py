@@ -6,6 +6,7 @@ from backtesting.portfolio import Portfolio
 from backtesting.broker.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from datetime import datetime
+from backtesting.risk_management import RiskManager
 
 
 ib = InteractiveBrokers()
@@ -23,7 +24,7 @@ equinor.add_data_series("exxon_bars", exxon_bars)
 equinor.add_strategy(sma_strategy)
 
 
-portfolio = Portfolio(500, "USD", [equinor])
+portfolio = Portfolio(500, "USD", [equinor], RiskManager())
 
 test_sample = equinor_bars.sample_datetime(datetime(2019, 6, 1))
 

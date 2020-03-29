@@ -7,6 +7,7 @@ from financial_assets.financial_assets import FinancialAsset
 from event.event_handler import EventHandler
 from data.data_provider import BacktestDataProvider
 from backtesting.reporter import Reporter
+import event.events
 
 
 class Backtester:
@@ -101,7 +102,15 @@ class Backtester:
             'strategies': {asset.name: [s.self2dict() for s in asset.strategies.values()] for asset in self.assets.values()},
             'backtest from': self.backtest_from.strftime("%d-%m-%Y %H:%M:%S"),
             'backtest to': self.backtest_to.strftime("%d-%m-%Y %H:%M:%S"),
-            'portfolio': self.portfolio.self2dict()
+            'portfolio': self.portfolio.self2dict(),
+            'events': {
+                'buy signals': event.events.SignalEventBuy.num_events,
+                'sell signals': event.events.SignalEventSell.num_events,
+                'market orders': event.events.MarketOrderEvent.num_events,
+                'limit orders': event.events.LimitOrderEvent.num_events,
+                'stop losses': event.events.StopLossEvent.num_events,
+                'trailing stops': event.events.TrailingStopEvent.num_events,
+            }
         }
         return data
 

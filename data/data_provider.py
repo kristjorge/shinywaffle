@@ -52,12 +52,13 @@ class BacktestDataProvider(DataProvider):
                 time_series = asset.data.time_series()
                 time_series.append(("bars", asset.bars))
 
+                # Aggregating time series data to be used in event handler
                 for series in time_series:
                     time_series_data[asset.ticker][series[0]] = series[1].sample_datetime(new_time)
 
+                # If there are any items in a list consisting of data series elements between the previous time and
+                # the new current time, then add a TimeSeriesEvent and break the loop for that asset
                 for series in time_series:
-                    # If there are any items in a list consisting of data series elements between the previous time and
-                    # the new current time, then add a TimeSeriesEvent and break the loop for that asset
                     if [s for s in series[1] if self.current_time < s.datetime <= new_time]:
                         time_series_events.append(TimeSeriesEvent(asset))
                         break

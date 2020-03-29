@@ -46,10 +46,17 @@ class EventHandler:
             self.handle_time_series_events(event)
 
         elif type(event) == events.SignalEventBuy:
-            self.broker.request_order_price(self.time_series_data[event.asset.ticker])
+            # TODO: Implement logic to decide between market and limit orders
+            # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
+            order_size = self.portfolio.risk_manager.calculate_position_size()
+            new_event = self.portfolio.place_order(event.asset, order_size, "buy")
+            self.event_stack.add(new_event)
 
         elif type(event) == events.SignalEventSell:
-            pass
+            # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
+            order_size = self.portfolio.risk_manager.calculate_position_size()
+            new_event = self.portfolio.place_order(event.asset, order_size, "sell")
+            self.event_stack.add(new_event)
 
         elif type(event) == events.StopLossEvent:
             pass
@@ -58,13 +65,17 @@ class EventHandler:
             pass
 
         elif type(event) == events.MarketOrderEvent:
-            pass
+            # New event is of type OrderFilledEvent
+            price = self.broker.request_order_price(self.time_series_data[event.asset.ticker])
+            new_event = self.portfolio.fill_order(event, price)
+            self.event_stack.add(new_event)
 
         elif type(event) == events.LimitOrderEvent:
             pass
 
-        elif type(event) == events.OrderFillEvent:
-            pass
+        elif type(event) == events.OrderFilledEvent:
+            commission = self.broker.calculate_commission(event.order_size)
+            self.portfolio.credit(commission)
 
     def handle_time_series_events(self, event):
         # Create list of strategy objects that are linked to the asset that have generated the events (same ticker)
@@ -72,10 +83,9 @@ class EventHandler:
         generated_events = []
         for strategy in [s for s in self.assets[event.asset.ticker].strategies.values()]:
             time_series_data = self.time_series_data[event.asset.ticker]
-            time_series_data["asset"] = event.asset.ticker
+            time_series_data["asset"] = event.asset
             new_event = strategy.generate_signal(time_series_data)
-            if new_event is not None:
-                generated_events.append(new_event)
+            generated_events.append(new_event)
 
         self.event_stack.add(generated_events)
 
