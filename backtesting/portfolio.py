@@ -1,3 +1,5 @@
+from backtesting import risk_management
+
 """
 
 Class holding the initial holding in a base currency for the backtesting
@@ -9,8 +11,9 @@ class Portfolio:
 
     available_currencies = ("USD", "NOK", "GBP", "EUR")
 
-    def __init__(self, initial_holding, currency, assets):
+    def __init__(self, initial_holding, currency, assets, risk_manager):
         assert isinstance(assets, list)
+        assert isinstance(risk_manager, risk_management.RiskManager)
         assert currency in Portfolio.available_currencies
 
         self.cash = initial_holding

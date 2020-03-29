@@ -46,7 +46,7 @@ class EventHandler:
             self.handle_time_series_events(event)
 
         elif type(event) == events.SignalEventBuy:
-            pass
+            self.broker.request_order_price(self.time_series_data[event.asset.ticker])
 
         elif type(event) == events.SignalEventSell:
             pass

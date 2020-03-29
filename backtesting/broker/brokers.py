@@ -1,7 +1,7 @@
-from abc import ABC
+import abc
 
 
-class Broker(ABC):
+class Broker(abc.ABC):
 
     """
     Base class for broker objects.
@@ -16,6 +16,9 @@ class Broker(ABC):
         assert fee_type == "percentage_of_trade" or fee_type == "absolute_value"
         self.fee_type = fee_type
 
+    def request_order_price(self, time_series_data):
+        pass
+
 
 class InteractiveBrokers(Broker):
 
@@ -25,3 +28,4 @@ class InteractiveBrokers(Broker):
     """
     def __init__(self):
         super().__init__("Interactive Brokers", 0.0005, "percentage_of_trade", 5)
+
