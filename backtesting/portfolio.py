@@ -17,6 +17,8 @@ class Portfolio:
         self.total_value = initial_holding
         self.base_currency = currency
         self.assets = {asset.ticker: {'holding': [0.], 'value': [0.], 'asset_data': asset} for asset in assets}
+        self.times = []
+        self.total_value = []
 
     def debit(self, amount):
         self.cash += amount
@@ -24,14 +26,30 @@ class Portfolio:
     def credit(self, amount):
         self.cash -= amount
 
-    def update_asset_values(self):
+    def update(self, time_series_data):
+
         total_value = self.cash
-        for asset in self.assets.values():
-            try:
-                asset['value'] = asset['holding'] * asset['asset_data'].latest_bar.close
-            except TypeError:
-                asset['value'] = 0
-            total_value += asset['value']
 
-        self.total_value = total_value
+        for ticker, asset in self.assets.items():
+            if ticker in time_series_data:
+                asset['asset_data'].latest_bar = time_series_data[ticker]['bars'][0]
+                try:
+                    asset['value'] = asset['holding'] * asset['asset_data'].latest_bar.close
+                except TypeError:
+                    # Catching None
+                    asset['value'] = 0
+                total_value += asset['value']
 
+        self.times.append(time_series_data['times'])
+        self.total_value.append(total_value)
+
+    def self2dict(self):
+        data = {
+            "total value": self.value_over_time
+        }
+
+        return data
+
+    @property
+    def value_over_time(self):
+        return [(t.strftime("%d-%m-%Y %H:%M:%S"), v) for (t, v) in zip(self.times, self.total_value)]

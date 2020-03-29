@@ -35,14 +35,11 @@ class EventHandler:
                 except EventStackEmptyError:
                     break
 
+            # Update data - only relevant for backtesting
             if type(data_provider) == BacktestDataProvider:
-                # Updating last bars on assets
-                for asset in self.assets.values():
-                    if asset.ticker in self.time_series_data:
-                        asset.latest_bar = self.time_series_data[asset.ticker]['bars'][0]
 
                 # Updating portfolio value
-                self.portfolio.update_asset_values()
+                self.portfolio.update(self.time_series_data)
 
     def handle_event(self, event):
         if type(event) == events.TimeSeriesEvent:

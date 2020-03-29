@@ -98,11 +98,11 @@ class Backtester:
             'base currency': self.portfolio.base_currency,
             'broker': self.broker.name,
             'assets': [asset.self2dict() for asset in self.assets.values()],
-            'strategies': {asset.name: [s for s in asset.strategies.keys()] for asset in self.assets.values()},
+            'strategies': {asset.name: [s.self2dict() for s in asset.strategies.values()] for asset in self.assets.values()},
             'backtest from': self.backtest_from.strftime("%d-%m-%Y %H:%M:%S"),
-            'backtest to': self.backtest_to.strftime("%d-%m-%Y %H:%M:%S")
+            'backtest to': self.backtest_to.strftime("%d-%m-%Y %H:%M:%S"),
+            'portfolio': self.portfolio.self2dict()
         }
-
         return data
 
     def run(self):
