@@ -39,7 +39,7 @@ class EventHandler:
             if type(data_provider) == BacktestDataProvider:
 
                 # Updating portfolio value
-                self.portfolio.update(self.time_series_data)
+                self.portfolio.update_portfolio(self.time_series_data)
 
     def handle_event(self, event):
         if type(event) == events.TimeSeriesEvent:
@@ -49,13 +49,16 @@ class EventHandler:
             # TODO: Implement logic to decide between market and limit orders
             # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
             order_size = self.portfolio.risk_manager.calculate_position_size()
-            new_event = self.portfolio.place_order(event.asset, order_size, "buy")
+            # new_event = self.portfolio.place_order(event.asset, order_size, "buy")
+            new_event = self.portfolio.place_buy_order(event.asset, order_size)
             self.event_stack.add(new_event)
 
         elif type(event) == events.SignalEventSell:
             # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
+            # TODO: Implement logic to limit number of asset sold to the number available in the portfolio
             order_size = self.portfolio.risk_manager.calculate_position_size()
-            new_event = self.portfolio.place_order(event.asset, order_size, "sell")
+            # new_event = self.portfolio.place_order(event.asset, order_size, "sell")
+            new_event = self.portfolio.place_sell_order(event.asset, order_size)
             self.event_stack.add(new_event)
 
         elif type(event) == events.StopLossEvent:
@@ -68,6 +71,18 @@ class EventHandler:
             # New event is of type OrderFilledEvent
             price = self.broker.request_order_price(self.time_series_data[event.asset.ticker])
             new_event = self.broker.fill_order(event, price)
+            self.event_stack.add(new_event)
+
+        elif type(event) == events.MarketOrderBuyEvent:
+            # New event is of type OrderFilledEvent
+            price = self.broker.request_order_price(self.time_series_data[event.asset.ticker])
+            new_event = self.broker.fill_buy_order(event, price)
+            self.event_stack.add(new_event)
+
+        elif type(event) == events.MarketOrderSellEvent:
+            # New event is of type OrderFilledEvent
+            price = self.broker.request_order_price(self.time_series_data[event.asset.ticker])
+            new_event = self.broker.fill_sell_order(event, price, max_volume=event.max_volume)
             self.event_stack.add(new_event)
 
         elif type(event) == events.LimitOrderEvent:

@@ -31,6 +31,29 @@ class Broker(abc.ABC):
 
         return events.OrderFilledEvent(order_event.asset, order_price, order_size, order_volume, order_event.type, commission)
 
+    def fill_buy_order(self, order_event, order_price):
+        # Round down
+        # TODO: Find a way to round down to the lowest possible unit of the asset
+        # Meaning whole stocks for stocks, 1e-8 for crypto and 0.01 for forex
+        order_volume = m.floor(order_event.order_size / order_price)
+        order_size = order_volume * order_price
+        commission = self.calculate_commission(order_size)
+
+        return events.OrderFilledEvent(order_event.asset, order_price, order_size, order_volume, 'buy', commission)
+
+    def fill_sell_order(self, order_event, order_price, max_volume=None):
+        # Round down
+        # TODO: Find a way to round down to the lowest possible unit of the asset
+        # Meaning whole stocks for stocks, 1e-8 for crypto and 0.01 for forex
+        if max_volume is not None:
+            order_volume = m.floor(order_event.order_size / order_price)
+        else:
+            order_volume = max_volume
+
+        order_size = order_volume * order_price
+        commission = self.calculate_commission(order_size)
+        return events.OrderFilledEvent(order_event.asset, order_price, order_size, order_volume, 'sell', commission)
+
     @staticmethod
     def request_order_price(time_series_data):
         return time_series_data['bars'][0].close
@@ -38,6 +61,17 @@ class Broker(abc.ABC):
     @abc.abstractmethod
     def calculate_commission(self, order_size):
         pass
+
+    def self2dict(self):
+        data = {
+            'name': self.name,
+            'fee': self.fee,
+            'fee type': self.fee_type,
+            'min order size': self.min_order_size,
+            'min order size currency': self.min_order_currency
+        }
+
+        return data
 
 
 class InteractiveBrokers(Broker):
@@ -54,3 +88,10 @@ class InteractiveBrokers(Broker):
         commission = total_trade_value * self.fee
         InteractiveBrokers.total_commission += commission
         return commission
+
+    def self2dict(self):
+        data = super().self2dict()
+        data['total commission'] = InteractiveBrokers.total_commission
+
+        return data
+
