@@ -35,17 +35,6 @@ class Portfolio:
         self.cash -= amount
 
     @ staticmethod
-    def place_order(asset, order_size, order_type, price=None):
-        # TODO: Add a check to see if there are available assets to sell.
-        # TODO: Limit the order volume to the number of assets currently in holding
-        if price is None:
-            event = events.MarketOrderEvent(asset, order_size, order_type)
-        else:
-            # If the price is specified, return a limit order type event
-            event = events.LimitOrderEvent(asset, order_size, price, order_type)
-        return event
-
-    @ staticmethod
     def place_buy_order(asset, order_size, price=None):
         if price is None:
             event = events.MarketOrderBuyEvent(asset, order_size)

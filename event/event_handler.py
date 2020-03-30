@@ -67,12 +67,6 @@ class EventHandler:
         elif type(event) == events.TrailingStopEvent:
             pass
 
-        elif type(event) == events.MarketOrderEvent:
-            # New event is of type OrderFilledEvent
-            price = self.broker.request_order_price(self.time_series_data[event.asset.ticker])
-            new_event = self.broker.fill_order(event, price)
-            self.event_stack.add(new_event)
-
         elif type(event) == events.MarketOrderBuyEvent:
             # New event is of type OrderFilledEvent
             price = self.broker.request_order_price(self.time_series_data[event.asset.ticker])
@@ -85,7 +79,10 @@ class EventHandler:
             new_event = self.broker.fill_sell_order(event, price, max_volume=event.max_volume)
             self.event_stack.add(new_event)
 
-        elif type(event) == events.LimitOrderEvent:
+        elif type(event) == events.LimitOrderBuyEvent:
+            pass
+
+        elif type(event) == events.LimitOrderSellEvent:
             pass
 
         elif type(event) == events.OrderFilledEvent:

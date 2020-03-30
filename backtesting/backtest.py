@@ -106,8 +106,10 @@ class Backtester:
             'events': {
                 'buy signals': event.events.SignalEventBuy.num_events,
                 'sell signals': event.events.SignalEventSell.num_events,
-                'market orders': event.events.MarketOrderEvent.num_events,
-                'limit orders': event.events.LimitOrderEvent.num_events,
+                'market buy orders': event.events.MarketOrderBuyEvent.num_events,
+                'market sell orders': event.events.MarketOrderSellEvent.num_events,
+                'limit buy orders': event.events.LimitOrderBuyEvent.num_events,
+                'limit sell orders': event.events.LimitOrderSellEvent.num_events,
                 'stop losses': event.events.StopLossEvent.num_events,
                 'trailing stops': event.events.TrailingStopEvent.num_events,
             }

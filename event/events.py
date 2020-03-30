@@ -37,17 +37,6 @@ class SignalEventSell(Event):
         SignalEventSell.num_events += 1
 
 
-class LimitOrderEvent(Event):
-    num_events = {'buy': 0, 'sell': 0}
-
-    def __init__(self, asset, order_size, price, order_type):
-        super().__init__(asset)
-        self.order_size = order_size
-        self.price = price
-        self.type = order_type
-        LimitOrderEvent.num_events[self.type] += 1
-
-
 class LimitOrderBuyEvent(Event):
     num_events = 0
 
@@ -67,16 +56,6 @@ class LimitOrderSellEvent(Event):
         self.price = price
         self.max_volume = max_volume
         LimitOrderSellEvent.num_events += 1
-
-
-class MarketOrderEvent(Event):
-    num_events = {'buy': 0, 'sell': 0}
-
-    def __init__(self, asset, order_size, order_type):
-        super().__init__(asset)
-        self.order_size = order_size
-        self.type = order_type
-        MarketOrderEvent.num_events[self.type] += 1
 
 
 class MarketOrderBuyEvent(Event):
