@@ -1,4 +1,6 @@
 import abc
+import math as m
+from event import events
 
 
 class Broker(abc.ABC):
@@ -18,6 +20,16 @@ class Broker(abc.ABC):
 
         assert fee_type == "percentage_of_trade" or fee_type == "absolute_value"
         self.fee_type = fee_type
+
+    def fill_order(self, order_event, order_price):
+        # Round down
+        # TODO: Find a way to round down to the lowest possible unit of the asset
+        # Meaning whole stocks for stocks, 1e-8 for crypto and 0.01 for forex
+        order_volume = m.floor(order_event.order_size / order_price)
+        order_size = order_volume * order_price
+        commission = self.calculate_commission(order_size)
+
+        return events.OrderFilledEvent(order_event.asset, order_price, order_size, order_volume, order_event.type, commission)
 
     @staticmethod
     def request_order_price(time_series_data):

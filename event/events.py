@@ -78,9 +78,11 @@ class TrailingStopEvent(Event):
 class OrderFilledEvent(Event):
     num_events = {'buy': 0, 'sell': 0}
 
-    def __init__(self, asset, price, order_size, order_type):
+    def __init__(self, asset, price, order_size, order_volume, order_type, commission):
         super().__init__(asset)
         self.price = price
         self.order_size = order_size
         self.type = order_type  # buy or sell
+        self.order_volume = order_volume
+        self.commission = commission
         OrderFilledEvent.num_events[self.type] += 1

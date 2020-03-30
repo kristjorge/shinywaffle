@@ -1,6 +1,5 @@
 from backtesting import risk_management
 from event import events
-import math as m
 
 
 class Portfolio:
@@ -43,21 +42,13 @@ class Portfolio:
             event = events.LimitOrderEvent(asset, order_size, price, order_type)
         return event
 
-    def fill_order(self, order_event, price):
-        # Round down
-        # TODO: Find a way to round down to the lowest possible unit of the asset
-        # Meaning whole stocks for stocks, 1e-8 for crypto and 0.01 for forex
-        order_volume = m.floor(order_event.order_size / price)
-        order_size = order_volume * price
-
+    def register_order(self, order_event):
         if order_event.type == 'buy':
-            self.assets[order_event.asset.ticker]['holding'] += order_volume
-            self.credit(order_size)
+            self.assets[order_event.asset.ticker]['holding'] += order_event.order_volume
+            self.credit(order_event.order_size)
         elif order_event.type == 'sell':
-            self.assets[order_event.asset.ticker]['holding'] -= order_volume
-            self.debit(order_size)
-
-        return events.OrderFilledEvent(order_event.asset, price, order_size, order_event.type)
+            self.assets[order_event.asset.ticker]['holding'] -= order_event.order_volume
+            self.debit(order_event.order_size)
 
     def update(self, time_series_data):
 
@@ -78,7 +69,7 @@ class Portfolio:
 
     def self2dict(self):
         data = {
-            "total value": self.value_over_time
+            'total value': self.value_over_time
         }
 
         return data

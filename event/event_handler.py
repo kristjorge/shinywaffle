@@ -67,15 +67,14 @@ class EventHandler:
         elif type(event) == events.MarketOrderEvent:
             # New event is of type OrderFilledEvent
             price = self.broker.request_order_price(self.time_series_data[event.asset.ticker])
-            new_event = self.portfolio.fill_order(event, price)
+            new_event = self.broker.fill_order(event, price)
             self.event_stack.add(new_event)
 
         elif type(event) == events.LimitOrderEvent:
             pass
 
         elif type(event) == events.OrderFilledEvent:
-            commission = self.broker.calculate_commission(event.order_size)
-            self.portfolio.credit(commission)
+            self.portfolio.register_order(event)
 
     def handle_time_series_events(self, event):
         # Create list of strategy objects that are linked to the asset that have generated the events (same ticker)
