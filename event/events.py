@@ -12,6 +12,9 @@ class Event:
         assert isinstance(asset, financial_assets.FinancialAsset)
         self.asset = asset
 
+    def __str__(self):
+        return type(self).__name__
+
 
 class TimeSeriesEvent(Event):
     num_events = 0

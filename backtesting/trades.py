@@ -1,26 +1,29 @@
+from collections import namedtuple
 
 
 class Trades:
 
-    num_trades = 0
-    all_trades = []
+    def __init__(self):
+        self.num_trades = 0
+        self.active_trades = 0
+        self.all_trades = []
 
-    def __init__(self, asset, trade_size, trade_price, trade_volume, trade_type):
-        self.asset = asset
-        self.trade_size = trade_size
-        self.trade_price = trade_price
-        self.trade_volume = trade_volume
-        self.trade_type = trade_type
-        Trades.num_trades += 1
-        Trades.all_trades.append(self)
+    def new_trade(self, asset, trade_size, trade_price, trade_volume, trade_type, timestamp):
+        trade = namedtuple("trade", ['asset', 'trade_size', 'trade_price', 'trade_volume', 'trade_type', 'timestamp'])
+        t = trade(asset, trade_size, trade_price, trade_volume, trade_type, timestamp)
+        self.num_trades += 1
+        self.all_trades.append(t)
+        if trade_type == "buy":
+            self.active_trades += 1
+        elif trade_type == "sell":
+            self.active_trades -= 1
 
-    @classmethod
-    def self2dict(cls):
+    def self2dict(self):
         all_dicts = []
-        for i, trade in enumerate(Trades.all_trades):
+        for i, trade in enumerate(self.all_trades):
             trade_data = {
                 'trade number': i,
-                'asset': trade.asset.ticker,
+                'asset': trade.asset.name,
                 'type': trade.trade_type,
                 'trade size': trade.trade_size,
                 'trade price': trade.trade_price,

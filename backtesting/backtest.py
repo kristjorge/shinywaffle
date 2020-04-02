@@ -35,6 +35,7 @@ class Backtester:
         self.assets = dict()
         self.time_increment = time_increment
         self.reporter = Reporter(path=path, filename=filename)
+        self.event_handler = None
 
         self.run_from = run_from
         self.run_to = run_to
@@ -95,7 +96,7 @@ class Backtester:
 
     def self2dict(self):
         data = {
-            'initial portfolio holding': self.portfolio.cash,
+            'initial portfolio holding': self.portfolio.initial_holding,
             'base currency': self.portfolio.base_currency,
             'broker': self.broker.self2dict(),
             'assets': [asset.self2dict() for asset in self.assets.values()],
@@ -103,24 +104,15 @@ class Backtester:
             'backtest from': self.backtest_from.strftime("%d-%m-%Y %H:%M:%S"),
             'backtest to': self.backtest_to.strftime("%d-%m-%Y %H:%M:%S"),
             'portfolio': self.portfolio.self2dict(),
-            'events': {
-                'buy signals': event.events.SignalEventBuy.num_events,
-                'sell signals': event.events.SignalEventSell.num_events,
-                'market buy orders': event.events.MarketOrderBuyEvent.num_events,
-                'market sell orders': event.events.MarketOrderSellEvent.num_events,
-                'limit buy orders': event.events.LimitOrderBuyEvent.num_events,
-                'limit sell orders': event.events.LimitOrderSellEvent.num_events,
-                'stop losses': event.events.StopLossEvent.num_events,
-                'trailing stops': event.events.TrailingStopEvent.num_events,
-            }
+            'events': self.event_handler.event_stack.self2dict()
         }
         return data
 
     def run(self):
-        EventHandler(portfolio=self.portfolio,
-                     broker=self.broker,
-                     assets=self.assets,
-                     data_provider=self.data_provider)
+        self.event_handler = EventHandler(portfolio=self.portfolio,
+                             broker=self.broker,
+                             assets=self.assets,
+                             data_provider=self.data_provider)
         self.reporter.aggregate_report(self.self2dict())
 
 

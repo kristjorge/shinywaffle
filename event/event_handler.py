@@ -2,7 +2,6 @@ from event.event_stack import EventStack
 from event.event_stack import EventStackEmptyError
 from data.data_provider import BacktestDataProvider
 from event import events
-import utils.misc
 import data.data_provider
 
 
@@ -86,7 +85,7 @@ class EventHandler:
             pass
 
         elif type(event) == events.OrderFilledEvent:
-            self.portfolio.register_order(event)
+            self.portfolio.register_order(event, self.time_series_data['current time'])
 
     def handle_time_series_events(self, event):
         # Create list of strategy objects that are linked to the asset that have generated the events (same ticker)
@@ -94,7 +93,7 @@ class EventHandler:
         generated_events = []
         for strategy in [s for s in self.assets[event.asset.ticker].strategies.values()]:
             time_series_data = self.time_series_data[event.asset.ticker]
-            time_series_data["asset"] = event.asset
+            time_series_data['asset'] = event.asset
             new_event = strategy.generate_signal(time_series_data)
             generated_events.append(new_event)
 

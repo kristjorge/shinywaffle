@@ -10,13 +10,12 @@ class Broker(abc.ABC):
     Will contain logic for getting order prices
     """
 
-    total_commission = 0
-
     def __init__(self, name, fee, fee_type, min_order_size=None, min_order_currency='USD'):
         self.name = name
         self.fee = fee
         self.min_order_size = min_order_size
         self.min_order_currency = min_order_currency
+        self.total_commission = 0
 
         assert fee_type == "percentage_of_trade" or fee_type == "absolute_value"
         self.fee_type = fee_type
@@ -79,12 +78,12 @@ class InteractiveBrokers(Broker):
     def calculate_commission(self, order_size):
         total_trade_value = order_size
         commission = total_trade_value * self.fee
-        InteractiveBrokers.total_commission += commission
+        self.total_commission += commission
         return commission
 
     def self2dict(self):
         data = super().self2dict()
-        data['total commission'] = InteractiveBrokers.total_commission
+        data['total commission'] = self.total_commission
 
         return data
 

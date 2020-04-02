@@ -42,7 +42,7 @@ class BacktestDataProvider(DataProvider):
 
             time_series_data = {}
             time_series_events = []
-            time_series_data["times"] = new_time
+            time_series_data['current time'] = new_time
 
             day_of_the_week = utils.misc.get_weekday(new_time.weekday())
             print("Currently at time is {} {}".format(day_of_the_week, new_time))
@@ -63,15 +63,8 @@ class BacktestDataProvider(DataProvider):
                         time_series_events.append(TimeSeriesEvent(asset))
                         break
 
-            self.current_time = time_series_data["times"]
+            self.current_time = time_series_data['current time']
             return time_series_events, time_series_data
-
-    @property
-    def backtest_is_active(self):
-        if self.times:
-            return True
-        else:
-            return False
 
 
 class LiveDataProvider(DataProvider):

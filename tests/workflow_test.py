@@ -8,6 +8,7 @@ from backtesting.broker.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from backtesting.workflow.backtest_workflow import BacktestWorkflow
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable
+from backtesting.risk_management import RiskManager
 
 
 ib = InteractiveBrokers()
@@ -18,17 +19,15 @@ sma_strategy = AverageCrossOver("SMA crossover", short=UncertaintyVariable("shor
 # Equinor stocks
 equinor = Stock("Equinor Energy", "EQNR", "USD")
 equinor_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "EQNR", outputsize="full")
-exxon_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "XON", outputsize="full")
 
 equinor.set_bars(equinor_bars)
-equinor.add_data_series("exxon_bars", exxon_bars)
 equinor.add_strategy(sma_strategy)
 
-portfolio = Portfolio(500, "USD", [equinor])
+portfolio = Portfolio(500, "USD", [equinor], RiskManager())
 
 backtester = Backtester(portfolio, ib, [equinor], "daily", run_to=datetime(2020, 1, 1))
 workflow = BacktestWorkflow(backtester, "Simple SMA on Equinor ", path="D:/PythonProjects/shiny-waffle/backtesting/runs",
-                            runs=2, sub_runs=2, out_of_sample_size=0.2, wfa='anchored', stochastic_runs=1)
+                            runs=3, sub_runs=1, out_of_sample_size=0.2, wfa='anchored', stochastic_runs=1)
 
 workflow.set_uncertainty_parameter_values("D:/PythonProjects/shiny-waffle/tests/parameters.csv")
 workflow.run()

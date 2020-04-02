@@ -11,6 +11,8 @@ class Portfolio:
 
     """
 
+    # TODO: Enable position tracking and partial sell of from positions. Needs to be in place to calculate trade profitability
+
     available_currencies = ("USD", "NOK", "GBP", "EUR")
 
     def __init__(self, initial_holding, currency, assets, risk_manager):
@@ -18,13 +20,18 @@ class Portfolio:
         assert isinstance(risk_manager, risk_management.RiskManager)
         assert currency in Portfolio.available_currencies
 
+        self.initial_holding = initial_holding
         self.cash = initial_holding
         self.total_value = initial_holding
         self.base_currency = currency
         self.assets = {asset.ticker: {'holding': 0, 'value': 0, 'asset_data': asset} for asset in assets}
         self.times = []
-        self.running_total_value = []
-        self.running_cash = []
+        self.time_series = {
+            'total value': [],
+            'cash': [],
+            'number of active positions': []
+        }
+        self.trades = Trades()
         self.times_readable = []
         self.risk_manager = risk_manager
 
@@ -39,24 +46,22 @@ class Portfolio:
         if price is None:
             event = events.MarketOrderBuyEvent(asset, order_size)
         else:
-            # If the price is specified, return a limit order type event
             event = events.LimitOrderBuyEvent(asset, order_size, price)
         return event
 
     def place_sell_order(self, asset, order_size, price=None):
-        # TODO: Add a check to see if there are available assets to sell.
-        # TODO: Limit the order volume to the number of assets currently in holding
         max_volume = self.assets[asset.ticker]['holding']
         if price is None:
             event = events.MarketOrderSellEvent(asset, order_size, max_volume)
         else:
-            # If the price is specified, return a limit order type event
             event = events.LimitOrderSellEvent(asset, order_size, price, max_volume)
         return event
 
-    def register_order(self, order_event):
+    def register_order(self, order_event, timestamp):
 
-        Trades(order_event.asset, order_event.order_size, order_event.price, order_event.order_volume, order_event.type)
+        self.trades.new_trade(order_event.asset, order_event.order_size,
+                              order_event.price, order_event.order_volume,
+                              order_event.type, timestamp)
 
         if order_event.type == 'buy':
             self.assets[order_event.asset.ticker]['holding'] += order_event.order_volume
@@ -77,24 +82,23 @@ class Portfolio:
                 except TypeError:
                     # Catching None
                     asset['value'] = 0
-                total_value += asset['value']
+                finally:
+                    total_value += asset['value']
 
-        self.times.append(time_series_data['times'])
-        self.times_readable.append(time_series_data['times'].strftime('%d-%m-%Y %H:%M:%S'))
+        self.times.append(time_series_data['current time'])
+        self.times_readable.append(time_series_data['current time'].strftime('%d-%m-%Y %H:%M:%S'))
         self.total_value = total_value
-        self.running_total_value.append(total_value)
-        self.running_cash.append(self.cash)
+        self.time_series['total value'].append(total_value)
+        self.time_series['cash'].append(self.cash)
+        self.time_series['number of active positions'].append(self.trades.active_trades)
 
     def self2dict(self):
         data = {
-            'trades': Trades.self2dict(),
+            'trades': self.trades.self2dict(),
             'times': self.times_readable,
-            'total value': self.running_total_value,
-            'cash': self.running_cash
+            'total value': self.time_series['total value'],
+            'cash': self.time_series['cash'],
+            'active trades': self.time_series['number of active positions']
         }
 
         return data
-
-    @property
-    def value_over_time(self):
-        return [(t.strftime("%d-%m-%Y %H:%M:%S"), v) for (t, v) in zip(self.times, self.total_value)]
