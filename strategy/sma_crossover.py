@@ -28,7 +28,7 @@ class AverageCrossOver(TradingStrategy):
 
         assert isinstance(time_series_data, dict)
         bars = time_series_data["bars"]
-        ticker = time_series_data["asset"]
+        ticker = time_series_data["asset"].ticker
         short_current = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=0)
         short_previous = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=1)
 
@@ -37,9 +37,9 @@ class AverageCrossOver(TradingStrategy):
 
         try:
             if short_current > long_current and short_previous < long_previous:
-                return events.SignalEventBuy(ticker)
+                return events.SignalEventBuy(time_series_data["asset"])
             elif short_current < long_current and short_previous > long_previous:
-                return events.SignalEventSell(ticker)
+                return events.SignalEventSell(time_series_data["asset"])
             else:
                 return None
         except TypeError:

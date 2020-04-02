@@ -7,6 +7,7 @@ from financial_assets.financial_assets import FinancialAsset
 from event.event_handler import EventHandler
 from data.data_provider import BacktestDataProvider
 from backtesting.reporter import Reporter
+import event.events
 
 
 class Backtester:
@@ -34,6 +35,7 @@ class Backtester:
         self.assets = dict()
         self.time_increment = time_increment
         self.reporter = Reporter(path=path, filename=filename)
+        self.event_handler = None
 
         self.run_from = run_from
         self.run_to = run_to
@@ -94,22 +96,23 @@ class Backtester:
 
     def self2dict(self):
         data = {
-            'initial portfolio holding': self.portfolio.cash,
+            'initial portfolio holding': self.portfolio.initial_holding,
             'base currency': self.portfolio.base_currency,
-            'broker': self.broker.name,
+            'broker': self.broker.self2dict(),
             'assets': [asset.self2dict() for asset in self.assets.values()],
-            'strategies': {asset.name: [s for s in asset.strategies.keys()] for asset in self.assets.values()},
+            'strategies': {asset.name: [s.self2dict() for s in asset.strategies.values()] for asset in self.assets.values()},
             'backtest from': self.backtest_from.strftime("%d-%m-%Y %H:%M:%S"),
-            'backtest to': self.backtest_to.strftime("%d-%m-%Y %H:%M:%S")
+            'backtest to': self.backtest_to.strftime("%d-%m-%Y %H:%M:%S"),
+            'portfolio': self.portfolio.self2dict(),
+            'events': self.event_handler.event_stack.self2dict()
         }
-
         return data
 
     def run(self):
-        EventHandler(portfolio=self.portfolio,
-                     broker=self.broker,
-                     assets=self.assets,
-                     data_provider=self.data_provider)
+        self.event_handler = EventHandler(portfolio=self.portfolio,
+                             broker=self.broker,
+                             assets=self.assets,
+                             data_provider=self.data_provider)
         self.reporter.aggregate_report(self.self2dict())
 
 

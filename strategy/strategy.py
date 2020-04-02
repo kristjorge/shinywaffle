@@ -23,9 +23,13 @@ Functions:
         pass
 
     def self2dict(self):
-        data = {
-            'name': self.name
-        }
+
+        attributes = [a for a in dir(self) if not a.startswith("__")
+                      and not a.startswith("_")
+                      and a not in dir("__builtins__")
+                      and not hasattr(getattr(self, a), "__call__")]
+
+        data = {a: getattr(self, a) for a in attributes}
 
         return data
 

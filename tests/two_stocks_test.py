@@ -19,6 +19,13 @@ nokia = Stock("Nokia", "NOK", "USD")
 nokia_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "NOK", outputsize="full")
 nokia.set_bars(nokia_bars)
 nokia.add_strategy(sma_strategy)
-portfolio = Portfolio(1000, "USD", [nokia], RiskManager())
-backtester = Backtester(portfolio, ib, [nokia], "daily", run_to=datetime(2020, 1, 1))
+
+# Ford stocks
+ford = Stock("Ford", "F", "USD")
+ford_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "F", outputsize="full")
+ford.set_bars(ford_bars)
+ford.add_strategy(sma_strategy)
+
+portfolio = Portfolio(1000, "USD", [nokia, ford], RiskManager())
+backtester = Backtester(portfolio, ib, [nokia, ford], "daily", run_from=datetime(2005, 1, 1), run_to=datetime(2020, 1, 1))
 backtester.run()
