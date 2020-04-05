@@ -10,15 +10,12 @@ class Broker(abc.ABC):
     Will contain logic for getting order prices
     """
 
-    def __init__(self, name, fee, fee_type, min_order_size=None, min_order_currency='USD'):
+    def __init__(self, name, fee, min_order_size=None, min_order_currency='USD'):
         self.name = name
         self.fee = fee
         self.min_order_size = min_order_size
         self.min_order_currency = min_order_currency
         self.total_commission = 0
-
-        assert fee_type == "percentage_of_trade" or fee_type == "absolute_value"
-        self.fee_type = fee_type
 
     def fill_buy_order(self, order_event, order_price):
         # Round down
@@ -58,7 +55,6 @@ class Broker(abc.ABC):
         data = {
             'name': self.name,
             'fee': self.fee,
-            'fee type': self.fee_type,
             'min order size': self.min_order_size,
             'min order size currency': self.min_order_currency
         }
@@ -73,7 +69,7 @@ class InteractiveBrokers(Broker):
 
     """
     def __init__(self):
-        super().__init__("Interactive Brokers", 0.0005, "percentage_of_trade", 5, 'USD')
+        super().__init__("Interactive Brokers", 0.0005, 5, 'USD')
 
     def calculate_commission(self, order_size):
         total_trade_value = order_size

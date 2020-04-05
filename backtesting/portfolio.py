@@ -1,6 +1,6 @@
 from backtesting import risk_management
 from event import events
-from backtesting.trades import Trades
+from backtesting.tradelog import TradeLog
 
 
 class Portfolio:
@@ -31,7 +31,7 @@ class Portfolio:
             'cash': [],
             'number of active positions': []
         }
-        self.trades = Trades()
+        self.trade_log = TradeLog()
         self.times_readable = []
         self.risk_manager = risk_manager
 
@@ -59,16 +59,18 @@ class Portfolio:
 
     def register_order(self, order_event, timestamp):
 
-        self.trades.new_trade(order_event.asset, order_event.order_size,
-                              order_event.price, order_event.order_volume,
-                              order_event.type, timestamp)
+        self.trade_log.new_trade(order_event.asset, order_event.order_size,
+                                 order_event.price, order_event.order_volume,
+                                 order_event.type, timestamp, order_event.commission)
 
         if order_event.type == 'buy':
             self.assets[order_event.asset.ticker]['holding'] += order_event.order_volume
             self.credit(order_event.order_size)
+            self.credit(order_event.commission)
         elif order_event.type == 'sell':
             self.assets[order_event.asset.ticker]['holding'] -= order_event.order_volume
             self.debit(order_event.order_size)
+            self.credit(order_event.commission)
 
     def update_portfolio(self, time_series_data):
 
@@ -90,11 +92,11 @@ class Portfolio:
         self.total_value = total_value
         self.time_series['total value'].append(total_value)
         self.time_series['cash'].append(self.cash)
-        self.time_series['number of active positions'].append(self.trades.active_trades)
+        self.time_series['number of active positions'].append(self.trade_log.active_trades)
 
     def self2dict(self):
         data = {
-            'trades': self.trades.self2dict(),
+            'trades': self.trade_log.self2dict(),
             'times': self.times_readable,
             'total value': self.time_series['total value'],
             'cash': self.time_series['cash'],

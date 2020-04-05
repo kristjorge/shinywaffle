@@ -37,7 +37,6 @@ class BacktestDataProvider(DataProvider):
             new_time = self.times.pop(0)
         except IndexError:
             raise BacktestCompleteException
-
         else:
 
             time_series_data = {}
@@ -45,7 +44,7 @@ class BacktestDataProvider(DataProvider):
             time_series_data['current time'] = new_time
 
             day_of_the_week = utils.misc.get_weekday(new_time.weekday())
-            print("Currently at time is {} {}".format(day_of_the_week, new_time))
+            print("Current time is {} {}".format(day_of_the_week, new_time))
 
             for asset in self.assets.values():
                 time_series_data[asset.ticker] = {}

@@ -48,7 +48,6 @@ class EventHandler:
             # TODO: Implement logic to decide between market and limit orders
             # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
             order_size = self.portfolio.risk_manager.calculate_position_size()
-            # new_event = self.portfolio.place_order(event.asset, order_size, "buy")
             new_event = self.portfolio.place_buy_order(event.asset, order_size)
             self.event_stack.add(new_event)
 
@@ -56,7 +55,6 @@ class EventHandler:
             # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
             # TODO: Implement logic to limit number of asset sold to the number available in the portfolio
             order_size = self.portfolio.risk_manager.calculate_position_size()
-            # new_event = self.portfolio.place_order(event.asset, order_size, "sell")
             new_event = self.portfolio.place_sell_order(event.asset, order_size)
             self.event_stack.add(new_event)
 

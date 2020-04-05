@@ -28,7 +28,6 @@ class AverageCrossOver(TradingStrategy):
 
         assert isinstance(time_series_data, dict)
         bars = time_series_data["bars"]
-        ticker = time_series_data["asset"].ticker
         short_current = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=0)
         short_previous = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=1)
 

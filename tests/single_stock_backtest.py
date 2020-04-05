@@ -20,5 +20,5 @@ nokia_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "NOK", outputsize="
 nokia.set_bars(nokia_bars)
 nokia.add_strategy(sma_strategy)
 portfolio = Portfolio(1000, "USD", [nokia], RiskManager())
-backtester = Backtester(portfolio, ib, [nokia], "daily", run_to=datetime(2020, 1, 1))
+backtester = Backtester(portfolio, ib, [nokia], time_increment="daily", run_to=datetime(2001, 1, 1))
 backtester.run()

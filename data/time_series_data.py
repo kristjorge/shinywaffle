@@ -3,17 +3,6 @@ from datetime import datetime
 from utils.misc import get_datetime_format
 
 
-intervals = ("1min",
-             "5min",
-             "15min",
-             "30min",
-             "60min",
-             "daily",
-             "weekly",
-             "monthly"
-             "yearly")
-
-
 class DataSeriesContainer:
 
     """
@@ -22,6 +11,16 @@ class DataSeriesContainer:
     Method: add_time_series: Adds a new time series to the stock object. Asserts that the added time series data is
             of the type TimeSeriesData
     """
+
+    intervals = ("1min",
+                 "5min",
+                 "15min",
+                 "30min",
+                 "60min",
+                 "daily",
+                 "weekly",
+                 "monthly"
+                 "yearly")
 
     def __init__(self):
         pass
@@ -59,7 +58,7 @@ class DataSeries:
         """
         super().__init__()
         self.data = list()
-        assert interval in intervals
+        assert interval in DataSeriesContainer.intervals
         self.interval = interval
 
     def __len__(self):
@@ -87,12 +86,12 @@ class DataSeries:
         :return: None
         """
 
-        from tools.api_link import APILink
-        assert isinstance(data, list) or isinstance(data, APILink)
+        # from tools.api_link import APILink
+        # assert isinstance(data, list) or isinstance(data, APILink)
         self.data = data
 
-        data_type = type(self.data[0])
-        assert (all(isinstance(d, data_type) for d in self.data))
+        # data_type = type(self.data[0])
+        # assert (all(isinstance(d, data_type) for d in self.data))
 
         attributes = [a for a in dir(self.data[0]) if not a.startswith("_")
                       and a not in dir("__builtins__")]
