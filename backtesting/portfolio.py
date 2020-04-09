@@ -1,6 +1,8 @@
 from backtesting import risk_management
 from event import events
 from backtesting.tradelog import TradeLog
+from positions.position_container import PositionContainer
+from positions.position import Position
 
 
 class Portfolio:
@@ -11,13 +13,10 @@ class Portfolio:
 
     """
 
-    # TODO: Enable position tracking and partial sell of from positions. Needs to be in place to calculate trade profitability
-
     available_currencies = ("USD", "NOK", "GBP", "EUR")
 
-    def __init__(self, initial_holding, currency, assets, risk_manager):
+    def __init__(self, initial_holding, currency, assets):
         assert isinstance(assets, list)
-        assert isinstance(risk_manager, risk_management.RiskManager)
         assert currency in Portfolio.available_currencies
 
         self.initial_holding = initial_holding
@@ -33,13 +32,17 @@ class Portfolio:
         }
         self.trade_log = TradeLog()
         self.times_readable = []
-        self.risk_manager = risk_manager
+        self.risk_manager = None
+        self.positions = PositionContainer(self.assets, self)
 
     def debit(self, amount):
         self.cash += amount
 
     def credit(self, amount):
         self.cash -= amount
+
+    def set_risk_manager(self, risk_manager):
+        self.risk_manager = risk_manager
 
     @ staticmethod
     def place_buy_order(asset, order_size, price=None):
@@ -57,20 +60,44 @@ class Portfolio:
             event = events.LimitOrderSellEvent(asset, order_size, price, max_volume)
         return event
 
-    def register_order(self, order_event, timestamp):
+    def register_order(self, event, timestamp):
+        """
+        Method to register a filled order from the broker on the portfolio.
+        This method logs a trade with the self.trade_log
 
-        self.trade_log.new_trade(order_event.asset, order_event.order_size,
-                                 order_event.price, order_event.order_volume,
-                                 order_event.type, timestamp, order_event.commission)
+        If the event.type == 'buy' then
+                1) a new position in the position container is established
+                2) Increment the holding for the respective asset
+                3) Decrement the cash is decremented equal to the transaction amount
+                4) Decrement the cash the amount for the commission
 
-        if order_event.type == 'buy':
-            self.assets[order_event.asset.ticker]['holding'] += order_event.order_volume
-            self.credit(order_event.order_size)
-            self.credit(order_event.commission)
-        elif order_event.type == 'sell':
-            self.assets[order_event.asset.ticker]['holding'] -= order_event.order_volume
-            self.debit(order_event.order_size)
-            self.credit(order_event.commission)
+        IF the event.type == 'sell' then
+                1) Call 'sell_off_position' from the position container
+                2) Decrement the holding for the respective asset
+                3) Increment the cash equal to the transaction amount
+                4) Decrement the cash the amount for the commission
+        :param event:
+        :param timestamp:
+        :return:
+        """
+
+        self.trade_log.new_trade(event.asset, event.order_size,
+                                 event.price, event.order_volume,
+                                 event.type, timestamp, event.commission)
+
+        if event.type == 'buy':
+            position = Position(timestamp, event.asset, event.order_volume,
+                                event.order_size, event.price)
+
+            self.positions.enter_position(position)
+            self.assets[event.asset.ticker]['holding'] += event.order_volume
+            self.credit(event.order_size)
+            self.credit(event.commission)
+        elif event.type == 'sell':
+            self.positions.sell_off_position(event.asset.ticker, event.order_volume, event.price, timestamp)
+            self.assets[event.asset.ticker]['holding'] -= event.order_volume
+            self.debit(event.order_size)
+            self.credit(event.commission)
 
     def update_portfolio(self, time_series_data):
 
@@ -93,6 +120,7 @@ class Portfolio:
         self.time_series['total value'].append(total_value)
         self.time_series['cash'].append(self.cash)
         self.time_series['number of active positions'].append(self.trade_log.active_trades)
+        self.positions.update_positions(time_series_data)
 
     def self2dict(self):
         data = {
@@ -100,7 +128,8 @@ class Portfolio:
             'times': self.times_readable,
             'total value': self.time_series['total value'],
             'cash': self.time_series['cash'],
-            'active trades': self.time_series['number of active positions']
+            'active trades': self.time_series['number of active positions'],
+            'positions': self.positions.report()
         }
 
         return data

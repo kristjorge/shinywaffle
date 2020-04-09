@@ -1,9 +1,8 @@
-import abc
 import math as m
 from event import events
 
 
-class Broker(abc.ABC):
+class Broker:
 
     """
     Base class for broker objects.
@@ -47,9 +46,8 @@ class Broker(abc.ABC):
     def request_order_price(time_series_data):
         return time_series_data['bars'][0].close
 
-    @abc.abstractmethod
     def calculate_commission(self, order_size):
-        pass
+        raise NotImplemented
 
     def self2dict(self):
         data = {

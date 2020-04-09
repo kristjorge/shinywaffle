@@ -2,6 +2,9 @@
 
 class RiskManager:
 
+    def __init__(self, portfolio):
+        self.portfolio = portfolio
+
     @staticmethod
     def calculate_position_size():
         """
