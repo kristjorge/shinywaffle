@@ -5,6 +5,8 @@ from backtesting.portfolio import Portfolio
 from backtesting.broker.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from backtesting.risk_management import RiskManager
+from event.event_handler import EventHandler
+from data.data_provider import LiveDataProvider
 
 
 ib = InteractiveBrokers()
@@ -21,5 +23,5 @@ portfolio = Portfolio(1000, "USD", [nokia])
 risk_manager = RiskManager(portfolio)
 portfolio.set_risk_manager(risk_manager)
 
-new_bars = nokia_bars.fetch()
-a=1
+data_provider = LiveDataProvider({"NOK": nokia})
+event_handler = EventHandler(portfolio, ib, {"NOK": nokia}, data_provider)

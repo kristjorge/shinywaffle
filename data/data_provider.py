@@ -1,18 +1,16 @@
-import abc
 from tools.api_link import APILink
 from datetime import datetime
 from event.events import TimeSeriesEvent
 import utils.misc
 
 
-class DataProvider(abc.ABC):
+class DataProvider:
 
     def __init__(self, assets):
         self.assets = assets
 
-    @abc.abstractmethod
     def get_time_series_data(self):
-        pass
+        raise NotImplemented
 
 
 class BacktestDataProvider(DataProvider):
@@ -69,14 +67,25 @@ class BacktestDataProvider(DataProvider):
 class LiveDataProvider(DataProvider):
 
     def __init__(self, assets):
-        assert all(isinstance(asset.bar, APILink) for asset in assets)
+        assert all(isinstance(asset.bars, APILink) for asset in assets.values())
         super().__init__(assets)
 
-    def detect_time_series_event(self):
-        pass
-
     def get_time_series_data(self):
-        pass
+        time_series_data = {}
+        time_series_events = []
+
+        for asset in self.assets.values():
+            time_series_data[asset.ticker] = {}
+            avail_series = [(s, getattr(asset.data, s)) for s in dir(asset.data) if isinstance(getattr(asset.data, s), APILink)]
+            for series in avail_series:
+                time_series_data[asset.ticker][series[0]] = series[1].fetch()
+
+            time_series_data[asset.ticker]['bars'] = asset.bars.fetch()
+            time_series_events.append(TimeSeriesEvent(asset))
+            time_series_data['current time'] = time_series_data[asset.ticker]['bars'][0].datetime
+
+        print("Latest Nokia close: {} at time:".format(time_series_data["NOK"]["bars"][0].close, time_series_data["NOK"]["bars"][0].datetime.strftime("%d-%m-%Y %H:%M:%S")))
+        return time_series_events, time_series_data
 
 
 class BacktestCompleteException(Exception):
