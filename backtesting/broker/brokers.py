@@ -71,9 +71,21 @@ class InteractiveBrokers(Broker):
         super().__init__("Interactive Brokers", 0.0005, 5, 'USD')
 
     def calculate_commission(self, order_size):
-        total_trade_value = order_size
-        commission = total_trade_value * self.fee
+        commission = order_size * self.fee
         self.total_commission += commission
         return commission
 
 
+class Binance(Broker):
+    """
+    Binance cryptocurrency exchange / broker class
+
+    """
+
+    def __init__(self):
+        super().__init__("Binance", 0, 0, 'BTC')
+
+    def calculate_commission(self, order_size):
+        commission = order_size * self.fee
+        self.total_commission += commission
+        return commission
