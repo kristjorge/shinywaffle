@@ -13,11 +13,8 @@ class Portfolio:
 
     """
 
-    available_currencies = ("USD", "NOK", "GBP", "EUR")
-
     def __init__(self, initial_holding, currency, assets):
         assert isinstance(assets, list)
-        assert currency in Portfolio.available_currencies
 
         self.initial_holding = initial_holding
         self.cash = initial_holding
@@ -80,7 +77,7 @@ class Portfolio:
         :param timestamp:
         :return:
         """
-
+        print('registering order')
         self.trade_log.new_trade(event.asset, event.order_size,
                                  event.price, event.order_volume,
                                  event.type, timestamp, event.commission)

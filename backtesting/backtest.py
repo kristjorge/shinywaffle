@@ -7,6 +7,7 @@ from financial_assets.financial_assets import FinancialAsset
 from event.event_handler import EventHandler
 from data.data_provider import BacktestDataProvider
 from backtesting.reporter import Reporter
+from utils.misc import get_backtest_dt
 
 
 class Backtester:
@@ -56,24 +57,8 @@ class Backtester:
         self.data_provider = BacktestDataProvider(self.assets, self.times)
 
     def make_times(self):
-        # Creating a list of datetime objects between backtest_from to backtest_to with the time_increment step size
-        if self.time_increment == 'weekly':
-            dt = 7
-        elif self.time_increment == "daily":
-            dt = 1
-        elif self.time_increment == "60min":
-            dt = 1 / 24
-        elif self.time_increment == "30min":
-            dt = 1 / (24*2)
-        elif self.time_increment == "15min":
-            dt = 1 / (24*2*2)
-        elif self.time_increment == "5min":
-            dt = 1 / (24*2*2*3)
-        elif self.time_increment == "1min":
-            dt = 1 / (24*2*2*3*5)
-        else:
-            dt = 1
 
+        get_backtest_dt(self.time_increment)
         num_steps = int((self.backtest_to - self.backtest_from).days / dt)
         self.times = [self.backtest_from + i*timedelta(days=dt) for i in range(0, num_steps)]
 

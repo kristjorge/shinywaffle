@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 from data.bar import Bar
 from data.time_series_data import DataSeries
+from utils.misc import epoch_to_datetime
 
 
 class APILink(abc.ABC):
@@ -18,6 +19,29 @@ class APILink(abc.ABC):
     @abc.abstractmethod
     def fetch(self):
         pass
+
+
+class BinancePublicLink(APILink):
+    def __init__(self, url, interval):
+        super().__init__(url)
+        self.interval = interval
+
+    def fetch(self):
+        response = requests.get(self.url).json()
+        bars = []
+        for kline in response:
+            bar = Bar(epoch_to_datetime(kline[0], ms=True),
+                      float(kline[1]),
+                      float(kline[4]),
+                      float(kline[2]),
+                      float(kline[3]),
+                      float(kline[5]))
+            bars.append(bar)
+
+        bars.reverse()
+        bar_container = DataSeries(self.interval)
+        bar_container.set(bars)
+        return bar_container
 
 
 class AlphaVantageLink(APILink):

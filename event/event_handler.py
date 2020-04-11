@@ -36,12 +36,11 @@ class EventHandler:
                     break
 
             # Update data - only relevant for backtesting
-            if type(data_provider) == data.data_provider.BacktestDataProvider:
-                # Updating portfolio value
-                self.portfolio.update_portfolio(self.time_series_data)
-            elif type(data_provider) == data.data_provider.LiveDataProvider:
-                print("sleeping 5 seconds")
-                time.sleep(5)
+            #if type(data_provider) == data.data_provider.BacktestDataProvider:
+            self.portfolio.update_portfolio(self.time_series_data)
+            if type(data_provider) == data.data_provider.LiveDataProvider:
+                print("Sleeping {} seconds".format(data_provider.sleep_time))
+                time.sleep(data_provider.sleep_time)
 
     def handle_event(self, event):
         if type(event) == events.TimeSeriesEvent:

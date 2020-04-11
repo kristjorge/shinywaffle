@@ -1,7 +1,6 @@
 from strategy.strategy import TradingStrategy
 from event import events
 from technical_indicators.simple_moving_average import simple_moving_average
-from technical_indicators.bollinger_bands import bollinger_bands
 
 
 class AverageCrossOver(TradingStrategy):

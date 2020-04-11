@@ -66,9 +66,11 @@ class BacktestDataProvider(DataProvider):
 
 class LiveDataProvider(DataProvider):
 
-    def __init__(self, assets):
+    def __init__(self, assets, sleep_time=300):
         assert all(isinstance(asset.bars, APILink) for asset in assets.values())
         super().__init__(assets)
+        self.sleep_time = sleep_time
+        self.latest_timestamp = datetime(1900, 1, 1)
 
     def get_time_series_data(self):
         time_series_data = {}
@@ -81,10 +83,15 @@ class LiveDataProvider(DataProvider):
                 time_series_data[asset.ticker][series[0]] = series[1].fetch()
 
             time_series_data[asset.ticker]['bars'] = asset.bars.fetch()
-            time_series_events.append(TimeSeriesEvent(asset))
-            time_series_data['current time'] = time_series_data[asset.ticker]['bars'][0].datetime
 
-        print("Latest Nokia close: {} at time:".format(time_series_data["NOK"]["bars"][0].close, time_series_data["NOK"]["bars"][0].datetime.strftime("%d-%m-%Y %H:%M:%S")))
+            # Add new time series event only if a fresh bar has been found
+            # TODO: Verify if this really makes sense
+            if time_series_data[asset.ticker]['bars'][0].datetime != self.latest_timestamp:
+                print("New bar observed. Creating time series event...")
+                time_series_events.append(TimeSeriesEvent(asset))
+
+            self.latest_timestamp = time_series_data[asset.ticker]['bars'][0].datetime
+            time_series_data['current time'] = time_series_data[asset.ticker]['bars'][0].datetime
         return time_series_events, time_series_data
 
 
