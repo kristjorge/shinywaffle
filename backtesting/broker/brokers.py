@@ -54,7 +54,8 @@ class Broker:
             'name': self.name,
             'fee': self.fee,
             'min order size': self.min_order_size,
-            'min order size currency': self.min_order_currency
+            'min order size currency': self.min_order_currency,
+            'total commission': self.total_commission
         }
 
         return data
@@ -75,9 +76,4 @@ class InteractiveBrokers(Broker):
         self.total_commission += commission
         return commission
 
-    def self2dict(self):
-        data = super().self2dict()
-        data['total commission'] = self.total_commission
-
-        return data
 
