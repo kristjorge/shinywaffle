@@ -109,3 +109,4 @@ class OrderFilledEvent(Event):
         self.order_volume = order_volume
         self.commission = commission
         OrderFilledEvent.num_events[self.type] += 1
+

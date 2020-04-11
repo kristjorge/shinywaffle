@@ -83,7 +83,7 @@ class Binance(Broker):
     """
 
     def __init__(self):
-        super().__init__("Binance", 0, 0, 'BTC')
+        super().__init__("Binance", 0.001, 0, 'BTC')
 
     def calculate_commission(self, order_size):
         commission = order_size * self.fee
