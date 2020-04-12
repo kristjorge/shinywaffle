@@ -16,8 +16,6 @@ class EventHandler:
         self.event_stack = EventStack()
         self.time_series_data = {}
 
-        assert isinstance(self.data_provider, data.data_provider.DataProvider)
-
         while True:
             try:
                 # Detecting any new events and getting the latest time series data
@@ -43,10 +41,8 @@ class EventHandler:
     def handle_event(self, event):
         if type(event) == events.TimeSeriesEvent:
             self.handle_time_series_events(event)
-            print("Total portfolio value: {}".format(self.portfolio.total_value))
 
         elif type(event) == events.SignalEventBuy:
-            # TODO: Implement logic to decide between market and limit orders
             # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
             order_size = self.portfolio.risk_manager.calculate_position_size()
             new_event = self.portfolio.place_buy_order(event.asset, order_size)

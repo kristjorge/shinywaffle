@@ -22,18 +22,6 @@ class EventStack:
             'trailing stop': 0,
             'order filled': 0
         }
-        # self.past_events = {
-        #     repr(events.TimeSeriesEvent): 0,
-        #     repr(events.SignalEventBuy): 0,
-        #     repr(events.SignalEventSell): 0,
-        #     repr(events.LimitOrderBuyEvent): 0,
-        #     repr(events.LimitOrderSellEvent): 0,
-        #     repr(events.MarketOrderBuyEvent): 0,
-        #     repr(events.MarketOrderSellEvent): 0,
-        #     repr(events.StopLossEvent): 0,
-        #     repr(events.TrailingStopEvent): 0,
-        #     repr(events.OrderFilledEvent): 0
-        # }
 
     def add(self, event):
         if isinstance(event, events.Event):
@@ -86,11 +74,6 @@ class EventStack:
     def self2dict(self):
         return self.past_events
 
-class EventStackEmptyError(Exception):
-    # EventStack is empty
-    pass
 
-#     'stop loss': 0,
-#     'trailing stop': 0,
-#     'order filled': 0
-# }
+class EventStackEmptyError(Exception):
+    pass

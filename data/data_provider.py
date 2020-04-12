@@ -66,7 +66,7 @@ class BacktestDataProvider(DataProvider):
 
 class LiveDataProvider(DataProvider):
 
-    def __init__(self, assets, sleep_time=300):
+    def __init__(self, assets, sleep_time: int = 300):
         assert all(isinstance(asset.bars, APILink) for asset in assets.values())
         super().__init__(assets)
         self.sleep_time = sleep_time

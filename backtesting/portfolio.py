@@ -14,8 +14,6 @@ class Portfolio:
     """
 
     def __init__(self, initial_holding, currency, assets):
-        assert isinstance(assets, list)
-
         self.initial_holding = initial_holding
         self.cash = initial_holding
         self.total_value = initial_holding
