@@ -50,7 +50,6 @@ class EventHandler:
 
         elif type(event) == events.SignalEventSell:
             # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
-            # TODO: Implement logic to limit number of asset sold to the number available in the portfolio
             order_size = self.portfolio.risk_manager.calculate_position_size()
             new_event = self.portfolio.place_sell_order(event.asset, order_size)
             self.event_stack.add(new_event)

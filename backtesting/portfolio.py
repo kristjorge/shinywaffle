@@ -13,11 +13,14 @@ class Portfolio:
 
     """
 
-    def __init__(self, initial_holding, currency, assets):
+    # TODO: Implement round half down method
+
+    def __init__(self, initial_holding, currency, assets, num_base_decimals=2):
         self.initial_holding = initial_holding
         self.cash = initial_holding
         self.total_value = initial_holding
         self.base_currency = currency
+        self.base_currency_decimals = num_base_decimals
         self.assets = {asset.ticker: {'holding': 0, 'value': 0, 'asset_data': asset} for asset in assets}
         self.times = []
         self.time_series = {

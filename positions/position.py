@@ -42,8 +42,7 @@ class Position:
         :param timestamp: Datetime object
         :return: is_closed flag indicating whether or not a position is fully closed out or not
         """
-        # TODO: Fix issue where the volume is 2.99999996 instead of 3 (as an example) resulting in not closing out
-        # position
+
         size = volume * price
         self.partial_closed_amount += size
         self.volume_remaining -= volume

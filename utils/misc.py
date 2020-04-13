@@ -1,6 +1,5 @@
 from datetime import datetime
-import re
-
+import math
 
 
 def get_datetime_format(interval):
@@ -86,3 +85,8 @@ def query_string(base_url, param_dict):
         base_url += '&{}='.format(key) + value
 
     return base_url
+
+
+def round_half_down(n, decimals=0):
+    multiplier = 10 ** decimals
+    return math.ceil(n*multiplier - 0.5) / multiplier
