@@ -12,15 +12,17 @@ class DataSeriesContainer:
             of the type TimeSeriesData
     """
 
-    intervals = ("1min",
-                 "5min",
-                 "15min",
-                 "30min",
-                 "60min",
-                 "daily",
-                 "weekly",
-                 "monthly"
-                 "yearly")
+    intervals = ('1min', '1m',
+                 '3min', '3m',
+                 '5min', '5m',
+                 '15min', '15m',
+                 '30min', '30m',
+                 '60min', '1h',
+                 '2h', '4h', '6h', '8h', '12h',
+                 'daily', '1d', '3d',
+                 'weekly', '1w'
+                 'monthly', '1M'
+                 'yearly')
 
     def __init__(self):
         pass

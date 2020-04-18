@@ -1,11 +1,10 @@
-from backtesting import risk_management
 from event import events
 from backtesting.tradelog import TradeLog
 from positions.position_container import PositionContainer
 from positions.position import Position
 
 
-class Portfolio:
+class Account:
 
     """
 
@@ -13,16 +12,14 @@ class Portfolio:
 
     """
 
-    available_currencies = ("USD", "NOK", "GBP", "EUR")
+    # TODO: Implement round half down method
 
-    def __init__(self, initial_holding, currency, assets):
-        assert isinstance(assets, list)
-        assert currency in Portfolio.available_currencies
-
+    def __init__(self, initial_holding, currency, assets, num_base_decimals=2):
         self.initial_holding = initial_holding
         self.cash = initial_holding
         self.total_value = initial_holding
         self.base_currency = currency
+        self.base_currency_decimals = num_base_decimals
         self.assets = {asset.ticker: {'holding': 0, 'value': 0, 'asset_data': asset} for asset in assets}
         self.times = []
         self.time_series = {
@@ -80,7 +77,7 @@ class Portfolio:
         :param timestamp:
         :return:
         """
-
+        print('registering order')
         self.trade_log.new_trade(event.asset, event.order_size,
                                  event.price, event.order_volume,
                                  event.type, timestamp, event.commission)

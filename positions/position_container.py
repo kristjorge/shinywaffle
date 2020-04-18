@@ -8,10 +8,10 @@ class PositionContainer:
 
     latest_active_id = 0
 
-    def __init__(self, assets, portfolio):
+    def __init__(self, assets, account):
         self.active_positions = {asset: [] for asset in assets.keys()}
         self.exited_positions = {asset: [] for asset in assets.keys()}
-        self.portfolio = portfolio
+        self.account = account
         PositionContainer.latest_active_id = 0
 
     def enter_position(self, p):
