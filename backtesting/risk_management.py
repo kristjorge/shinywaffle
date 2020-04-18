@@ -1,9 +1,10 @@
-from backtesting.portfolio import Portfolio
+from backtesting.account import Account
+
 
 class RiskManager:
 
-    def __init__(self, portfolio: Portfolio):
-        self.portfolio = portfolio
+    def __init__(self, account: Account):
+        self.account = account
 
     def calculate_position_size(self) -> float:
         """
@@ -15,8 +16,8 @@ class RiskManager:
 
 class BaseRiskManager(RiskManager):
 
-    def __init__(self, portfolio):
-        super().__init__(portfolio)
+    def __init__(self, account):
+        super().__init__(account)
 
     def calculate_position_size(self) -> float:
         """
@@ -24,5 +25,5 @@ class BaseRiskManager(RiskManager):
         For now only returns 5 % of available cash
         :return: desired position size in relevant currency
         """
-        position_size = self.portfolio.cash * 0.05
+        position_size = self.account.cash * 0.05
         return position_size

@@ -1,11 +1,10 @@
-from backtesting import risk_management
 from event import events
 from backtesting.tradelog import TradeLog
 from positions.position_container import PositionContainer
 from positions.position import Position
 
 
-class Portfolio:
+class Account:
 
     """
 

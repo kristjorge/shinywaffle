@@ -1,4 +1,3 @@
-import abc
 from data.time_series_data import DataSeries
 from backtesting.stock.stops import TrailingStop
 from backtesting.stock.stops import StopLoss
@@ -9,7 +8,7 @@ from tools.api_link import APILink
 from strategy.strategy import TradingStrategy
 
 
-class FinancialAsset(abc.ABC):
+class FinancialAsset:
 
     """
     Base class for tradable financial_assets. Classes that inherit from financial_assets are:
@@ -66,7 +65,7 @@ class Stock(FinancialAsset):
     def __init__(self, name, ticker, base_currency):
         super().__init__(name, ticker, base_currency)
         self.type = "stock"
-        self.lowest_quantity = 1
+        self.num_decimal_points = 0
 
 
 class Forex(FinancialAsset):
@@ -74,7 +73,7 @@ class Forex(FinancialAsset):
     def __init__(self, name, ticker, base_currency):
         super().__init__(name, ticker, base_currency)
         self.type = "forex"
-        self.lowest_quantity = 0.01
+        self.num_decimal_points = 2
 
 
 class Cryptocurrency(FinancialAsset):
@@ -82,5 +81,5 @@ class Cryptocurrency(FinancialAsset):
     def __init__(self, name, ticker, base_currency):
         super().__init__(name, ticker, base_currency)
         self.type = "cryptocurrency"
-        self.lowest_quantity = 0.000000001
+        self.num_decimal_points = 8
 

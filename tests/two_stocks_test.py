@@ -2,7 +2,7 @@ import os
 from tools.alpha_vantage import AlphaVantage
 from backtesting.backtest import Backtester
 from financial_assets.financial_assets import Stock
-from backtesting.portfolio import Portfolio
+from backtesting.account import Account
 from backtesting.broker.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from datetime import datetime
@@ -26,6 +26,6 @@ ford_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "F", outputsize="ful
 ford.set_bars(ford_bars)
 ford.add_strategy(sma_strategy)
 
-portfolio = Portfolio(1000, "USD", [nokia, ford], RiskManager())
+portfolio = Account(1000, "USD", [nokia, ford], RiskManager())
 backtester = Backtester(portfolio, ib, [nokia, ford], "daily", run_from=datetime(2005, 1, 1), run_to=datetime(2020, 1, 1))
 backtester.run()

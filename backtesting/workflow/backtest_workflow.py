@@ -152,7 +152,7 @@ class BacktestWorkflow:
                     if self.enable_stochastic:
                         name += " stochastic_{}".format(stochastic_run_no)
 
-                    new_backtester = Backtester(copy.deepcopy(self._backtester.portfolio),
+                    new_backtester = Backtester(copy.deepcopy(self._backtester.account),
                                                 copy.deepcopy(self._backtester.broker),
                                                 [s for s in copy.deepcopy(self._backtester.assets).values()],
                                                 self._backtester.time_increment,

@@ -3,8 +3,6 @@ from collections import namedtuple
 
 class Position:
 
-    # TODO: Store transaction commissions here too
-
     transaction = namedtuple("Transaction", ["volume", "price", "size", "timestamp"])
 
     def __init__(self, timestamp_opened, asset, volume, size, price):

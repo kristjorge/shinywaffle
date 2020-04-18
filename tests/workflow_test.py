@@ -3,7 +3,7 @@ from datetime import datetime
 from tools.alpha_vantage import AlphaVantage
 from backtesting.backtest import Backtester
 from financial_assets.financial_assets import Stock
-from backtesting.portfolio import Portfolio
+from backtesting.account import Account
 from backtesting.broker.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from backtesting.workflow.backtest_workflow import BacktestWorkflow
@@ -23,7 +23,7 @@ equinor_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "EQNR", outputsiz
 equinor.set_bars(equinor_bars)
 equinor.add_strategy(sma_strategy)
 
-portfolio = Portfolio(500, "USD", [equinor], RiskManager())
+portfolio = Account(500, "USD", [equinor], RiskManager())
 
 backtester = Backtester(portfolio, ib, [equinor], "daily", run_to=datetime(2020, 1, 1))
 workflow = BacktestWorkflow(backtester, "Simple SMA on Equinor ", path="D:/PythonProjects/shiny-waffle/backtesting/runs",

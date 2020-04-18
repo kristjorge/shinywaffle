@@ -1,6 +1,6 @@
 from tools.binance import BinancePublic
 from financial_assets import financial_assets
-from backtesting.portfolio import Portfolio
+from backtesting.account import Account
 from backtesting.broker.brokers import Binance
 from strategy.random_signal_strategy import RandomSignalStrategy
 from data.data_provider import LiveDataProvider
@@ -17,7 +17,7 @@ ether = financial_assets.Cryptocurrency("Ethereum", "ETH", "BTC")
 ether_bars = binance_api.get_candlesticks("BTC", "ETH", "1m", return_as_link=True)
 ether.set_bars(ether_bars)
 ether.add_strategy(sma_strategy)
-portfolio = Portfolio(1, "BTC", [ether])
+portfolio = Account(1, "BTC", [ether])
 risk_manager = BaseRiskManager(portfolio)
 portfolio.set_risk_manager(risk_manager)
 data_provider = LiveDataProvider({'ETH': ether}, sleep_time=10)

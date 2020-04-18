@@ -3,17 +3,18 @@ from collections import namedtuple
 
 class TradeLog:
 
+    trade = namedtuple("trade",
+                       ['asset', 'trade_size', 'trade_price',
+                        'trade_volume', 'trade_type', 'timestamp', 'commission'])
+
     def __init__(self):
         self.num_trades = 0
         self.active_trades = 0
         self.all_trades = []
 
     def new_trade(self, asset, trade_size, trade_price, trade_volume, trade_type, timestamp, commission):
-        trade = namedtuple("trade",
-                           ['asset', 'trade_size', 'trade_price',
-                            'trade_volume', 'trade_type', 'timestamp', 'commission'])
 
-        t = trade(asset, trade_size, trade_price, trade_volume, trade_type, timestamp, commission)
+        t = TradeLog.trade(asset, trade_size, trade_price, trade_volume, trade_type, timestamp, commission)
         self.num_trades += 1
         self.all_trades.append(t)
         if trade_type == "buy":
