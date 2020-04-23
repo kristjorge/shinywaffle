@@ -7,7 +7,7 @@ from financial_assets.financial_assets import FinancialAsset
 from event.event_handler import EventHandler
 from data.data_provider import BacktestDataProvider
 from backtesting.reporter import Reporter
-from utils.misc import get_backtest_dt
+from utils.misc import get_backtest_dt, get_datetime_format
 
 
 class Backtester:
@@ -17,8 +17,10 @@ class Backtester:
 
     """
 
-    def __init__(self, account, broker, trading_assets, time_increment, run_from=None, run_to=None, path=os.getcwd(),
-                 filename="Summary {}".format(datetime.now().strftime("%d-%m-%Y %H%M%S"))):
+    def __init__(self,
+                 account: Account, broker: Broker, trading_assets: list, time_increment: str, run_from: datetime = None,
+                 run_to: datetime = None, path: str = os.getcwd(),
+                 filename: str = "Summary {}".format(datetime.now().strftime("%d-%m-%Y %H%M%S"))):
         """
 
         :param account: Object describing the trading account (type Account)
@@ -33,7 +35,8 @@ class Backtester:
         self.account = account
         self.broker = broker
         self.assets = dict()
-        self.time_increment = time_increment
+        self.time_increment = get_datetime_format(time_increment)
+        self.datetime_format = self.time_increment
         self.reporter = Reporter(path=path, filename=filename)
         self.event_handler = None
 
@@ -58,7 +61,7 @@ class Backtester:
 
     def make_times(self):
 
-        get_backtest_dt(self.time_increment)
+        dt = get_backtest_dt(self.time_increment)
         num_steps = int((self.backtest_to - self.backtest_from).days / dt)
         self.times = [self.backtest_from + i*timedelta(days=dt) for i in range(0, num_steps)]
 
@@ -82,14 +85,14 @@ class Backtester:
 
     def self2dict(self):
         data = {
-            'initial portfolio holding': self.account.initial_holding,
+            'initial account holding': self.account.initial_holding,
             'base currency': self.account.base_currency,
             'broker': self.broker.self2dict(),
             'assets': [asset.self2dict() for asset in self.assets.values()],
             'strategies': {asset.name: [s.self2dict() for s in asset.strategies.values()] for asset in self.assets.values()},
             'backtest from': self.backtest_from.strftime("%d-%m-%Y %H:%M:%S"),
             'backtest to': self.backtest_to.strftime("%d-%m-%Y %H:%M:%S"),
-            'portfolio': self.account.self2dict(),
+            'account': self.account.self2dict(),
             'events': self.event_handler.event_stack.self2dict()
         }
         return data
@@ -104,7 +107,10 @@ class Backtester:
 
 class BacktestContainer:
 
-    def __init__(self, name, parameters, backtester, path, run_no, sub_run_no, stochastic_run_no):
+    def __init__(self,
+                 name: str, parameters: dict, backtester: Backtester, path: str,
+                 run_no: int, sub_run_no: int, stochastic_run_no: int):
+
         self.name = name
         self.parameters = parameters
         self.backtester = backtester

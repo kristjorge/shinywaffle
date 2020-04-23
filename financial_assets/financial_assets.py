@@ -6,6 +6,7 @@ from backtesting.stock.stops import StopHolder
 from data.time_series_data import DataSeriesContainer
 from tools.api_link import APILink
 from strategy.strategy import TradingStrategy
+from utils.misc import daily_datetime_format
 
 
 class FinancialAsset:
@@ -17,11 +18,11 @@ class FinancialAsset:
         - Cryptocurrencies
     """
 
-    def __init__(self, name, ticker, base_currency):
+    def __init__(self, name: str, ticker: str, base_currency: str):
         self.name = name
         self.ticker = ticker
         self.base_currency = base_currency
-        self.datetime_format = "%Y-%m-%d"
+        self.datetime_format = daily_datetime_format
         self.bars = None
         self.data = DataSeriesContainer()
         self.stops = StopHolder()
@@ -33,6 +34,12 @@ class FinancialAsset:
         self.bars = bars
 
     def add_strategy(self, strategy_object):
+
+        """
+        Setting a strategy object to the list of available tradable strategies to the financial asset
+        :param strategy_object: Strategy object of type TradingStrategy
+        """
+
         assert isinstance(strategy_object, TradingStrategy)
         if strategy_object.name in self.strategies:
             print("Strategy already exists in asset. Skipped.")
@@ -40,6 +47,14 @@ class FinancialAsset:
             self.strategies[strategy_object.name] = strategy_object
 
     def add_data_series(self, name, data_series):
+
+        """
+        Method to add data series to the financial asset. Data series represent time series data like price data
+        or sentiment data
+        :param name: Name to be referenced
+        :param data_series: DataSeries object
+        """
+
         assert isinstance(data_series, DataSeries)
         self.data.add(data_series, name)
 
@@ -52,6 +67,12 @@ class FinancialAsset:
             setattr(self.stops, "target_stop", stop_object)
 
     def self2dict(self):
+
+        """
+        Returning a serializable dictionary that can be reported in a json file by the reporter class
+        :return: data (dictionary)
+        """
+
         data = {
             'name': self.name,
             'ticker': self.ticker,

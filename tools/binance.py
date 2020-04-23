@@ -10,48 +10,47 @@ import requests
 import math as m
 
 
-def get_interval_milliseconds(interval):
-    interval_1m = 60*1000
-    interval_1h = 60 * interval_1m
-    interval_1d = 24 * interval_1h
-    if interval == '1m':
-        return interval_1m
-    elif interval == '3m':
-        return 3 * interval_1m
-    elif interval == '5m':
-        return 5 * interval_1m
-    elif interval == '15m':
-        return 15 * interval_1m
-    elif interval == '30m':
-        return 30 * interval_1m
-    elif interval == '1h':
-        return interval_1h
-    elif interval == '2h':
-        return 2 * interval_1h
-    elif interval == '4h':
-        return 4 * interval_1h
-    elif interval == '6h':
-        return 6 * interval_1h
-    elif interval == '8h':
-        return 8 * interval_1h
-    elif interval == '12h':
-        return 12 * interval_1h
-    elif interval == '1d':
-        return interval_1d
-    elif interval == '3d':
-        return 3 * interval_1d
-    elif interval == '1w':
-        return 7 * interval_1d
-    elif interval == '1M':
-        return 31 * interval_1d
-
-
 class BinancePublic(API):
 
     """
     Class for interacting with Binance API for cryptocurrency
 
     """
+    @staticmethod
+    def get_interval_milliseconds(interval: str):
+        interval_1m = 60*1000
+        interval_1h = 60 * interval_1m
+        interval_1d = 24 * interval_1h
+        if interval == '1m':
+            return interval_1m
+        elif interval == '3m':
+            return 3 * interval_1m
+        elif interval == '5m':
+            return 5 * interval_1m
+        elif interval == '15m':
+            return 15 * interval_1m
+        elif interval == '30m':
+            return 30 * interval_1m
+        elif interval == '1h':
+            return interval_1h
+        elif interval == '2h':
+            return 2 * interval_1h
+        elif interval == '4h':
+            return 4 * interval_1h
+        elif interval == '6h':
+            return 6 * interval_1h
+        elif interval == '8h':
+            return 8 * interval_1h
+        elif interval == '12h':
+            return 12 * interval_1h
+        elif interval == '1d':
+            return interval_1d
+        elif interval == '3d':
+            return 3 * interval_1d
+        elif interval == '1w':
+            return 7 * interval_1d
+        elif interval == '1M':
+            return 31 * interval_1d
 
     intervals = ['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M']
 
@@ -59,8 +58,8 @@ class BinancePublic(API):
         super().__init__(token)
         self.base_url = 'https://api.binance.com'
 
-    def get_candlesticks(self, base_asset, quote_asset, interval, limit=500, time_to=datetime.now(),
-                         time_from=None, return_as_link=False):
+    def get_candlesticks(self, base_asset: str, quote_asset: str, interval: str, limit:int = 500,
+                         time_to: datetime = datetime.now(), time_from: datetime = None, return_as_link: bool = False):
 
         param_dict = {
             'symbol': quote_asset + base_asset,
@@ -69,7 +68,7 @@ class BinancePublic(API):
 
         end_time = int(datetime_to_epoch(time_to, ms=True))
         final_end_time_ms = end_time
-        interval_ms = get_interval_milliseconds(interval)
+        interval_ms = self.get_interval_milliseconds(interval)
         url = self.base_url + '/api/v3/klines?'
         url = query_string(url, param_dict)
 
@@ -111,14 +110,20 @@ class BinancePublic(API):
 
     @staticmethod
     def query(string):
+        """
+        Performs a request get call on the supplied URL. Parses the result as a json dictionary and returns the data
+        as a list of Bar objects
+        :param string: URL
+        :return: list of Bar objects
+        """
         response = requests.get(string).json()
         bars = []
-        for kline in response:
-            bar = Bar(epoch_to_datetime(kline[0], ms=True),
-                      float(kline[1]),
-                      float(kline[4]),
-                      float(kline[2]),
-                      float(kline[3]),
-                      float(kline[5]))
+        for candle in response:
+            bar = Bar(epoch_to_datetime(candle[0], ms=True),
+                      float(candle[1]),
+                      float(candle[4]),
+                      float(candle[2]),
+                      float(candle[3]),
+                      float(candle[5]))
             bars.append(bar)
         return bars

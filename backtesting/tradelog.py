@@ -1,4 +1,5 @@
 from collections import namedtuple
+from datetime import datetime
 
 
 class TradeLog:
@@ -12,7 +13,9 @@ class TradeLog:
         self.active_trades = 0
         self.all_trades = []
 
-    def new_trade(self, asset, trade_size, trade_price, trade_volume, trade_type, timestamp, commission):
+    def new_trade(self,
+                  asset, trade_size: float, trade_price: float, trade_volume: int or float,
+                  trade_type: str, timestamp: datetime, commission: float):
 
         t = TradeLog.trade(asset, trade_size, trade_price, trade_volume, trade_type, timestamp, commission)
         self.num_trades += 1

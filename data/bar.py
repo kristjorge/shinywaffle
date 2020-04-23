@@ -16,24 +16,20 @@ class Bar:
 
     """
 
-    def __init__(self, timestamp, opn, close, high, low, volume):
+    def __init__(self,
+                 timestamp: datetime, opn: float or str, close: float or str,
+                 high: float or str, low: float or str, volume: float or str):
+
         super().__init__()
-        self.datetime = timestamp
+        self.time = timestamp
         self.open = float(opn)
         self.close = float(close)
         self.high = float(high)
         self.low = float(low)
         self.volume = int(volume)
 
-        assert isinstance(timestamp, datetime) or timestamp is None
-        assert isinstance(self.open, float)
-        assert isinstance(self.high, float)
-        assert isinstance(self.low, float)
-        assert isinstance(self.close, float)
-        assert isinstance(self.volume, int)
-
     def __add__(self, other):
-        timestamp = max(self.datetime, other.datetime)
+        timestamp = max(self.time, other.time)
         opn = self.open + other.open
         close = self.close + other.close
         high = self.high + other.high
@@ -44,8 +40,8 @@ class Bar:
 
     def __truediv__(self, f):
         assert isinstance(f, int) or isinstance(f, float)
-        return Bar(self.datetime, self.open / f, self.close / f, self.high / f, self.low / f, self.volume / f)
+        return Bar(self.time, self.open / f, self.close / f, self.high / f, self.low / f, self.volume / f)
 
     def __mul__(self, f):
         assert isinstance(f, int) or isinstance(f, float)
-        return Bar(self.datetime, self.open * f, self.close * f, self.high * f, self.low * f, self.volume * f)
+        return Bar(self.time, self.open * f, self.close * f, self.high * f, self.low * f, self.volume * f)

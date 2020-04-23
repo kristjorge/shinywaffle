@@ -15,7 +15,7 @@ class DataProvider:
 
 class BacktestDataProvider(DataProvider):
 
-    def __init__(self, assets, times):
+    def __init__(self, assets, times: list):
         super().__init__(assets)
         self.times = times
         self.current_time = datetime(1900, 1, 1, 0, 0, 0)
@@ -25,9 +25,13 @@ class BacktestDataProvider(DataProvider):
 
         """
         Gathering a dictionary of the time series data for all the stocks in the backtester
-            "times" stores the historical report steps generated in the backtester. Every time this method is called,
-            the first item is popped to advance the historical time. When all the items are popped, then the backtest
-            stops.
+        "times" stores the historical report steps generated in the backtester. Every time this method is called,
+        the first item is popped to advance the historical time. When all the items are popped, then the backtest
+        stops.
+
+        Creates a dict (time_series_data) which holds the keys 'current time' (popped time) and keys for each ticker
+        of the active assets. Each ticker key is a new dict with the time series data under each key.
+
         :return: dict with TimeSeriesEvents for each asset that has seen a new event
         """
 

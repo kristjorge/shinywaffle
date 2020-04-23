@@ -16,11 +16,12 @@ class AlphaVantage(API):
 
     """
 
-    def __init__(self, token):
+    def __init__(self, token: str):
         super().__init__(token)
         self.base_url = "https://www.alphavantage.co/query?function="
 
-    def query_stocks(self, function, symbol, return_as_link=False, interval="60min", outputsize="full", use_adjusted_close=False):
+    def query_stocks(self, function: str, symbol: str, return_as_link: bool = False,
+                     interval:str = "60min", outputsize:str = "full", use_adjusted_close: bool = False):
 
         """
         Function to create query string used to get stock data from the VantageAlpha API
@@ -49,7 +50,7 @@ class AlphaVantage(API):
 
         """
 
-        # Getting kwargs
+        # Setting json dict key names
         opn = '1. open'
         high = '2. high'
         low = '3. low'
@@ -114,8 +115,6 @@ class AlphaVantage(API):
 
                 bars.append(bar)
 
-            # bars.reverse()
-
             bar_container = DataSeries(interval)
             bar_container.set(bars)
             response = bar_container
@@ -125,7 +124,8 @@ class AlphaVantage(API):
         else:
             return AlphaVantageLink(url, json_header, datetime_format, interval, opn, close, high, low, volume)
 
-    def query_forex(self, function, from_currency, to_currency, return_as_link=False, interval="60min", outputsize="full"):
+    def query_forex(self, function: str, from_currency: str, to_currency: str,
+                    return_as_link: bool = False, interval: str = "60min", outputsize:str = "full"):
 
         """
         Function to create query string used to get forex data from the VantageAlpha API
@@ -225,6 +225,6 @@ class AlphaVantage(API):
             response = bar_container
             return response
         else:
-            return AlphaVantageLink(url, json_header, datetime_format, interval, opn, close, high, low, "volume", ascending)
+            return AlphaVantageLink(url, json_header, datetime_format, interval, opn, close, high, low, "volume")
 
 

@@ -9,6 +9,13 @@ class EventStack:
     """
 
     def __init__(self):
+
+        """
+        events holds the events in the EventStack
+        past_events is a dict used to increment each event type whenever they are popped from the stack. Used in
+        analysis later
+        """
+
         self.events = list()
         self.past_events = {
             'time series': 0,
@@ -24,6 +31,12 @@ class EventStack:
         }
 
     def add(self, event):
+        """
+        Method to add an event to the EventStack. The added event can either be a single event or a list of events. If
+        they are provided as a list of events, the events in the list are added one by one
+        :param event: can either be an event or list of events
+        :return: N/A
+        """
         if isinstance(event, events.Event):
             if event is not None:
                 self.events.append(event)
@@ -39,12 +52,14 @@ class EventStack:
 
     def get(self):
         """
+        Method that pops the first item in the stack and returns in. Increments the appropriate event type in
+        self.past_events dictionary.
+        Raises EventStackEmptyError if the event stack is empty
 
-        :return: event and True. If there are no more events in the even stack, return None and False
+        :return: event. If there are no more events in the even stack, return None and False
         """
         try:
             event = self.events.pop()
-            # self.past_events[str(event)] += 1
 
             if type(event) == events.TimeSeriesEvent:
                 self.past_events['time series'] += 1

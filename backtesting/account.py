@@ -1,7 +1,10 @@
+from datetime import datetime
 from event import events
 from backtesting.tradelog import TradeLog
 from positions.position_container import PositionContainer
 from positions.position import Position
+from backtesting.risk_management import RiskManager
+from financial_assets.financial_assets import FinancialAsset
 
 
 class Account:
@@ -12,9 +15,9 @@ class Account:
 
     """
 
-    # TODO: Implement round half down method
+    # TODO: Implement round down method
 
-    def __init__(self, initial_holding, currency, assets, num_base_decimals=2):
+    def __init__(self, initial_holding: float, currency: str, assets: list, num_base_decimals: int = 2):
         self.initial_holding = initial_holding
         self.cash = initial_holding
         self.total_value = initial_holding
@@ -32,24 +35,24 @@ class Account:
         self.risk_manager = None
         self.positions = PositionContainer(self.assets, self)
 
-    def debit(self, amount):
+    def debit(self, amount: float):
         self.cash += amount
 
-    def credit(self, amount):
+    def credit(self, amount: float):
         self.cash -= amount
 
-    def set_risk_manager(self, risk_manager):
+    def set_risk_manager(self, risk_manager: RiskManager):
         self.risk_manager = risk_manager
 
     @ staticmethod
-    def place_buy_order(asset, order_size, price=None):
+    def place_buy_order(asset: FinancialAsset, order_size: float, price: float = None) -> events.MarketOrderSellEvent or events.LimitOrderSellEvent:
         if price is None:
             event = events.MarketOrderBuyEvent(asset, order_size)
         else:
             event = events.LimitOrderBuyEvent(asset, order_size, price)
         return event
 
-    def place_sell_order(self, asset, order_size, price=None):
+    def place_sell_order(self, asset: FinancialAsset, order_size: float, price: float = None):
         max_volume = self.assets[asset.ticker]['holding']
         if price is None:
             event = events.MarketOrderSellEvent(asset, order_size, max_volume)
@@ -57,9 +60,9 @@ class Account:
             event = events.LimitOrderSellEvent(asset, order_size, price, max_volume)
         return event
 
-    def register_order(self, event, timestamp):
+    def register_order(self, event, timestamp: datetime):
         """
-        Method to register a filled order from the broker on the portfolio.
+        Method to register a filled order from the broker on the account.
         This method logs a trade with the self.trade_log
 
         If the event.type == 'buy' then
@@ -90,14 +93,15 @@ class Account:
             self.assets[event.asset.ticker]['holding'] += event.order_volume
             self.credit(event.order_size)
             self.credit(event.commission)
+
         elif event.type == 'sell':
             self.positions.sell_off_position(event.asset.ticker, event.order_volume, event.price, timestamp)
             self.assets[event.asset.ticker]['holding'] -= event.order_volume
             self.debit(event.order_size)
             self.credit(event.commission)
 
-    def update_portfolio(self, time_series_data):
-
+    def update_portfolio(self, time_series_data: dict):
+        # TODO: Make time series data a new class container used for passing new time series data in
         total_value = self.cash
 
         for ticker, asset in self.assets.items():

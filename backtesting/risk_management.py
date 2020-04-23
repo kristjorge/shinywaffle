@@ -16,7 +16,7 @@ class RiskManager:
 
 class BaseRiskManager(RiskManager):
 
-    def __init__(self, account):
+    def __init__(self, account: Account):
         super().__init__(account)
 
     def calculate_position_size(self) -> float:

@@ -2,13 +2,16 @@ from event.event_stack import EventStack
 from event.event_stack import EventStackEmptyError
 from event import events
 import data.data_provider
-import data.data_provider
 import time
+from backtesting.account import Account
+from backtesting.broker.brokers import Broker
+from typing import Type
 
 
 class EventHandler:
 
-    def __init__(self, account, broker, assets, data_provider):
+    def __init__(self, account: Account, broker: Type[Broker], assets: dict,
+                 data_provider: Type[data.data_provider.DataProvider]):
         self.account = account
         self.broker = broker
         self.assets = assets

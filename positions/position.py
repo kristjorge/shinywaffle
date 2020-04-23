@@ -1,12 +1,13 @@
 from collections import namedtuple
+from datetime import datetime
 
 
 class Position:
 
-    transaction = namedtuple("Transaction", ["volume", "price", "size", "timestamp"])
+    Transaction = namedtuple("Transaction", ["volume", "price", "size", "time"])
 
-    def __init__(self, timestamp_opened, asset, volume, size, price):
-        self.opened = timestamp_opened
+    def __init__(self, time_opened: datetime, asset, volume: float, size: float, price: float):
+        self.opened = time_opened
         self.asset = asset
         self.id = None
         self.volume = volume
@@ -27,27 +28,27 @@ class Position:
         }
         self.transactions = []
 
-    def sell_off(self, volume, price, timestamp):
+    def sell_off(self, volume: float, price: float, time: datetime):
         """
 
         Method to partially close a position. Incrementing the partial return member variable by the order size.
         Decrements the self.remaining_volume member variable by the volume of the partial close
         If self.remaining_volume is then totalled to 0, calculate the average close price which triggers the
-        final closure of the position
+        final closure of the position. Average close price is calculated by volume weighting
 
         :param volume: volume of the partial close
         :param price: Price at which the position was partially closed
-        :param timestamp: Datetime object
+        :param time: Datetime object
         :return: is_closed flag indicating whether or not a position is fully closed out or not
         """
 
         size = volume * price
         self.partial_closed_amount += size
         self.volume_remaining -= volume
-        self.transactions.append(Position.transaction(volume, price, size, timestamp))
+        self.transactions.append(Position.Transaction(volume, price, size, time))
 
         if self.volume_remaining == 0:
-            self.closed = timestamp
+            self.closed = time
             self.close_price = sum([t.volume * t.price for t in self.transactions]) / sum([t.volume for t in self.transactions])
             self.is_active = False
 
@@ -60,6 +61,7 @@ class Position:
         by the event handler
         :param time_series_data: Time series data object received by the data provider
         """
+
         close_price = time_series_data[self.asset.ticker]['bars'][0].close
         current_time = time_series_data['current time']
         remaining_value = self.volume_remaining * close_price
