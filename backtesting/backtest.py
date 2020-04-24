@@ -2,7 +2,7 @@ import os
 from datetime import timedelta
 from datetime import datetime
 from backtesting.account import Account
-from backtesting.broker.brokers import Broker
+from backtesting.brokers import Broker
 from financial_assets.financial_assets import FinancialAsset
 from event.event_handler import EventHandler
 from data.data_provider import BacktestDataProvider

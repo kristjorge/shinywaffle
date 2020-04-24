@@ -2,7 +2,7 @@ import os
 from tools.alpha_vantage import AlphaVantage
 from financial_assets.financial_assets import Stock
 from backtesting.account import Account
-from backtesting.broker.brokers import InteractiveBrokers
+from backtesting.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from backtesting.risk_management import RiskManager
 from event.event_handler import EventHandler

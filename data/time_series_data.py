@@ -28,21 +28,21 @@ class DataSeriesContainer:
         pass
 
     def add(self, data_source, name):
-        assert isinstance(data_source, DataSeries)
+        assert isinstance(data_source, TimeSeries)
         setattr(self, name, data_source)
 
     def time_series(self):
         """
         :return: A tuple of the name of the attribute and the attribute object
         """
-        return [(s, getattr(self, s)) for s in dir(self) if isinstance(getattr(self, s), DataSeries)]
+        return [(s, getattr(self, s)) for s in dir(self) if isinstance(getattr(self, s), TimeSeries)]
 
     def __iter__(self):
         for t in self.time_series():
             yield t
 
 
-class DataSeries:
+class TimeSeries:
 
     """
     A container class for time series data.
@@ -75,7 +75,7 @@ class DataSeries:
 
     def sample_datetime(self, timestamp):
         assert isinstance(timestamp, datetime)
-        data_series = DataSeries(self.interval)
+        data_series = TimeSeries(self.interval)
         data_series.set([d for d in self.data if d.datetime <= timestamp])
         return data_series
 
@@ -161,7 +161,7 @@ class TimeSeriesDataReader:
             row_data["datetime"] = datetime.strptime(getattr(row, "datetime"), datetime_format)
             data_objects.append(DataPoint(row_data))
 
-        time_series_data = DataSeries(interval)
+        time_series_data = TimeSeries(interval)
         time_series_data.set(data_objects)
         return time_series_data
 

@@ -1,11 +1,11 @@
 import numpy as np
-from data.time_series_data import DataSeries
+from data.time_series_data import TimeSeries
 from technical_indicators.simple_moving_average import simple_moving_average
 
 
 def bollinger_bands(data_series, window, attributes, num_stdev=2, offset=0):
 
-    assert isinstance(data_series, DataSeries)
+    assert isinstance(data_series, TimeSeries)
     assert isinstance(attributes, list) or isinstance(attributes, str)
 
     if type(attributes) != list:

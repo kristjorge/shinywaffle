@@ -3,7 +3,7 @@ from backtesting.backtest import BacktestContainer
 from backtesting.workflow.test_train_split import TestTrainSplit
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable
 from data.bar import Bar
-from data.time_series_data import DataSeries
+from data.time_series_data import TimeSeries
 import pandas as pd
 import os
 import types
@@ -19,7 +19,7 @@ skippable_types = (str,
                    types.BuiltinMethodType,
                    types.BuiltinFunctionType,
                    Bar,
-                   DataSeries)
+                   TimeSeries)
 
 # TODO: Clean up this mess code. Remember to reset the Event and Trade class variables between runs
 

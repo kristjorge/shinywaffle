@@ -2,7 +2,7 @@ import abc
 import requests
 from datetime import datetime
 from data.bar import Bar
-from data.time_series_data import DataSeries
+from data.time_series_data import TimeSeries
 from utils.misc import epoch_to_datetime
 
 
@@ -39,7 +39,7 @@ class BinancePublicLink(APILink):
             bars.append(bar)
 
         bars.reverse()
-        bar_container = DataSeries(self.interval)
+        bar_container = TimeSeries(self.interval)
         bar_container.set(bars)
         return bar_container
 
@@ -99,7 +99,7 @@ class AlphaVantageLink(APILink):
             bars.append(bar)
 
         # bars.reverse()
-        bar_container = DataSeries(self.interval)
+        bar_container = TimeSeries(self.interval)
         bar_container.set(bars)
         response = bar_container
         return response

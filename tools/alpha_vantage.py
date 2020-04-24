@@ -1,7 +1,7 @@
 from tools.rest_api import API
 from tools.api_link import AlphaVantageLink
 from data.bar import Bar
-from data.time_series_data import DataSeries
+from data.time_series_data import TimeSeries
 from datetime import datetime
 import requests
 
@@ -115,7 +115,7 @@ class AlphaVantage(API):
 
                 bars.append(bar)
 
-            bar_container = DataSeries(interval)
+            bar_container = TimeSeries(interval)
             bar_container.set(bars)
             response = bar_container
             return response
@@ -220,7 +220,7 @@ class AlphaVantage(API):
 
             # bars.reverse()
 
-            bar_container = DataSeries(interval)
+            bar_container = TimeSeries(interval)
             bar_container.set(bars)
             response = bar_container
             return response

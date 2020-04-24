@@ -4,7 +4,7 @@ from event import events
 import data.data_provider
 import time
 from backtesting.account import Account
-from backtesting.broker.brokers import Broker
+from backtesting.brokers import Broker
 from typing import Type
 
 

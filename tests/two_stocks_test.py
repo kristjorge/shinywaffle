@@ -3,7 +3,7 @@ from tools.alpha_vantage import AlphaVantage
 from backtesting.backtest import Backtester
 from financial_assets.financial_assets import Stock
 from backtesting.account import Account
-from backtesting.broker.brokers import InteractiveBrokers
+from backtesting.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from datetime import datetime
 from backtesting.risk_management import RiskManager

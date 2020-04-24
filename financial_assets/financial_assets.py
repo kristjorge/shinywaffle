@@ -1,4 +1,4 @@
-from data.time_series_data import DataSeries
+from data.time_series_data import TimeSeries
 from backtesting.stock.stops import TrailingStop
 from backtesting.stock.stops import StopLoss
 from backtesting.stock.stops import TargetStop
@@ -30,7 +30,7 @@ class FinancialAsset:
         self.latest_bar = None
 
     def set_bars(self, bars):
-        assert isinstance(bars, DataSeries) or isinstance(bars, APILink)
+        assert isinstance(bars, TimeSeries) or isinstance(bars, APILink)
         self.bars = bars
 
     def add_strategy(self, strategy_object):
@@ -55,7 +55,7 @@ class FinancialAsset:
         :param data_series: DataSeries object
         """
 
-        assert isinstance(data_series, DataSeries)
+        assert isinstance(data_series, TimeSeries)
         self.data.add(data_series, name)
 
     def set_stop(self, stop_object):

@@ -1,4 +1,4 @@
-from data.time_series_data import DataSeries
+from data.time_series_data import TimeSeries
 import numpy as np
 import math as m
 
@@ -15,7 +15,7 @@ def rsi(data_series, window, attributes, offset=0):
     :return: a RSI number as a float
     """
 
-    assert isinstance(data_series, DataSeries)
+    assert isinstance(data_series, TimeSeries)
     assert isinstance(attributes, list) or isinstance(attributes, str)
 
     if type(attributes) != list:
