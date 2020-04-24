@@ -60,7 +60,7 @@ class BacktestDataProvider(DataProvider):
                 # If there are any items in a list consisting of data series elements between the previous time and
                 # the new current time, then add a TimeSeriesEvent and break the loop for that asset
                 for series in time_series:
-                    if [s for s in series[1] if self.current_time < s.datetime <= new_time]:
+                    if [s for s in series[1] if self.current_time < s.time <= new_time]:
                         time_series_events.append(TimeSeriesEvent(asset))
                         break
 
@@ -90,12 +90,12 @@ class LiveDataProvider(DataProvider):
 
             # Add new time series event only if a fresh bar has been found
             # TODO: Verify if this really makes sense
-            if time_series_data[asset.ticker]['bars'][0].datetime != self.latest_timestamp:
+            if time_series_data[asset.ticker]['bars'][0].time != self.latest_timestamp:
                 print("New bar observed. Creating time series event...")
                 time_series_events.append(TimeSeriesEvent(asset))
 
-            self.latest_timestamp = time_series_data[asset.ticker]['bars'][0].datetime
-            time_series_data['current time'] = time_series_data[asset.ticker]['bars'][0].datetime
+            self.latest_timestamp = time_series_data[asset.ticker]['bars'][0].time
+            time_series_data['current time'] = time_series_data[asset.ticker]['bars'][0].time
         return time_series_events, time_series_data
 
 

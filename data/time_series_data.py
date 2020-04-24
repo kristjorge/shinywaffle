@@ -76,7 +76,7 @@ class TimeSeries:
     def sample_datetime(self, timestamp):
         assert isinstance(timestamp, datetime)
         data_series = TimeSeries(self.interval)
-        data_series.set([d for d in self.data if d.datetime <= timestamp])
+        data_series.set([d for d in self.data if d.time <= timestamp])
         return data_series
 
     def set(self, data):

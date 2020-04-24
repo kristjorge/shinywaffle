@@ -1,9 +1,8 @@
-from backtesting.account import Account
 
 
 class RiskManager:
 
-    def __init__(self, account: Account):
+    def __init__(self, account):
         self.account = account
 
     def calculate_position_size(self) -> float:
@@ -16,7 +15,7 @@ class RiskManager:
 
 class BaseRiskManager(RiskManager):
 
-    def __init__(self, account: Account):
+    def __init__(self, account):
         super().__init__(account)
 
     def calculate_position_size(self) -> float:
