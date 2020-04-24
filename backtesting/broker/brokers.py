@@ -26,7 +26,7 @@ class Broker:
     def fill_buy_order(self, order_event, order_price: float) -> events.OrderFilledEvent:
         # TODO: Implement round down method. Need to store lowest possible division of asset in the asset objects
         # Meaning whole stocks for stocks, 1e-8 for crypto and 0.01 for forex
-        order_volume = m.floor(order_event.order_size / order_price)
+        order_volume = round_down(order_event.order_size / order_price, 1)
         order_size = order_volume * order_price
         commission = self.calculate_commission(order_size)
 
