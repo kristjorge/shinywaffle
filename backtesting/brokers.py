@@ -1,4 +1,3 @@
-import math as m
 import numpy.random as rand
 from event import events
 from utils.misc import round_down
@@ -58,8 +57,15 @@ class Broker:
         s = Broker.slippages.pop()
         return time_series_data['bars'][0].close - s
 
-    def calculate_commission(self, order_size: float):
-        raise NotImplemented
+    def calculate_commission(self, order_size: float) -> float:
+        """
+        This is a simple commission calculation taking the order size and multiply it by the fee percentage
+        :param order_size:
+        :return:
+        """
+        commission = order_size * self.fee
+        self.total_commission += commission
+        return commission
 
     def self2dict(self):
         data = {
