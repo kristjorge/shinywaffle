@@ -1,4 +1,5 @@
 from data.time_series_data import TimeSeries
+from technical_indicators import TooSmallWindowException
 import numpy as np
 
 
@@ -28,5 +29,5 @@ def simple_moving_average(data_series, window, attributes, offset=0):
     if arrays[0].size >= window:
         return moving_average
     else:
-        return None
+        return TooSmallWindowException
 

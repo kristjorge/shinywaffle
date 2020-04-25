@@ -1,6 +1,7 @@
 import numpy as np
 from data.time_series_data import TimeSeries
 from technical_indicators.simple_moving_average import simple_moving_average
+from technical_indicators import TooSmallWindowException
 
 
 def bollinger_bands(data_series, window, attributes, num_stdev=2, offset=0):
@@ -22,4 +23,4 @@ def bollinger_bands(data_series, window, attributes, num_stdev=2, offset=0):
     if arrays[0].size >= window:
         return moving_average + num_stdev * std_dev, moving_average - num_stdev * std_dev
     else:
-        return None
+        return TooSmallWindowException

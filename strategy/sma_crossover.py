@@ -1,6 +1,7 @@
 from strategy.strategy import TradingStrategy
 from event import events
 from technical_indicators.simple_moving_average import simple_moving_average
+from technical_indicators import TooSmallWindowException
 
 
 class AverageCrossOver(TradingStrategy):
@@ -25,21 +26,20 @@ class AverageCrossOver(TradingStrategy):
         For now only returning a buy signal as I have yet to implement any technical indicators
         """
 
-        assert isinstance(time_series_data, dict)
         bars = time_series_data["bars"]
-        short_current = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=0)
-        short_previous = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=1)
-
-        long_current = simple_moving_average(bars, self.long, ["close", "high", "low"], offset=0)
-        long_previous = simple_moving_average(bars, self.long, ["close", "high", "low"], offset=1)
 
         try:
+            short_current = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=0)
+            short_previous = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=1)
+
+            long_current = simple_moving_average(bars, self.long, ["close", "high", "low"], offset=0)
+            long_previous = simple_moving_average(bars, self.long, ["close", "high", "low"], offset=1)
             if short_current > long_current and short_previous < long_previous:
                 return events.SignalEventBuy(time_series_data["asset"])
             elif short_current < long_current and short_previous > long_previous:
                 return events.SignalEventSell(time_series_data["asset"])
             else:
                 return None
-        except TypeError:
+        except TooSmallWindowException:
             return None
 

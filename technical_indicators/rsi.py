@@ -1,4 +1,5 @@
 from data.time_series_data import TimeSeries
+from technical_indicators import TooSmallWindowException
 import numpy as np
 import math as m
 
@@ -55,4 +56,4 @@ def rsi(data_series, window, attributes, offset=0):
     if len(gain_array) >= window:
         return rsi_value
     else:
-        return None
+        return TooSmallWindowException

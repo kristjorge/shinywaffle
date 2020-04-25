@@ -1,4 +1,5 @@
 from data.time_series_data import TimeSeries
+from technical_indicators import TooSmallWindowException
 import numpy as np
 
 
@@ -28,4 +29,4 @@ def exponential_moving_average(data_series, window, attributes, offset=0):
     if len(ema_list) >= window:
         return ema_list[0]
     else:
-        return None
+        return TooSmallWindowException
