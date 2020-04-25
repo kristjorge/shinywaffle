@@ -90,7 +90,7 @@ class Position:
                 'value': self.time_series['value'],
                 'return': self.time_series['return'],
                 'return percentage': self.time_series['return percentage'],
-                'time in trade': self.time_series['time in trade'],
+                'time in trade': self.time_in_trade,
                 'times': self.time_series['times'],
                 'volume remaining': self.time_series['volume remaining']
             }
