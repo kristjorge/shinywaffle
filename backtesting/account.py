@@ -80,7 +80,7 @@ class Account:
         :param timestamp:
         :return:
         """
-        print('registering order')
+
         self.trade_log.new_trade(event.asset, event.order_size,
                                  event.price, event.order_volume,
                                  event.type, timestamp, event.commission)

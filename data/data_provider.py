@@ -1,7 +1,7 @@
 from tools.api_link import APILink
 from datetime import datetime
 from event.events import TimeSeriesEvent
-import utils.misc
+import time
 
 
 class DataProvider:
@@ -45,9 +45,6 @@ class BacktestDataProvider(DataProvider):
             time_series_events = []
             time_series_data['current time'] = new_time
 
-            day_of_the_week = utils.misc.get_weekday(new_time.weekday())
-            print("Current time is {} {}".format(day_of_the_week, new_time))
-
             for asset in self.assets.values():
                 time_series_data[asset.ticker] = {}
                 time_series = asset.data.time_series()
@@ -55,7 +52,9 @@ class BacktestDataProvider(DataProvider):
 
                 # Aggregating time series data to be used in event handler
                 for series in time_series:
+                    start = time.time()
                     time_series_data[asset.ticker][series[0]] = series[1].sample_datetime(new_time)
+                    print("That took: ", time.time() - start)
 
                 # If there are any items in a list consisting of data series elements between the previous time and
                 # the new current time, then add a TimeSeriesEvent and break the loop for that asset
