@@ -7,6 +7,7 @@ from data.time_series_data import DataSeriesContainer
 from tools.api_link import APILink
 from strategy.strategy import TradingStrategy
 from utils.misc import daily_datetime_format
+from common.context import Context
 
 
 class FinancialAsset:
@@ -28,6 +29,7 @@ class FinancialAsset:
         self.stops = StopHolder()
         self.strategies = dict()
         self.latest_bar = None
+        Context.add_asset(self.ticker, self)
 
     def set_bars(self, bars):
         assert isinstance(bars, TimeSeries) or isinstance(bars, APILink)

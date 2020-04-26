@@ -5,6 +5,7 @@ from positions.position_container import PositionContainer
 from positions.position import Position
 from backtesting.risk_management import RiskManager
 from financial_assets.financial_assets import FinancialAsset
+from common.context import Context
 
 
 class Account:
@@ -17,13 +18,13 @@ class Account:
 
     # TODO: Implement round down method
 
-    def __init__(self, initial_holding: float, currency: str, assets: list, num_base_decimals: int = 2):
+    def __init__(self, initial_holding: float, currency: str, num_base_decimals: int = 2):
         self.initial_holding = initial_holding
         self.cash = initial_holding
         self.total_value = initial_holding
         self.base_currency = currency
         self.base_currency_decimals = num_base_decimals
-        self.assets = {asset.ticker: {'holding': 0, 'value': 0, 'asset_data': asset} for asset in assets}
+        self.assets = {asset.ticker: {'holding': 0, 'value': 0, 'asset_data': asset} for asset in Context.assets.values()}
         self.times = []
         self.time_series = {
             'total value': [],
@@ -34,15 +35,23 @@ class Account:
         self.times_readable = []
         self.risk_manager = None
         self.positions = PositionContainer(self.assets, self)
+        Context.account = self
+
+        try:
+            self.risk_manager = Context.risk_manager
+        except AttributeError:
+            print('Risk manager not provided in context...')
+
+        try:
+            Context.risk_manager.account = self
+        except AttributeError:
+            print('Risk manager not provided in context...')
 
     def debit(self, amount: float):
         self.cash += amount
 
     def credit(self, amount: float):
         self.cash -= amount
-
-    def set_risk_manager(self, risk_manager: RiskManager):
-        self.risk_manager = risk_manager
 
     @ staticmethod
     def place_buy_order(asset: FinancialAsset, order_size: float, price: float = None) -> events.MarketOrderSellEvent or events.LimitOrderSellEvent:

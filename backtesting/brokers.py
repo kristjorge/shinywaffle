@@ -1,6 +1,7 @@
 import numpy.random as rand
 from event import events
 from utils.misc import round_down
+from common.context import Context
 
 
 class Broker:
@@ -21,6 +22,7 @@ class Broker:
         self.min_order_size = min_order_size
         self.min_order_currency = min_order_currency
         self.total_commission = 0
+        Context.broker = self
 
     def fill_buy_order(self, order_event, order_price: float) -> events.OrderFilledEvent:
         # TODO: Implement round down method. Need to store lowest possible division of asset in the asset objects

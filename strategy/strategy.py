@@ -1,7 +1,5 @@
-import abc
 
-
-class TradingStrategy(abc.ABC):
+class TradingStrategy:
 
     """
 
@@ -18,9 +16,8 @@ Functions:
     def __init__(self, name):
         self.name = name
 
-    @abc.abstractmethod
     def generate_signal(self, time_series_data):
-        pass
+        raise NotImplementedError
 
     def self2dict(self):
 

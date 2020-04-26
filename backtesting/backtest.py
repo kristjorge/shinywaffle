@@ -1,13 +1,11 @@
 import os
 from datetime import timedelta
 from datetime import datetime
-from backtesting.account import Account
-from backtesting.brokers import Broker
-from financial_assets.financial_assets import FinancialAsset
 from event.event_handler import EventHandler
 from data.data_provider import BacktestDataProvider
 from backtesting.reporter import Reporter
 from utils.misc import get_backtest_dt, get_datetime_format
+from common.context import Context
 
 
 class Backtester:
@@ -17,24 +15,13 @@ class Backtester:
 
     """
 
-    def __init__(self,
-                 account: Account, broker: Broker, trading_assets: list, time_increment: str, run_from: datetime = None,
+    def __init__(self, context: Context, time_increment: str, run_from: datetime = None,
                  run_to: datetime = None, path: str = os.getcwd(),
                  filename: str = "Summary {}".format(datetime.now().strftime("%d-%m-%Y %H%M%S"))):
-        """
 
-        :param account: Object describing the trading account (type Account)
-        :param broker: Broker object holding order logic and pricing (type Broker)
-        :param trading_assets: List of stocks used in the backtesting (type list)
-        """
-
-        assert isinstance(account, Account)
-        assert isinstance(broker, Broker)
-        assert isinstance(trading_assets, list)
-
-        self.account = account
-        self.broker = broker
-        self.assets = dict()
+        self.account = context.account
+        self.broker = context.broker
+        self.assets = context.assets
         self.time_increment = get_datetime_format(time_increment)
         self.datetime_format = self.time_increment
         self.reporter = Reporter(path=path, filename=filename)
@@ -49,13 +36,6 @@ class Backtester:
             assert isinstance(self.run_to, datetime)
 
         self.times = list()
-
-        # Looping through the list of provided assets and strategies and append them to the self.stocks and
-        for asset in trading_assets:
-            assert isinstance(asset, FinancialAsset)
-            assert hasattr(asset, "bars"), "{} must have historical price data attached to it".format(asset.name)
-            self.assets[asset.ticker] = asset
-
         self.make_times()
         self.data_provider = BacktestDataProvider(self.assets, self.times)
 
@@ -66,8 +46,8 @@ class Backtester:
         self.times = [self.backtest_from + i*timedelta(days=dt) for i in range(0, num_steps)]
 
     def copy(self):
-        assets = [s for s in self.assets.values()]
-        return Backtester(self.account, self.broker, assets, self.time_increment, self.run_from, self.run_to)
+        context = Context.copy()
+        return Backtester(context, self.time_increment, self.run_from, self.run_to)
 
     @property
     def backtest_from(self):
@@ -132,15 +112,3 @@ class BacktestContainer:
         }
 
         return data
-
-
-
-
-            
-
-
-
-
-
-
-
