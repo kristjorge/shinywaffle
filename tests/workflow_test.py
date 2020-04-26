@@ -26,7 +26,7 @@ equinor.add_strategy(sma_strategy)
 portfolio = Account(500, "USD", [equinor], RiskManager())
 
 backtester = Backtester(portfolio, ib, [equinor], "daily", run_to=datetime(2020, 1, 1))
-workflow = BacktestWorkflow(backtester, "Simple SMA on Equinor ", path="D:/PythonProjects/shiny-waffle/backtesting/runs",
+workflow = BacktestWorkflow(backtester, "Simple SMA on Equinor ", path="/shiny-waffle/backtesting/runs",
                             runs=3, sub_runs=1, out_of_sample_size=0.2, wfa='anchored', stochastic_runs=1)
 
 workflow.set_uncertainty_parameter_values("D:/PythonProjects/shiny-waffle/tests/parameters.csv")
