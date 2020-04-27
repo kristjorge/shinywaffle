@@ -16,9 +16,9 @@ class Broker:
 
     slippages = abs(rand.normal(0, 0.05, 100000)).tolist()
 
-    def __init__(self, context, name: str, fee: float, min_order_size: float = None, min_order_currency: str = 'USD'):
+    def __init__(self, context: Context, fee: float, min_order_size: float = None, min_order_currency: str = 'USD'):
         self.context = context
-        self.name = name
+        self.name = 'Basic broker'
         self.fee = fee
         self.min_order_size = min_order_size
         self.min_order_currency = min_order_currency
@@ -88,8 +88,9 @@ class InteractiveBrokers(Broker):
     InteractiveBrokers broker class
 
     """
-    def __init__(self):
-        super().__init__("Interactive Brokers", 0.0005, 5, 'USD')
+    def __init__(self, context: Context):
+        super().__init__(context, 0.0005, 5, 'USD')
+        self.name = 'Interactive Brokers'
 
     def calculate_commission(self, order_size: float) -> float:
         commission = order_size * self.fee
@@ -103,8 +104,9 @@ class Binance(Broker):
 
     """
 
-    def __init__(self):
-        super().__init__("Binance", 0.001, 0, 'BTC')
+    def __init__(self, context: Context):
+        super().__init__(context, 0.001, 0, 'BTC')
+        self.name = 'Binance'
 
     def calculate_commission(self, order_size):
         commission = order_size * self.fee
