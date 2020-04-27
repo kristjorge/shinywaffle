@@ -11,8 +11,8 @@ class AverageCrossOver(TradingStrategy):
     If the short SMA crosses above the long SMA,
     """
 
-    def __init__(self, name, short, long):
-        super().__init__(name)
+    def __init__(self, short, long):
+        super().__init__('Simple moving average crossover')
         self.short = short
         self.long = long
 
