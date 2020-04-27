@@ -19,6 +19,7 @@ class Backtester:
                  run_to: datetime = None, path: str = os.getcwd(),
                  filename: str = "Summary {}".format(datetime.now().strftime("%d-%m-%Y %H%M%S"))):
 
+        self.context = context
         self.account = context.account
         self.broker = context.broker
         self.assets = context.assets
@@ -46,8 +47,7 @@ class Backtester:
         self.times = [self.backtest_from + i*timedelta(days=dt) for i in range(0, num_steps)]
 
     def copy(self):
-        context = Context.copy()
-        return Backtester(context, self.time_increment, self.run_from, self.run_to)
+        return Backtester(self.context.copy(), self.time_increment, self.run_from, self.run_to)
 
     @property
     def backtest_from(self):
@@ -70,18 +70,15 @@ class Backtester:
             'broker': self.broker.self2dict(),
             'assets': [asset.self2dict() for asset in self.assets.values()],
             'strategies': {asset.name: [s.self2dict() for s in asset.strategies.values()] for asset in self.assets.values()},
-            'backtest from': self.backtest_from.strftime("%d-%m-%Y %H:%M:%S"),
-            'backtest to': self.backtest_to.strftime("%d-%m-%Y %H:%M:%S"),
+            'backtest from': self.backtest_from.strftime(self.datetime_format),
+            'backtest to': self.backtest_to.strftime(self.datetime_format),
             'account': self.account.self2dict(),
             'events': self.event_handler.event_stack.self2dict()
         }
         return data
 
     def run(self):
-        self.event_handler = EventHandler(account=self.account,
-                                          broker=self.broker,
-                                          assets=self.assets,
-                                          data_provider=self.data_provider)
+        self.event_handler = EventHandler(self.context, data_provider=self.data_provider)
         self.reporter.aggregate_report(self.self2dict())
 
 

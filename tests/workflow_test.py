@@ -3,12 +3,12 @@ from datetime import datetime
 from tools.alpha_vantage import AlphaVantage
 from backtesting.backtest import Backtester
 from common.financial_assets import Stock
-from backtesting.account import Account
+from common.account import Account
 from backtesting.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from backtesting.workflow.backtest_workflow import BacktestWorkflow
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable
-from backtesting.risk_management import RiskManager
+from common.risk_management import RiskManager
 
 
 ib = InteractiveBrokers()

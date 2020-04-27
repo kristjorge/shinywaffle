@@ -16,13 +16,14 @@ class Broker:
 
     slippages = abs(rand.normal(0, 0.05, 100000)).tolist()
 
-    def __init__(self, name: str, fee: float, min_order_size: float = None, min_order_currency: str = 'USD'):
+    def __init__(self, context, name: str, fee: float, min_order_size: float = None, min_order_currency: str = 'USD'):
+        self.context = context
         self.name = name
         self.fee = fee
         self.min_order_size = min_order_size
         self.min_order_currency = min_order_currency
         self.total_commission = 0
-        Context.broker = self
+        context.broker = self
 
     def fill_buy_order(self, order_event, order_price: float) -> events.OrderFilledEvent:
         # TODO: Implement round down method. Need to store lowest possible division of asset in the asset objects

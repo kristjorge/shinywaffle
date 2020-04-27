@@ -3,15 +3,16 @@ from common.context import Context
 
 class RiskManager:
 
-    def __init__(self):
-        Context.risk_manager = self
+    def __init__(self, context: Context):
+        context.risk_manager = self
+        self.context = context
         try:
-            self.account = Context.account
+            self.account = context.account
         except AttributeError:
             print('Account not provided in context... ')
 
         try:
-            Context.account.risk_manager = self
+            context.account.risk_manager = self
         except AttributeError:
             print('Account not provided in context...')
 
@@ -25,8 +26,8 @@ class RiskManager:
 
 class BaseRiskManager(RiskManager):
 
-    def __init__(self,):
-        super().__init__()
+    def __init__(self,context):
+        super().__init__(context)
 
     def calculate_position_size(self) -> float:
         """

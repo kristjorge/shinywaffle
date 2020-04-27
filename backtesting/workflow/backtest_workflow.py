@@ -23,6 +23,7 @@ skippable_types = (str,
 
 # TODO: Clean up this mess code. Remember to reset the Event and Trade class variables between runs
 
+
 class BacktestWorkflow:
 
     """
@@ -32,7 +33,7 @@ class BacktestWorkflow:
 
     wfa_types = ("rolling", "anchored")
 
-    def __init__(self, backtester, name, runs, sub_runs=1, stochastic_runs=1, path=os.getcwd(),
+    def __init__(self, context, backtester, name, runs, sub_runs=1, stochastic_runs=1, path=os.getcwd(),
                  out_of_sample_size=0.2, wfa='rolling'):
 
         assert isinstance(backtester, Backtester)
@@ -44,6 +45,7 @@ class BacktestWorkflow:
         assert isinstance(sub_runs, int) and sub_runs > 0
         assert isinstance(stochastic_runs, int) and stochastic_runs > 0
 
+        self.context = context
         self._backtester = backtester
         self.workflow_name = name
         self.path = path
@@ -152,12 +154,8 @@ class BacktestWorkflow:
                     if self.enable_stochastic:
                         name += " stochastic_{}".format(stochastic_run_no)
 
-                    new_backtester = Backtester(copy.deepcopy(self._backtester.account),
-                                                copy.deepcopy(self._backtester.broker),
-                                                [s for s in copy.deepcopy(self._backtester.assets).values()],
-                                                self._backtester.time_increment,
-                                                backtest_from, backtest_to,
-                                                path, name)
+                    new_backtester = Backtester(self.context.copy, self._backtester.time_increment, backtest_from,
+                                                backtest_to,path, name)
 
                     # Append to list of backtests
                     self.backtests.append(BacktestContainer(name, params, new_backtester,

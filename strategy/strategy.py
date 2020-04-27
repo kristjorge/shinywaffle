@@ -1,3 +1,5 @@
+from common.context import Context
+
 
 class TradingStrategy:
 
@@ -15,6 +17,7 @@ Functions:
 
     def __init__(self, name):
         self.name = name
+        self.context = Context()
 
     def generate_signal(self, time_series_data):
         raise NotImplementedError

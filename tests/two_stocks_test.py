@@ -2,11 +2,11 @@ import os
 from tools.alpha_vantage import AlphaVantage
 from backtesting.backtest import Backtester
 from common.financial_assets.financial_assets import Stock
-from backtesting.account import Account
+from common.account import Account
 from backtesting.brokers import Broker
 from strategy.sma_crossover import AverageCrossOver
 from datetime import datetime
-from backtesting.risk_management import BaseRiskManager
+from common.risk_management import BaseRiskManager
 from common.context import Context
 
 context = Context()
@@ -23,10 +23,10 @@ nokia.set_bars(nokia_bars)
 nokia.add_strategy(sma_strategy)
 
 # Ford stocks
-ford = Stock("Ford", "F", "USD")
-ford_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "F", outputsize="full")
-ford.set_bars(ford_bars)
-ford.add_strategy(sma_strategy)
+# ford = Stock("Ford", "F", "USD")
+# ford_bars = alpha_vantage.query_stocks("TIME_SERIES_DAILY", "F", outputsize="full")
+# ford.set_bars(ford_bars)
+# ford.add_strategy(sma_strategy)
 
 risk_manager = BaseRiskManager()
 portfolio = Account(1000, "USD", num_base_decimals=2)

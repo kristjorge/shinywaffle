@@ -19,7 +19,7 @@ class FinancialAsset:
         - Cryptocurrencies
     """
 
-    def __init__(self, name: str, ticker: str, base_currency: str):
+    def __init__(self, context: Context, name: str, ticker: str, base_currency: str):
         self.name = name
         self.ticker = ticker
         self.base_currency = base_currency
@@ -29,7 +29,7 @@ class FinancialAsset:
         self.stops = StopHolder()
         self.strategies = dict()
         self.latest_bar = None
-        Context.add_asset(self.ticker, self)
+        context.assets[self.ticker] = self
 
     def set_bars(self, bars):
         assert isinstance(bars, TimeSeries) or isinstance(bars, APILink)
@@ -85,24 +85,24 @@ class FinancialAsset:
 
 class Stock(FinancialAsset):
 
-    def __init__(self, name, ticker, base_currency):
-        super().__init__(name, ticker, base_currency)
+    def __init__(self, context, name, ticker, base_currency):
+        super().__init__(context, name, ticker, base_currency)
         self.type = "stock"
         self.num_decimal_points = 0
 
 
 class Forex(FinancialAsset):
 
-    def __init__(self, name, ticker, base_currency):
-        super().__init__(name, ticker, base_currency)
+    def __init__(self, context, name, ticker, base_currency):
+        super().__init__(context, name, ticker, base_currency)
         self.type = "forex"
         self.num_decimal_points = 2
 
 
 class Cryptocurrency(FinancialAsset):
 
-    def __init__(self, name, ticker, base_currency):
-        super().__init__(name, ticker, base_currency)
+    def __init__(self, context, name, ticker, base_currency):
+        super().__init__(context, name, ticker, base_currency)
         self.type = "cryptocurrency"
         self.num_decimal_points = 8
 

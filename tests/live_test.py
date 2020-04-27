@@ -1,10 +1,10 @@
 import os
 from tools.alpha_vantage import AlphaVantage
 from common.financial_assets import Stock
-from backtesting.account import Account
+from common.account import Account
 from backtesting.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
-from backtesting.risk_management import RiskManager
+from common.risk_management import RiskManager
 from common.event.event_handler import EventHandler
 from data.data_provider import LiveDataProvider
 

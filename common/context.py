@@ -7,12 +7,10 @@ class Context:
     Context class representing a holder for assets, broker and account. This object will be
     """
 
-    assets = {}
+    def __init__(self):
+        self.assets = {}
+        self.broker = None
+        self.account = None
 
-    @classmethod
-    def add_asset(cls, ticker, asset):
-        Context.assets[ticker] = asset
-
-    @classmethod
-    def copy(cls):
-        return copy.deepcopy(cls)
+    def copy(self):
+        return copy.deepcopy(self)

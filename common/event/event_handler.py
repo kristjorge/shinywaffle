@@ -3,18 +3,17 @@ from common.event.event_stack import EventStackEmptyError
 from common.event import events
 import data.data_provider
 import time
-from backtesting.account import Account
-from backtesting.brokers import Broker
+from ..context import Context
 from typing import Type
 
 
 class EventHandler:
 
-    def __init__(self, account: Account, broker: Type[Broker], assets: dict,
-                 data_provider: Type[data.data_provider.DataProvider]):
-        self.account = account
-        self.broker = broker
-        self.assets = assets
+    def __init__(self, context: Context, data_provider: Type[data.data_provider.DataProvider]):
+
+        self.account = context.account
+        self.broker = context.broker
+        self.assets = context.assets
         self.data_provider = data_provider
         self.event_stack = EventStack()
         self.time_series_data = {}
