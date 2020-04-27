@@ -1,4 +1,4 @@
-from financial_assets import financial_assets
+from common.financial_assets import financial_assets
 
 
 class Event:

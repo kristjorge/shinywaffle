@@ -1,5 +1,5 @@
 import numpy.random as rand
-from event import events
+from common.event import events
 from utils.misc import round_down
 from common.context import Context
 

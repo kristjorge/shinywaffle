@@ -1,11 +1,11 @@
 from tools.binance import BinancePublic
-from financial_assets import financial_assets
+from common.financial_assets import financial_assets
 from backtesting.account import Account
 from backtesting.brokers import Binance
 from strategy.random_signal_strategy import RandomSignalStrategy
 from data.data_provider import LiveDataProvider
 from backtesting.risk_management import BaseRiskManager
-from event.event_handler import EventHandler
+from common.event.event_handler import EventHandler
 
 
 binance_broker = Binance()

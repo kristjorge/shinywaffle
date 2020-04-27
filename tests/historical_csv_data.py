@@ -2,7 +2,7 @@ from datetime import datetime
 from data.bar_provider import BarProvider
 from backtesting.backtest import Backtester
 from backtesting.risk_management import BaseRiskManager
-from financial_assets.financial_assets import Stock
+from common.financial_assets import Stock
 from backtesting.account import Account
 from backtesting.brokers import Broker
 from strategy.random_signal_strategy import RandomSignalStrategy

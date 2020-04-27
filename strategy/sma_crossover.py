@@ -1,5 +1,5 @@
 from strategy.strategy import TradingStrategy
-from event import events
+from common.event import events
 from technical_indicators.simple_moving_average import simple_moving_average
 from technical_indicators import TooSmallWindowException
 

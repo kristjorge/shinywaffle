@@ -1,5 +1,5 @@
 from strategy.strategy import TradingStrategy
-from event import events
+from common.event import events
 from random import random
 
 

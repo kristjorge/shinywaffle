@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from tools.alpha_vantage import AlphaVantage
 from backtesting.backtest import Backtester
-from financial_assets.financial_assets import Stock
+from common.financial_assets import Stock
 from backtesting.account import Account
 from backtesting.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver

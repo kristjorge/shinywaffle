@@ -1,10 +1,9 @@
 from datetime import datetime
-from event import events
+from common.event import events
 from backtesting.tradelog import TradeLog
-from positions.position_container import PositionContainer
-from positions.position import Position
-from backtesting.risk_management import RiskManager
-from financial_assets.financial_assets import FinancialAsset
+from common.positions import PositionContainer
+from common.positions import Position
+from common.financial_assets import FinancialAsset
 from common.context import Context
 
 

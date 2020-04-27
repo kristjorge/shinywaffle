@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 from datetime import datetime
-from event.event_handler import EventHandler
+from common.event.event_handler import EventHandler
 from data.data_provider import BacktestDataProvider
 from backtesting.reporter import Reporter
 from utils.misc import get_backtest_dt, get_datetime_format

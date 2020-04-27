@@ -1,7 +1,6 @@
 from tools.api_link import APILink
 from datetime import datetime
-from event.events import TimeSeriesEvent
-import time
+from common.event.events import TimeSeriesEvent
 
 
 class DataProvider:
