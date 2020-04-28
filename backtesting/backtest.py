@@ -38,7 +38,7 @@ class Backtester:
 
         self.times = list()
         self.make_times()
-        self.data_provider = BacktestDataProvider(self.assets, self.times)
+        self.data_provider = BacktestDataProvider(self.context, self.assets, self.times)
 
     def make_times(self):
 

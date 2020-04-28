@@ -5,8 +5,9 @@ from common.event.events import TimeSeriesEvent
 
 class DataProvider:
 
-    def __init__(self, assets):
+    def __init__(self, context, assets):
         self.assets = assets
+        self.context = context
 
     def get_time_series_data(self):
         raise NotImplemented
@@ -14,8 +15,8 @@ class DataProvider:
 
 class BacktestDataProvider(DataProvider):
 
-    def __init__(self, assets, times: list):
-        super().__init__(assets)
+    def __init__(self, context, assets, times: list):
+        super().__init__(context, assets)
         self.times = times
         self.current_time = datetime(1900, 1, 1, 0, 0, 0)
         assert isinstance(self.assets, dict)
@@ -66,9 +67,9 @@ class BacktestDataProvider(DataProvider):
 
 class LiveDataProvider(DataProvider):
 
-    def __init__(self, assets, sleep_time: int = 300):
+    def __init__(self, context, assets, sleep_time: int = 300):
         assert all(isinstance(asset.bars, APILink) for asset in assets.values())
-        super().__init__(assets)
+        super().__init__(context, assets)
         self.sleep_time = sleep_time
         self.latest_timestamp = datetime(1900, 1, 1)
 
