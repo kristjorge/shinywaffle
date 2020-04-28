@@ -63,9 +63,9 @@ class EventStack:
 
             if type(event) == events.TimeSeriesEvent:
                 self.past_events['time series'] += 1
-            elif type(event) == events.SignalEventBuy:
+            elif type(event) == events.SignalEventMarketBuy:
                 self.past_events['buy signal'] += 1
-            elif type(event) == events.SignalEventSell:
+            elif type(event) == events.SignalEventMarketSell:
                 self.past_events['sell signal'] += 1
             elif type(event) == events.LimitOrderBuyEvent:
                 self.past_events['buy limit order'] += 1

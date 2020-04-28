@@ -54,16 +54,16 @@ class Position:
 
         return self.is_active
 
-    def update(self, time_series_data):
+    def update(self, retrieved_data):
 
         """
         Method to update the position metrics each time a new time series data event is received received
         by the event handler
-        :param time_series_data: Time series data object received by the data provider
+        :param retrieved_data: Time series data object received by the data provider
         """
 
-        close_price = time_series_data[self.asset.ticker]['bars'][0].close
-        current_time = time_series_data['current time']
+        close_price = retrieved_data[self.asset.ticker]['bars'][0].close
+        current_time = retrieved_data.time
         remaining_value = self.volume_remaining * close_price
 
         self.time_series['value'].append(remaining_value + self.partial_closed_amount)

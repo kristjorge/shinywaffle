@@ -1,3 +1,4 @@
+from common.context import Context
 
 
 class PositionContainer:
@@ -6,12 +7,14 @@ class PositionContainer:
     Positions are closed FIFO
     """
 
+    # TODO: Consider stop using class variables for incrementing ID. Can cause problems in multithreading during workflow
     latest_active_id = 0
 
-    def __init__(self, assets, account):
-        self.active_positions = {asset: [] for asset in assets.keys()}
-        self.exited_positions = {asset: [] for asset in assets.keys()}
-        self.account = account
+    def __init__(self, context: Context):
+        self.active_positions = {asset: [] for asset in context.assets.keys()}
+        self.exited_positions = {asset: [] for asset in context.assets.keys()}
+        self.account = context.account
+        self.context = context
         PositionContainer.latest_active_id = 0
 
     def enter_position(self, p):
@@ -35,9 +38,9 @@ class PositionContainer:
         if not is_active:
             self.exited_positions[ticker].append(self.active_positions[ticker].pop(0))
 
-    def update_positions(self, time_series_data):
+    def update_positions(self):
         for p in self.iter_active():
-            p.update(time_series_data)
+            p.update(self.context.retrieved_data)
 
     def report(self):
         data = {}

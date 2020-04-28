@@ -22,13 +22,25 @@ class TimeSeriesEvent(Event):
         super().__init__(asset)
 
 
-class SignalEventBuy(Event):
+class SignalEventMarketBuy(Event):
 
     def __init__(self, asset):
         super().__init__(asset)
 
 
-class SignalEventSell(Event):
+class SignalEventLimitBuy(Event):
+
+    def __init__(self, asset):
+        super().__init__(asset)
+
+
+class SignalEventMarketSell(Event):
+
+    def __init__(self, asset):
+        super().__init__(asset)
+
+
+class SignalEventLimitSell(Event):
 
     def __init__(self, asset):
         super().__init__(asset)

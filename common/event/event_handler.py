@@ -11,17 +11,17 @@ class EventHandler:
 
     def __init__(self, context: Context, data_provider: Type[data.data_provider.DataProvider]):
 
+        self.context = context
         self.account = context.account
         self.broker = context.broker
         self.assets = context.assets
         self.data_provider = data_provider
         self.event_stack = EventStack()
-        self.time_series_data = {}
 
         while True:
             try:
                 # Detecting any new events and getting the latest time series data
-                new_events, self.time_series_data = self.data_provider.get_time_series_data()
+                new_events = self.data_provider.get_time_series_data()
             except data.data_provider.BacktestCompleteException:
                 break
             else:
@@ -35,7 +35,7 @@ class EventHandler:
                 except EventStackEmptyError:
                     break
 
-            self.account.update_portfolio(self.time_series_data)
+            self.account.update_portfolio()
             if type(data_provider) == data.data_provider.LiveDataProvider:
                 print("Sleeping {} seconds".format(data_provider.sleep_time))
                 time.sleep(data_provider.sleep_time)
@@ -44,13 +44,13 @@ class EventHandler:
         if type(event) == events.TimeSeriesEvent:
             self.handle_time_series_events(event)
 
-        elif type(event) == events.SignalEventBuy:
+        elif type(event) == events.SignalEventMarketBuy:
             # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
             order_size = self.account.risk_manager.calculate_position_size()
             new_event = self.account.place_buy_order(event.asset, order_size)
             self.event_stack.add(new_event)
 
-        elif type(event) == events.SignalEventSell:
+        elif type(event) == events.SignalEventMarketSell:
             # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
             order_size = self.account.risk_manager.calculate_position_size()
             new_event = self.account.place_sell_order(event.asset, order_size)
@@ -88,7 +88,7 @@ class EventHandler:
         # Loop over the strategies with the generated events and call generate_signal method
         generated_events = []
         for strategy in [s for s in self.assets[event.asset.ticker].strategies.values()]:
-            time_series_data = self.time_series_data[event.asset.ticker]
+            time_series_data = self.context.retrieved_data[event.asset.ticker]
             time_series_data['asset'] = event.asset
             new_event = strategy.generate_signal(time_series_data)
             generated_events.append(new_event)

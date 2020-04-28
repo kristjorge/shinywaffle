@@ -33,7 +33,7 @@ class Account:
         self.trade_log = TradeLog()
         self.times_readable = []
         self.risk_manager = None
-        self.positions = PositionContainer(self.assets, self)
+        self.positions = PositionContainer(context)
         context.account = self
         self.context = context
 
@@ -109,13 +109,19 @@ class Account:
             self.debit(event.order_size)
             self.credit(event.commission)
 
-    def update_portfolio(self, time_series_data: dict):
-        # TODO: Make time series data a new class container used for passing new time series data in
+    def update_portfolio(self):
+        """
+        Update various values for the account object:
+            - Total value
+            - Cash
+            - Report times
+            - Various position tracking functionalities
+        :return:
+        """
         total_value = self.cash
-
         for ticker, asset in self.assets.items():
-            if ticker in time_series_data:
-                asset['asset_data'].latest_bar = time_series_data[ticker]['bars'][0]
+            if ticker in self.context.retrieved_data.asset_data.keys():
+                asset['asset_data'].latest_bar = self.context.retrieved_data.asset_data[ticker]['bars'][0]
                 try:
                     asset['value'] = asset['holding'] * asset['asset_data'].latest_bar.close
                 except TypeError:
@@ -124,13 +130,13 @@ class Account:
                 finally:
                     total_value += asset['value']
 
-        self.times.append(time_series_data['current time'])
-        self.times_readable.append(time_series_data['current time'].strftime('%d-%m-%Y %H:%M:%S'))
+        self.times.append(self.context.retrieved_data.time)
+        self.times_readable.append(self.context.retrieved_data.time.strftime('%d-%m-%Y %H:%M:%S'))
         self.total_value = total_value
         self.time_series['total value'].append(total_value)
         self.time_series['cash'].append(self.cash)
         self.time_series['number of active positions'].append(self.trade_log.active_trades)
-        self.positions.update_positions(time_series_data)
+        self.positions.update_positions()
 
     def self2dict(self):
         data = {

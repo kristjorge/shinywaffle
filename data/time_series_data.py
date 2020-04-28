@@ -1,6 +1,8 @@
 import pandas as pd
 from datetime import datetime
 from utils.misc import get_datetime_format
+from common.context import Context
+from _collections import defaultdict
 
 
 class DataSeriesContainer:
@@ -33,7 +35,8 @@ class DataSeriesContainer:
 
     def time_series(self):
         """
-        :return: A tuple of the name of the attribute and the attribute object
+        :return: A list of tuples of the name of the attribute and the attribute object, for all attributes of type
+        TimeSeries
         """
         return [(s, getattr(self, s)) for s in dir(self) if isinstance(getattr(self, s), TimeSeries)]
 
@@ -73,10 +76,10 @@ class TimeSeries:
         for d in self.data:
             yield d
 
-    def sample_datetime(self, timestamp):
-        assert isinstance(timestamp, datetime)
+    def retrieve(self, old_time, new_time):
+        assert isinstance(new_time, datetime)
         data_series = TimeSeries(self.interval)
-        data_series.set([d for d in self.data if d.time <= timestamp])
+        data_series.set([d for d in self.data if old_time < d.time <= new_time])
         return data_series
 
     def set(self, data):
@@ -166,4 +169,18 @@ class TimeSeriesDataReader:
         return time_series_data
 
 
+class RetrievedTimeSeriesData:
 
+    def __init__(self, context: Context):
+        """
+        The self.asset_data is a default dict that creates another default dict that creates a list as the default
+        argument. This is a bit hopeless to understand, but it works.
+        :param context:
+        """
+        super().__init__()
+        self.time = datetime(1900, 1, 1, 0, 0, 0)
+        self.context = context
+        self.asset_data = defaultdict(lambda: defaultdict(lambda: []))
+
+    def __getitem__(self, key):
+        return self.asset_data[key]
