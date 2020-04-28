@@ -4,7 +4,7 @@ from common.account import Account
 from backtesting.brokers import Binance
 from strategy.random_signal_strategy import RandomSignalStrategy
 from data.data_provider import LiveDataProvider
-from common.risk_management import BaseRiskManager
+from risk.risk_management import BaseRiskManager
 from common.event.event_handler import EventHandler
 
 

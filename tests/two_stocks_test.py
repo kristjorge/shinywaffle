@@ -6,7 +6,7 @@ from common.account import Account
 from backtesting.brokers import Broker
 from strategy.sma_crossover import AverageCrossOver
 from datetime import datetime
-from common.risk_management import BaseRiskManager
+from risk.risk_management import BaseRiskManager
 from common.context import Context
 
 context = Context()

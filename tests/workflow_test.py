@@ -8,7 +8,7 @@ from backtesting.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from backtesting.workflow.backtest_workflow import BacktestWorkflow
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable
-from common.risk_management import RiskManager
+from risk.risk_management import RiskManager
 
 
 ib = InteractiveBrokers()

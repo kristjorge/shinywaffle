@@ -4,7 +4,7 @@ from common.financial_assets import Stock
 from common.account import Account
 from backtesting.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
-from common.risk_management import RiskManager
+from risk.risk_management import RiskManager
 from common.event.event_handler import EventHandler
 from data.data_provider import LiveDataProvider
 
