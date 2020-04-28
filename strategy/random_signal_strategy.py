@@ -5,8 +5,8 @@ from random import random
 
 class RandomSignalStrategy(TradingStrategy):
 
-    def __init__(self):
-        super().__init__('Random testing strategy')
+    def __init__(self, context):
+        super().__init__(context, 'Random testing strategy')
 
     def generate_signal(self, time_series_data):
         random_signal_generator = random()

@@ -15,9 +15,9 @@ Functions:
 
 """
 
-    def __init__(self, name):
+    def __init__(self, context, name):
         self.name = name
-        self.context = Context()
+        self.context = context
 
     def generate_signal(self, time_series_data):
         raise NotImplementedError

@@ -11,6 +11,7 @@ class Context:
         self.assets = {}
         self.broker = None
         self.account = None
+        self.time_series_data = None
 
     def copy(self):
         return copy.deepcopy(self)

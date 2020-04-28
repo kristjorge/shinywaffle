@@ -10,8 +10,8 @@ from common.context import Context
 
 context = Context()
 
-broker = Broker(context, 'My free broker', 0, 0, 'USD')
-random_signal_strat = RandomSignalStrategy()
+broker = Broker(context, 0, 0, 'USD')
+random_signal_strat = RandomSignalStrategy(context)
 
 # Nvidia stocks
 nvidia = Stock(context, "Nvidia", "NVDA", "USD")
