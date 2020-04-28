@@ -3,7 +3,7 @@ from common.event import events
 from backtesting.tradelog import TradeLog
 from common.positions.position_container import PositionContainer
 from common.positions.position import Position
-from common.financial_assets.financial_assets import FinancialAsset
+from common.financial_assets.assets import Asset
 from common.context import Context
 
 
@@ -54,14 +54,14 @@ class Account:
         self.cash -= amount
 
     @ staticmethod
-    def place_buy_order(asset: FinancialAsset, order_size: float, price: float = None) -> events.MarketOrderSellEvent or events.LimitOrderSellEvent:
+    def place_buy_order(asset: Asset, order_size: float, price: float = None) -> events.MarketOrderSellEvent or events.LimitOrderSellEvent:
         if price is None:
             event = events.MarketOrderBuyEvent(asset, order_size)
         else:
             event = events.LimitOrderBuyEvent(asset, order_size, price)
         return event
 
-    def place_sell_order(self, asset: FinancialAsset, order_size: float, price: float = None):
+    def place_sell_order(self, asset: Asset, order_size: float, price: float = None):
         max_volume = self.assets[asset.ticker]['holding']
         if price is None:
             event = events.MarketOrderSellEvent(asset, order_size, max_volume)

@@ -1,4 +1,4 @@
-from common.financial_assets import financial_assets
+from common.financial_assets import assets
 
 
 class Event:
@@ -9,7 +9,7 @@ class Event:
     """
 
     def __init__(self, asset):
-        assert isinstance(asset, financial_assets.FinancialAsset)
+        assert isinstance(asset, assets.Asset)
         self.asset = asset
 
     def __str__(self):

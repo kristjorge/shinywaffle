@@ -1,5 +1,5 @@
 from tools.binance import BinancePublic
-from common.financial_assets import financial_assets
+from common.financial_assets import assets
 from common.account import Account
 from backtesting.brokers import Binance
 from strategy.random_signal_strategy import RandomSignalStrategy
@@ -13,7 +13,7 @@ binance_api = BinancePublic()
 sma_strategy = RandomSignalStrategy("Random strategy")
 
 
-ether = financial_assets.Cryptocurrency("Ethereum", "ETH", "BTC")
+ether = assets.Cryptocurrency("Ethereum", "ETH", "BTC")
 ether_bars = binance_api.get_candlesticks("BTC", "ETH", "1m", return_as_link=True)
 ether.set_bars(ether_bars)
 ether.add_strategy(sma_strategy)

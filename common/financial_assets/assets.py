@@ -10,7 +10,7 @@ from utils.misc import daily_datetime_format
 from common.context import Context
 
 
-class FinancialAsset:
+class Asset:
 
     """
     Base class for tradable financial_assets. Classes that inherit from financial_assets are:
@@ -83,7 +83,7 @@ class FinancialAsset:
         return data
 
 
-class Stock(FinancialAsset):
+class Stock(Asset):
 
     def __init__(self, context, name, ticker, base_currency):
         super().__init__(context, name, ticker, base_currency)
@@ -91,7 +91,7 @@ class Stock(FinancialAsset):
         self.num_decimal_points = 0
 
 
-class Forex(FinancialAsset):
+class Forex(Asset):
 
     def __init__(self, context, name, ticker, base_currency):
         super().__init__(context, name, ticker, base_currency)
@@ -99,7 +99,7 @@ class Forex(FinancialAsset):
         self.num_decimal_points = 2
 
 
-class Cryptocurrency(FinancialAsset):
+class Cryptocurrency(Asset):
 
     def __init__(self, context, name, ticker, base_currency):
         super().__init__(context, name, ticker, base_currency)
