@@ -21,7 +21,7 @@ class EventHandler:
         while True:
             try:
                 # Detecting any new events and getting the latest time series data
-                new_events = self.data_provider.get_time_series_data()
+                new_events = self.data_provider.retrieve_time_series_data()
             except data.data_provider.BacktestCompleteException:
                 break
             else:
@@ -81,17 +81,15 @@ class EventHandler:
             pass
 
         elif type(event) == events.OrderFilledEvent:
-            self.account.register_order(event, self.time_series_data['current time'])
+            self.account.register_order(event, self.context.retrieved_data.time)
 
     def handle_time_series_events(self, event):
         # Create list of strategy objects that are linked to the asset that have generated the events (same ticker)
         # Loop over the strategies with the generated events and call generate_signal method
         generated_events = []
-        for strategy in [s for s in self.assets[event.asset.ticker].strategies.values()]:
-            time_series_data = self.context.retrieved_data[event.asset.ticker]
-            time_series_data['asset'] = event.asset
-            new_event = strategy.generate_signal(time_series_data)
-            generated_events.append(new_event)
+        for strategy in self.context.strategies.values():
+            new_events = strategy.generate_signal()
+            generated_events += new_events
 
         self.event_stack.add(generated_events)
 

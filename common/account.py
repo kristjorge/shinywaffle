@@ -3,7 +3,7 @@ from common.event import events
 from backtesting.tradelog import TradeLog
 from common.positions.position_container import PositionContainer
 from common.positions.position import Position
-from common.financial_assets.assets import Asset
+from common.assets.assets import Asset
 from common.context import Context
 
 

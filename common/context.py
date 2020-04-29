@@ -10,6 +10,7 @@ class Context:
     def __init__(self):
         from data.time_series_data import RetrievedTimeSeriesData
         self.assets = {}
+        self.strategies = {}
         self.broker = None
         self.account = None
         self.retrieved_data = RetrievedTimeSeriesData(self)

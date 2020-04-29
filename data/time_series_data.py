@@ -76,10 +76,11 @@ class TimeSeries:
         for d in self.data:
             yield d
 
-    def retrieve(self, old_time, new_time):
-        assert isinstance(new_time, datetime)
+    def retrieve(self, from_time, to_time):
+        assert isinstance(to_time, datetime)
         data_series = TimeSeries(self.interval)
-        data_series.set([d for d in self.data if old_time < d.time <= new_time])
+        new_series = [d for d in self.data if from_time < d.time <= to_time]
+        data_series.set(new_series)
         return data_series
 
     def set(self, data):
@@ -174,7 +175,7 @@ class RetrievedTimeSeriesData:
     def __init__(self, context: Context):
         """
         The self.asset_data is a default dict that creates another default dict that creates a list as the default
-        argument. This is a bit hopeless to understand, but it works.
+        argument.
         :param context:
         """
         super().__init__()

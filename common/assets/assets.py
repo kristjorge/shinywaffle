@@ -13,7 +13,7 @@ from common.context import Context
 class Asset:
 
     """
-    Base class for tradable financial_assets. Classes that inherit from financial_assets are:
+    Base class for tradable assets. Classes that inherit from assets are:
         - Stocks
         - Forex
         - Cryptocurrencies

@@ -1,5 +1,5 @@
 from tools.binance import BinancePublic
-from common.financial_assets import assets
+from common.assets import assets
 from common.account import Account
 from backtesting.brokers import Binance
 from strategy.random_signal_strategy import RandomSignalStrategy

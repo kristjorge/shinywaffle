@@ -9,7 +9,7 @@ class DataProvider:
         self.context = context
         self.assets = context.assets
 
-    def get_time_series_data(self):
+    def retrieve_time_series_data(self):
         raise NotImplemented
 
 
@@ -20,7 +20,7 @@ class BacktestDataProvider(DataProvider):
         self.times = times
         assert isinstance(self.assets, dict)
 
-    def get_time_series_data(self):
+    def retrieve_time_series_data(self):
 
         """
         Gathering a dictionary of the time series data for all the stocks in the backtester
@@ -70,7 +70,7 @@ class LiveDataProvider(DataProvider):
         self.sleep_time = sleep_time
         self.latest_timestamp = datetime(1900, 1, 1)
 
-    def get_time_series_data(self):
+    def retrieve_time_series_data(self):
         time_series_data = {}
         time_series_events = []
 

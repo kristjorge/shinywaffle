@@ -15,12 +15,34 @@ Functions:
 
 """
 
-    def __init__(self, context, name):
+    def __init__(self, context: Context, name):
         self.name = name
+        self.assets = {}
         self.context = context
+        self.context.strategies[self.name] = self
 
-    def generate_signal(self, time_series_data):
+    def generate_signal(self) -> list:
+        events = []
+        for asset in self.assets.values():
+            events.append(self.trading_logic(asset))
+        return events
+
+    def trading_logic(self, asset):
+        """
+        This method needs to be overridden to include the logic behind the signal generation. This method needs to
+        return events to the generate_signal method which will then be appended to a list of events and passed to the
+        event handler
+
+        """
         raise NotImplementedError
+
+    def apply_to_asset(self, asset):
+        from common.assets.assets import Asset
+        if isinstance(asset, common.assets.assets.Asset):
+            self.assets[asset.ticker] = asset
+        elif isinstance(asset, list):
+            for a in asset:
+                self.assets[a.ticker] = a
 
     def self2dict(self):
 

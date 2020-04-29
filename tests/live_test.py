@@ -1,6 +1,6 @@
 import os
 from tools.alpha_vantage import AlphaVantage
-from common.financial_assets import Stock
+from common.assets import Stock
 from common.account import Account
 from backtesting.brokers import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
