@@ -38,7 +38,7 @@ Functions:
 
     def apply_to_asset(self, asset):
         from common.assets.assets import Asset
-        if isinstance(asset, common.assets.assets.Asset):
+        if isinstance(asset, Asset):
             self.assets[asset.ticker] = asset
         elif isinstance(asset, list):
             for a in asset:

@@ -1,4 +1,3 @@
-from data.time_series_data import TimeSeries
 from technical_indicators import TooSmallWindowException
 import numpy as np
 
@@ -12,9 +11,6 @@ def simple_moving_average(data_series, window, attributes, offset=0):
     :param attributes: list of data attributes that that moving average is calculated from
     :return: the moving average as a float
     """
-
-    assert isinstance(data_series, TimeSeries)
-    assert isinstance(attributes, list) or isinstance(attributes, str)
 
     if type(attributes) != list:
         attributes = [attributes]

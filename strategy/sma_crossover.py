@@ -42,3 +42,6 @@ class AverageCrossOver(TradingStrategy):
         except TooSmallWindowException:
             pass
 
+        except TypeError:
+            pass
+

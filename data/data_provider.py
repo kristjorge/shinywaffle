@@ -47,9 +47,10 @@ class BacktestDataProvider(DataProvider):
                 asset_time_series.append(("bars", asset.bars))
 
                 # Aggregating time series data to be used in event handler
+                retrieved_data = []
                 for series in asset_time_series:
                     retrieved_data = series[1].retrieve(self.context.retrieved_data.time, new_time)
-                    self.context.retrieved_data[asset.ticker][series[0]] += retrieved_data
+                    self.context.retrieved_data[asset.ticker][series[0]].extend(retrieved_data)
 
                 # If there are any items in a list consisting of data series elements between the previous time and
                 # the new current time, then add a TimeSeriesEvent and break the loop for that asset
@@ -64,9 +65,10 @@ class BacktestDataProvider(DataProvider):
 
 class LiveDataProvider(DataProvider):
 
+    # TODO: Update with context and retrieved data
     def __init__(self, context, assets, sleep_time: int = 300):
         assert all(isinstance(asset.bars, APILink) for asset in assets.values())
-        super().__init__(context, assets)
+        super().__init__(context)
         self.sleep_time = sleep_time
         self.latest_timestamp = datetime(1900, 1, 1)
 

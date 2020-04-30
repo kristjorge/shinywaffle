@@ -121,7 +121,7 @@ class Account:
         total_value = self.cash
         for ticker, asset in self.assets.items():
             if ticker in self.context.retrieved_data.asset_data.keys():
-                asset['asset_data'].latest_bar = self.context.retrieved_data.asset_data[ticker]['bars'][0]
+                asset['asset_data'].latest_bar = self.context.retrieved_data[ticker]['bars'][0]
                 try:
                     asset['value'] = asset['holding'] * asset['asset_data'].latest_bar.close
                 except TypeError:

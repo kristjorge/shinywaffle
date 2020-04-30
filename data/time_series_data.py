@@ -55,16 +55,8 @@ class TimeSeries:
 
     """
 
-    def __init__(self, interval):
-
-        """
-
-        :param interval: The interval that the data is in. 1min, 5min, 15min, ...
-        """
-        super().__init__()
+    def __init__(self):
         self.data = list()
-        assert interval in DataSeriesContainer.intervals
-        self.interval = interval
 
     def __len__(self):
         return len(self.data)
@@ -76,12 +68,14 @@ class TimeSeries:
         for d in self.data:
             yield d
 
-    def retrieve(self, from_time, to_time):
-        assert isinstance(to_time, datetime)
-        data_series = TimeSeries(self.interval)
-        new_series = [d for d in self.data if from_time < d.time <= to_time]
-        data_series.set(new_series)
-        return data_series
+    def extend(self, other):
+        if type(other) == list:
+            self.data += other
+        if other:
+            self.update_attributes(other[0])
+
+    def retrieve(self, from_time: datetime, to_time: datetime):
+        return [d for d in self.data if from_time < d.time <= to_time]
 
     def set(self, data):
 
@@ -95,11 +89,10 @@ class TimeSeries:
         # from tools.api_link import APILink
         # assert isinstance(data, list) or isinstance(data, APILink)
         self.data = data
+        self.update_attributes(self.data[0])
 
-        # data_type = type(self.data[0])
-        # assert (all(isinstance(d, data_type) for d in self.data))
-
-        attributes = [a for a in dir(self.data[0]) if not a.startswith("_")
+    def update_attributes(self, data_point):
+        attributes = [a for a in dir(data_point) if not a.startswith("_")
                       and a not in dir("__builtins__")]
 
         for attrib in attributes:
@@ -107,7 +100,6 @@ class TimeSeries:
 
     def get(self, attrib_name):
         """
-        Get
         :param attrib_name: name of the parameter to be fetched
         :return: returns a list of the data parameter for all objects in self.data
         """
@@ -165,7 +157,7 @@ class TimeSeriesDataReader:
             row_data["datetime"] = datetime.strptime(getattr(row, "datetime"), datetime_format)
             data_objects.append(DataPoint(row_data))
 
-        time_series_data = TimeSeries(interval)
+        time_series_data = TimeSeries()
         time_series_data.set(data_objects)
         return time_series_data
 
@@ -181,7 +173,7 @@ class RetrievedTimeSeriesData:
         super().__init__()
         self.time = datetime(1900, 1, 1, 0, 0, 0)
         self.context = context
-        self.asset_data = defaultdict(lambda: defaultdict(lambda: []))
+        self.asset_data = defaultdict(lambda: defaultdict(lambda: TimeSeries()))
 
     def __getitem__(self, key):
         return self.asset_data[key]

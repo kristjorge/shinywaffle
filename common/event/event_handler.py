@@ -64,13 +64,13 @@ class EventHandler:
 
         elif type(event) == events.MarketOrderBuyEvent:
             # New event is of type OrderFilledEvent
-            price = self.broker.request_buy_order_price(self.time_series_data[event.asset.ticker])
+            price = self.broker.request_buy_order_price(self.context.retrieved_data[event.asset.ticker])
             new_event = self.broker.fill_buy_order(event, price)
             self.event_stack.add(new_event)
 
         elif type(event) == events.MarketOrderSellEvent:
             # New event is of type OrderFilledEvent
-            price = self.broker.request_sell_order_price(self.time_series_data[event.asset.ticker])
+            price = self.broker.request_sell_order_price(self.context.retrieved_data[event.asset.ticker])
             new_event = self.broker.fill_sell_order(event, price, max_volume=event.max_volume)
             self.event_stack.add(new_event)
 

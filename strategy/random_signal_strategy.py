@@ -15,7 +15,7 @@ class RandomSignalStrategy(TradingStrategy):
             return events.MarketOrderBuyEvent(asset, order_size)
 
         elif 0.4 < random_signal_generator <= 0.8:
-            max_volume = self.context.assets[asset.ticker]['holding']
+            max_volume = self.context.account.assets[asset.ticker]['holding']
             order_size = self.context.account.risk_manager.calculate_position_size()
             return events.MarketOrderSellEvent(asset, order_size, max_volume)
 

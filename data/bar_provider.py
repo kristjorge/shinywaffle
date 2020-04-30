@@ -6,7 +6,7 @@ from datetime import datetime
 
 class BarProvider:
 
-    def __new__(cls, path: str, interval: str, date_string_format: str):
+    def __new__(cls, path: str, date_string_format: str):
         bars = list()
         df = pd.read_csv(path)
 
@@ -26,6 +26,7 @@ class BarProvider:
                       row['Volume'])
             bars.append(bar)
 
-        time_series = TimeSeries(interval)
+        bars.sort(key=lambda b: b.time, reverse=True)
+        time_series = TimeSeries()
         time_series.set(bars)
         return time_series
