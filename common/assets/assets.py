@@ -27,26 +27,12 @@ class Asset:
         self.bars = None
         self.data = DataSeriesContainer()
         self.stops = StopHolder()
-        self.strategies = dict()
         self.latest_bar = None
         context.assets[self.ticker] = self
 
     def set_bars(self, bars):
         assert isinstance(bars, TimeSeries) or isinstance(bars, APILink)
         self.bars = bars
-
-    def add_strategy(self, strategy_object):
-
-        """
-        Setting a strategy object to the list of available tradable strategies to the financial asset
-        :param strategy_object: Strategy object of type TradingStrategy
-        """
-
-        assert isinstance(strategy_object, TradingStrategy)
-        if strategy_object.name in self.strategies:
-            print("Strategy already exists in asset. Skipped.")
-        else:
-            self.strategies[strategy_object.name] = strategy_object
 
     def add_data_series(self, name, data_series):
 
