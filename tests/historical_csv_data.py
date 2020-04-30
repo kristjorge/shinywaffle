@@ -11,7 +11,7 @@ from common.context import Context
 context = Context()
 
 broker = Broker(context, 0, 0, 'USD')
-crossover_strategy = AverageCrossOver(context, short=10, long=40)
+crossover_strategy = AverageCrossOver(context, short=10, long=20)
 
 # Nvidia stocks
 nvidia = Stock(context, "Nvidia", "NVDA", "USD")
@@ -28,7 +28,7 @@ ibm = Stock(context, "IBM", "IBM", "USD")
 ibm_bars = BarProvider('D:/PythonProjects/shiny-waffle/data/yahoo_finance/IBM_1D.csv', '%Y-%m-%d')
 ibm.set_bars(ibm_bars)
 
-crossover_strategy.apply_to_asset([ibm, oracle, nvidia])
+crossover_strategy.apply_to_asset(ibm, oracle, nvidia)
 
 risk_manager = BaseRiskManager(context)
 account = Account(context, 1000, "USD", 2)

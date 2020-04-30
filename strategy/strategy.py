@@ -36,13 +36,11 @@ Functions:
         """
         raise NotImplementedError
 
-    def apply_to_asset(self, asset):
+    def apply_to_asset(self, *assets):
         from common.assets.assets import Asset
-        if isinstance(asset, Asset):
+        for asset in assets:
+            assert isinstance(asset, Asset)
             self.assets[asset.ticker] = asset
-        elif isinstance(asset, list):
-            for a in asset:
-                self.assets[a.ticker] = a
 
     def self2dict(self):
 

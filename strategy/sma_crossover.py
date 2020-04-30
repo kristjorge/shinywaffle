@@ -33,14 +33,13 @@ class AverageCrossOver(TradingStrategy):
 
             long_current = simple_moving_average(bars, self.long, ["close", "high", "low"], offset=0)
             long_previous = simple_moving_average(bars, self.long, ["close", "high", "low"], offset=1)
+
             if short_current > long_current and short_previous < long_previous:
                 return events.SignalEventMarketBuy(asset)
             elif short_current < long_current and short_previous > long_previous:
                 return events.SignalEventMarketSell(asset)
             else:
                 pass
-        except TooSmallWindowException:
-            pass
 
         except TypeError:
             pass
