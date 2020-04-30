@@ -17,9 +17,9 @@ class ProgressBar:
     def update(self):
         self.counter += 1
         sys.stdout.write('\b' * (len(self.initial_string)+1))
-        sys.stdout.write('[%s%s] %i%%' % ('-' * self.percentage_complete,
-                                            ' ' * (100 - self.percentage_complete),
-                                            self.percentage_complete))
+        sys.stdout.write('[%s%s] %i%%' % ('#' * self.percentage_complete,
+                                          ' ' * (100 - self.percentage_complete),
+                                          self.percentage_complete))
         sys.stdout.flush()
 
         if self.percentage_complete == 100:
