@@ -9,12 +9,12 @@ class RiskManager:
         try:
             self.account = context.account
         except AttributeError:
-            print('Account not provided in context... ')
+            pass
 
         try:
             context.account.risk_manager = self
         except AttributeError:
-            print('Account not provided in context...')
+            pass
 
     def calculate_position_size(self) -> float:
         """

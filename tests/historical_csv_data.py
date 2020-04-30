@@ -32,5 +32,5 @@ crossover_strategy.apply_to_asset(ibm, oracle, nvidia)
 
 risk_manager = BaseRiskManager(context)
 account = Account(context, 1000, "USD", 2)
-backtester = Backtester(context, 'daily', run_from=datetime(2015, 1, 1), run_to=datetime(2020, 1, 1))
+backtester = Backtester(context, 'daily', run_from=datetime(2011, 1, 1), run_to=datetime(2020, 1, 1))
 backtester.run()

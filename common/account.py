@@ -40,12 +40,12 @@ class Account:
         try:
             self.risk_manager = context.risk_manager
         except AttributeError:
-            print('Risk manager not provided in context...')
+            pass
 
         try:
             context.risk_manager.account = self
         except AttributeError:
-            print('Risk manager not provided in context...')
+            pass
 
     def debit(self, amount: float):
         self.cash += amount

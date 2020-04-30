@@ -6,6 +6,7 @@ from data.data_provider import BacktestDataProvider
 from backtesting.reporter import Reporter
 from utils.misc import get_backtest_dt, get_datetime_format
 from common.context import Context
+from utils.progress_bar import ProgressBar
 
 
 class Backtester:
@@ -77,6 +78,7 @@ class Backtester:
         return data
 
     def run(self):
+        self.context.progress_bar = ProgressBar(len(self.times))
         self.event_handler = EventHandler(self.context, data_provider=self.data_provider)
         self.reporter.aggregate_report(self.self2dict())
 

@@ -40,6 +40,11 @@ class EventHandler:
                 print("Sleeping {} seconds".format(data_provider.sleep_time))
                 time.sleep(data_provider.sleep_time)
 
+            try:
+                self.context.progress_bar.update()
+            except AttributeError:
+                pass
+
     def handle_event(self, event):
         if type(event) == events.TimeSeriesEvent:
             self.handle_time_series_events(event)
