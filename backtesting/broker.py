@@ -1,7 +1,6 @@
 import numpy.random as rand
 from common.context import Context
 from backtesting import orders as orders_module
-from utils import misc
 
 
 class BacktestBroker:
@@ -14,8 +13,6 @@ class BacktestBroker:
 
     """
 
-    slippages = abs(rand.normal(0, 0.05, 100000)).tolist()
-
     def __init__(self, context: Context, fee: float, min_order_size: float = None, min_order_currency: str = 'USD'):
         self.context = context
         self.name = 'Basic broker'
@@ -24,6 +21,7 @@ class BacktestBroker:
         self.min_order_currency = min_order_currency
         self.total_commission = 0
         self.order_book = orders_module.OrderBook(context)
+        self.slippages = abs(rand.normal(0, 0.05, 100000)).tolist()
         context.broker = self
 
     def place_order(self, new_order):
@@ -50,7 +48,7 @@ class BacktestBroker:
 
     def get_market_order_price(self, order) -> float:
         price_data = self.context.retrieved_data[order.asset.ticker]
-        slippage = BacktestBroker.slippages.pop()
+        slippage = self.slippages.pop()
         if isinstance(order, orders_module.BuyOrder):
             pass
         if isinstance(order, orders_module.SellOrder):
@@ -78,34 +76,3 @@ class BacktestBroker:
 
         return data
 
-
-class InteractiveBrokers(BacktestBroker):
-
-    """
-    InteractiveBrokers broker class
-
-    """
-    def __init__(self, context: Context):
-        super().__init__(context, 0.0005, 5, 'USD')
-        self.name = 'Interactive Brokers'
-
-    def calculate_commission(self, order_size: float) -> float:
-        commission = order_size * self.fee
-        self.total_commission += commission
-        return commission
-
-
-class Binance(BacktestBroker):
-    """
-    Binance cryptocurrency exchange / broker class
-
-    """
-
-    def __init__(self, context: Context):
-        super().__init__(context, 0.001, 0, 'BTC')
-        self.name = 'Binance'
-
-    def calculate_commission(self, order_size):
-        commission = order_size * self.fee
-        self.total_commission += commission
-        return commission
