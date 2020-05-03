@@ -1,4 +1,5 @@
 from common.context import Context
+from common.event import events
 
 
 class TradingStrategy:
@@ -22,10 +23,19 @@ Functions:
         self.context.strategies[self.name] = self
 
     def generate_signal(self) -> list:
-        events = []
+        signals = []
         for asset in self.assets.values():
-            events.append(self.trading_logic(asset))
-        return events
+            signals.append(self.trading_logic(asset))
+        if signals:
+            assert all([type(s) == events.SignalEventMarketBuy or
+                        type(s) == events.SignalEventMarketSell or
+                        type(s) == events.SignalEventLimitBuy or
+                        type(s) == events.SignalEventLimitSell or
+                        s is None for
+                        s in signals]), 'Generated event needs to be of the type events.SignalEventMarketBuy, ' \
+                                        'events.SignalEventMarketSell, events.SignalEventLimitBuy or ' \
+                                        'events.SignalEventLimitSell'
+        return signals
 
     def trading_logic(self, asset):
         """

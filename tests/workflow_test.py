@@ -4,7 +4,7 @@ from tools.alpha_vantage import AlphaVantage
 from backtesting.backtest import Backtester
 from common.assets import Stock
 from common.account import Account
-from backtesting.brokers import InteractiveBrokers
+from backtesting.broker import InteractiveBrokers
 from strategy.sma_crossover import AverageCrossOver
 from backtesting.workflow.backtest_workflow import BacktestWorkflow
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable

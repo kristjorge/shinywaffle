@@ -67,13 +67,13 @@ class EventStack:
                 self.past_events['buy signal'] += 1
             elif type(event) == events.SignalEventMarketSell:
                 self.past_events['sell signal'] += 1
-            elif type(event) == events.LimitOrderBuyEvent:
+            elif type(event) == events.LimitBuyOrderPlacedEvent:
                 self.past_events['buy limit order'] += 1
-            elif type(event) == events.LimitOrderSellEvent:
+            elif type(event) == events.LimitSellOrderPlacedEvent:
                 self.past_events['sell limit order'] += 1
-            elif type(event) == events.MarketOrderBuyEvent:
+            elif type(event) == events.MarketBuyOrderPlacedEvent:
                 self.past_events['buy market order'] += 1
-            elif type(event) == events.MarketOrderSellEvent:
+            elif type(event) == events.MarketSellOrderPlacedEvent:
                 self.past_events['sell market order'] += 1
             elif type(event) == events.StopLossEvent:
                 self.past_events['stop loss'] += 1
@@ -89,6 +89,16 @@ class EventStack:
     def self2dict(self):
         return self.past_events
 
+
+class PostEventStack(EventStack):
+
+    def __init__(self):
+        super().__init__()
+
+    def dump(self):
+        events = self.events
+        self.events = []
+        return events
 
 class EventStackEmptyError(Exception):
     pass

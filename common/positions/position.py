@@ -28,7 +28,7 @@ class Position:
         }
         self.transactions = []
 
-    def sell_off(self, volume: float, price: float, time: datetime):
+    def sell_off(self, order_volume: float, order_price: float, time: datetime):
         """
 
         Method to partially close a position. Incrementing the partial return member variable by the order size.
@@ -36,23 +36,26 @@ class Position:
         If self.remaining_volume is then totalled to 0, calculate the average close price which triggers the
         final closure of the position. Average close price is calculated by volume weighting
 
-        :param volume: volume of the partial close
-        :param price: Price at which the position was partially closed
+        :param order_volume: volume of the partial close
+        :param order_price: Price at which the position was partially closed
         :param time: Datetime object
-        :return: is_closed flag indicating whether or not a position is fully closed out or not
+        :return: Tuple of is_closed flag indicating whether or not a position is fully closed out or not and remaining
+        order volume.
         """
 
-        size = volume * price
+        filled_order_volume = min(order_volume, self.volume_remaining)
+        size = filled_order_volume * order_price
         self.partial_closed_amount += size
-        self.volume_remaining -= volume
-        self.transactions.append(Position.Transaction(volume, price, size, time))
+        self.volume_remaining -= filled_order_volume
+        remaining_order_volume = order_volume - filled_order_volume
+        self.transactions.append(Position.Transaction(filled_order_volume, order_price, size, time))
 
         if self.volume_remaining == 0:
             self.closed = time
             self.close_price = sum([t.volume * t.price for t in self.transactions]) / sum([t.volume for t in self.transactions])
             self.is_active = False
 
-        return self.is_active
+        return self.is_active, remaining_order_volume
 
     def update(self, retrieved_data):
 

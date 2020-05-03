@@ -10,14 +10,14 @@ class RandomSignalStrategy(TradingStrategy):
 
     def trading_logic(self, asset):
         random_signal_generator = random()
-        if 0 < random_signal_generator <= 0.4:
-            order_size = self.context.account.risk_manager.calculate_position_size()
-            return events.MarketOrderBuyEvent(asset, order_size)
+        if 0 < random_signal_generator <= 0.05:
+            order_volume = self.context.account.risk_manager.calculate_position_volume(asset.ticker)
+            return events.SignalEventMarketBuy(asset, order_volume)
 
-        elif 0.4 < random_signal_generator <= 0.8:
-            max_volume = self.context.account.assets[asset.ticker]['holding']
-            order_size = self.context.account.risk_manager.calculate_position_size()
-            return events.MarketOrderSellEvent(asset, order_size, max_volume)
+        elif 0.05 < random_signal_generator <= 0.1:
+            # Selling off entire holding of each asset every time the signal is triggered
+            order_volume = self.context.account.assets[asset.ticker]['holding']
+            return events.SignalEventMarketSell(asset, order_volume)
 
         else:
             pass

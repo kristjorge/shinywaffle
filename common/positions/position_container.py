@@ -22,7 +22,7 @@ class PositionContainer:
         self.active_positions[p.asset.ticker][-1].id = PositionContainer.latest_active_id
         PositionContainer.latest_active_id += 1
 
-    def sell_off_position(self, ticker, volume, price, timestamp):
+    def sell_off_position(self, ticker, volume, price, time):
         """
 
         Method that sells of "size" amount of the oldest position of asset "ticker" at the price "price" at the
@@ -31,12 +31,15 @@ class PositionContainer:
         :param ticker: Ticker of the asset that is being sold
         :param volume: The order volume
         :param price: The order price
-        :param timestamp: The timetamp
+        :param time: The timetamp
         """
 
-        is_active = self.active_positions[ticker][0].sell_off(volume, price, timestamp)
+        is_active, remaining_order_volume = self.active_positions[ticker][0].sell_off(volume, price, time)
         if not is_active:
             self.exited_positions[ticker].append(self.active_positions[ticker].pop(0))
+
+        if remaining_order_volume > 0:
+            self.sell_off_position(ticker, remaining_order_volume, price, time)
 
     def update_positions(self):
         for p in self.iter_active():

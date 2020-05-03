@@ -4,14 +4,16 @@ from backtesting.backtest import Backtester
 from risk.risk_management import BaseRiskManager
 from common.assets.assets import Stock
 from common.account import Account
-from backtesting.brokers import Broker
+from backtesting.broker import BacktestBroker
 from strategy.sma_crossover import AverageCrossOver
+from strategy.random_signal_strategy import RandomSignalStrategy
 from common.context import Context
 
 context = Context()
 
-broker = Broker(context, 0, 0, 'USD')
-crossover_strategy = AverageCrossOver(context, short=10, long=20)
+broker = BacktestBroker(context, 0, 0, 'USD')
+#trading_strategy = AverageCrossOver(context, short=10, long=20)
+trading_strategy = RandomSignalStrategy(context)
 
 # Nvidia stocks
 nvidia = Stock(context, "Nvidia", "NVDA", "USD")
@@ -28,7 +30,7 @@ ibm = Stock(context, "IBM", "IBM", "USD")
 ibm_bars = BarProvider('D:/PythonProjects/shiny-waffle/data/yahoo_finance/IBM_1D.csv', '%Y-%m-%d')
 ibm.set_bars(ibm_bars)
 
-crossover_strategy.apply_to_asset(ibm, oracle, nvidia)
+trading_strategy.apply_to_asset(ibm, oracle, nvidia)
 
 risk_manager = BaseRiskManager(context)
 account = Account(context, 1000, "USD", 2)

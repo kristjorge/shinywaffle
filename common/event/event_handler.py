@@ -1,4 +1,4 @@
-from common.event.event_stack import EventStack
+from common.event.event_stack import EventStack, PostEventStack
 from common.event.event_stack import EventStackEmptyError
 from common.event import events
 import data.data_provider
@@ -17,6 +17,7 @@ class EventHandler:
         self.assets = context.assets
         self.data_provider = data_provider
         self.event_stack = EventStack()
+        self.post_event_stack = PostEventStack()
 
         while True:
             try:
@@ -33,12 +34,16 @@ class EventHandler:
                     event = self.event_stack.get()
                     self.handle_event(event)
                 except EventStackEmptyError:
+                    self.event_stack.events += self.post_event_stack.dump()
                     break
 
-            self.account.update_portfolio()
-            if type(data_provider) == data.data_provider.LiveDataProvider:
-                print("Sleeping {} seconds".format(data_provider.sleep_time))
-                time.sleep(data_provider.sleep_time)
+            self.account.update()
+            if not self.event_stack and not self.post_event_stack:
+                try:
+                    print("Sleeping {} seconds".format(data_provider.sleep_time))
+                    time.sleep(data_provider.sleep_time)
+                except AttributeError:
+                    pass
 
             try:
                 self.context.progress_bar.update()
@@ -47,19 +52,25 @@ class EventHandler:
 
     def handle_event(self, event):
         if type(event) == events.TimeSeriesEvent:
-            self.handle_time_series_events(event)
+            self.handle_time_series_events()
 
         elif type(event) == events.SignalEventMarketBuy:
-            # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
-            order_size = self.account.risk_manager.calculate_position_size()
-            new_event = self.account.place_buy_order(event.asset, order_size)
+            new_event = self.account.place_buy_order(event)
+            self.event_stack.add(new_event)
+
+        elif type(event) == events.SignalEventLimitBuy:
+            new_event = self.account.place_buy_order(event)
             self.event_stack.add(new_event)
 
         elif type(event) == events.SignalEventMarketSell:
-            # New event is 1) MarketOrderEvent or 2) LimitOrderEvent
-            order_size = self.account.risk_manager.calculate_position_size()
-            new_event = self.account.place_sell_order(event.asset, order_size)
-            self.event_stack.add(new_event)
+            new_event = self.account.place_sell_order(event)
+            # self.event_stack.add(new_event)
+            self.post_event_stack.add(new_event)
+
+        elif type(event) == events.SignalEventLimitSell:
+            new_event = self.account.place_sell_order(event)
+            # self.event_stack.add(new_event)
+            self.post_event_stack.add(new_event)
 
         elif type(event) == events.StopLossEvent:
             pass
@@ -67,28 +78,30 @@ class EventHandler:
         elif type(event) == events.TrailingStopEvent:
             pass
 
-        elif type(event) == events.MarketOrderBuyEvent:
-            # New event is of type OrderFilledEvent
-            price = self.broker.request_buy_order_price(self.context.retrieved_data[event.asset.ticker])
-            new_event = self.broker.fill_buy_order(event, price)
+        elif type(event) == events.MarketBuyOrderPlacedEvent:
+            # new_event = self.broker.buy_order_fill_confirmation(event)
+            self.broker.add_to_orderbook()
             self.event_stack.add(new_event)
 
-        elif type(event) == events.MarketOrderSellEvent:
-            # New event is of type OrderFilledEvent
-            price = self.broker.request_sell_order_price(self.context.retrieved_data[event.asset.ticker])
-            new_event = self.broker.fill_sell_order(event, price, max_volume=event.max_volume)
+        elif type(event) == events.MarketSellOrderPlacedEvent:
+            # new_event = self.broker.sell_order_fill_confirmation(event)
+            self.broker.add_to_orderbook()
             self.event_stack.add(new_event)
 
-        elif type(event) == events.LimitOrderBuyEvent:
-            pass
+        elif type(event) == events.LimitBuyOrderPlacedEvent:
+            # new_event = self.broker.buy_order_fill_confirmation(event)
+            self.broker.add_to_orderbook()
+            self.event_stack.add(new_event)
 
-        elif type(event) == events.LimitOrderSellEvent:
-            pass
+        elif type(event) == events.LimitSellOrderPlacedEvent:
+            # new_event = self.broker.sell_order_fill_confirmation(event)
+            self.broker.add_to_orderbook()
+            self.event_stack.add(new_event)
 
         elif type(event) == events.OrderFilledEvent:
-            self.account.register_order(event, self.context.retrieved_data.time)
+            self.account.complete_order(event)
 
-    def handle_time_series_events(self, event):
+    def handle_time_series_events(self):
         # Create list of strategy objects that are linked to the asset that have generated the events (same ticker)
         # Loop over the strategies with the generated events and call generate_signal method
         generated_events = []

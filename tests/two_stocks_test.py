@@ -3,7 +3,7 @@ from tools.alpha_vantage import AlphaVantage
 from backtesting.backtest import Backtester
 from common.assets.assets import Stock
 from common.account import Account
-from backtesting.brokers import Broker
+from backtesting.broker import BacktestBroker
 from strategy.sma_crossover import AverageCrossOver
 from datetime import datetime
 from risk.risk_management import BaseRiskManager
@@ -11,7 +11,7 @@ from common.context import Context
 
 context = Context()
 
-broker = Broker('My free broker', 0, 0, 'USD')
+broker = BacktestBroker('My free broker', 0, 0, 'USD')
 alpha_vantage = AlphaVantage(os.environ['AlphaVantage_APItoken'])
 sma_strategy = AverageCrossOver(short=20, long=50)
 
