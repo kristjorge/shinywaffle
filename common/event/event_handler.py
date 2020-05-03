@@ -29,9 +29,6 @@ class EventHandler:
             else:
                 self.event_stack.add(new_events)
 
-            if self.context.retrieved_data.time == datetime(2011,3,2):
-                a=1
-
             # Looping over events in event stack and handling them accordingly
             while True:
                 try:

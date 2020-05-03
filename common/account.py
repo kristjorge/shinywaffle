@@ -16,12 +16,11 @@ class Account:
 
     # TODO: Implement round down method
 
-    def __init__(self, context: Context, initial_holding: float, currency: str, num_base_decimals: int = 2):
+    def __init__(self, context: Context, initial_holding: float, base_asset):
         self.initial_holding = initial_holding
         self.cash = initial_holding
         self.total_value = initial_holding
-        self.base_currency = currency
-        self.base_currency_decimals = num_base_decimals
+        self.base_asset = base_asset
         self.assets = {asset.ticker: {'holding': 0, 'value': 0, 'asset_data': asset} for asset in context.assets.values()}
         self.time_series = {
             'total value': [],

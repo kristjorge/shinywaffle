@@ -1,7 +1,7 @@
 import numpy.random as rand
-from common.event import events
 from common.context import Context
 from backtesting import orders as orders_module
+from utils import misc
 
 
 class BacktestBroker:
