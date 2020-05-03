@@ -15,9 +15,9 @@ broker = BacktestBroker(context, 0, 0, 'USD')
 trading_strategy = FixedDatesTransactionsStrategy(context)
 
 # Nvidia stocks
-# nvidia = Stock(context, "Nvidia", "NVDA", "USD")
-# nvidia_bars = BarProvider('D:/PythonProjects/shiny-waffle/data/yahoo_finance/NVDA_1D.csv', '%Y-%m-%d')
-# nvidia.set_bars(nvidia_bars)
+nvidia = Stock(context, "Nvidia", "NVDA", "USD")
+nvidia_bars = BarProvider('D:/PythonProjects/shiny-waffle/data/yahoo_finance/NVDA_1D.csv', '%Y-%m-%d')
+nvidia.set_bars(nvidia_bars)
 
 # Oracle stocks
 oracle = Stock(context, "Oracle", "ORCL", "USD")

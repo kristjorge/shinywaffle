@@ -92,3 +92,28 @@ class Cryptocurrency(Asset):
         self.type = "cryptocurrency"
         self.num_decimal_points = 8
 
+
+class BaseAsset:
+    def __init__(self, num_decimal_points):
+        self.is_base_asset = True
+        self.num_decimal_points = num_decimal_points
+
+
+class USD(BaseAsset):
+    def __init__(self):
+        BaseAsset.__init__(self, 2)
+
+
+class USDT(BaseAsset):
+    def __init__(self):
+        BaseAsset.__init__(self, 2)
+
+
+class BTC(BaseAsset):
+    def __init__(self):
+        BaseAsset.__init__(self, 8)
+
+
+class ETH(BaseAsset):
+    def __init__(self):
+        BaseAsset.__init__(self, 8)
