@@ -22,10 +22,11 @@ Functions:
         self.context = context
         self.context.strategies[self.name] = self
 
-    def generate_signal(self) -> list:
+    def generate_signal(self, asset) -> list:
         signals = []
-        for asset in self.assets.values():
-            signals.append(self.trading_logic(asset))
+        # for asset in self.assets.values():
+        #     signals.append(self.trading_logic(asset))
+        signals.append(self.trading_logic(asset))
         if signals:
             assert all([type(s) == events.SignalEventMarketBuy or
                         type(s) == events.SignalEventMarketSell or

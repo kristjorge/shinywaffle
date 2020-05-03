@@ -1,8 +1,7 @@
 import numpy.random as rand
 from common.event import events
-from utils.misc import round_down
 from common.context import Context
-from backtesting import order
+from backtesting import orders as orders_module
 
 
 class BacktestBroker:
@@ -24,78 +23,39 @@ class BacktestBroker:
         self.min_order_size = min_order_size
         self.min_order_currency = min_order_currency
         self.total_commission = 0
-        self.order_book = order.OrderBook(context)
+        self.order_book = orders_module.OrderBook(context)
         context.broker = self
 
     def place_order(self, new_order):
-        pending_order_event = None
-        self.order_book.new_order(new_order)
-        if new_order.type == 'market':
-            pending_order_event = events.PendingMarketOrderEvent(new_order.asset,
-                                                                 new_order.order_volume,
-                                                                 new_order.side,
-                                                                 new_order.time_placed)
-        elif new_order.type == 'limit':
-            pending_order_event = events.PendingLimitOrderEvent(new_order.asset,
-                                                                new_order.order_limit_price,
-                                                                new_order.order_volume,
-                                                                new_order.side,
-                                                                new_order.time_placed)
+        pending_order_event = self.order_book.new_order(new_order)
         return pending_order_event
 
-    def buy_order_fill_confirmation(self, event):
-        if type(event) == events.MarketBuyOrderPlacedEvent:
-            order_price = self.request_market_order_price(event)
-            order_type = 'market'
-        elif type(event) == events.LimitBuyOrderPlacedEvent:
-            order_price = event.order_limit_price
-            order_type = 'limit'
-        else:
-            order_price = None
-            order_type = None
+    def check_for_order_fill(self, order_id):
+        order = self.order_book.get_by_id(order_id)
+        event = None
+        if isinstance(order, orders_module.MarketOrder):
+            event = self.fill_market_order(order)
 
-        order_size = event.order_volume * order_price
+        elif isinstance(order, orders_module.LimitOrder):
+            print('Checking for limit order filling')
+
+        return event
+
+    def fill_market_order(self, order):
+        price = self.get_market_order_price(order)
+        order_size = order.volume * price
         commission = self.calculate_commission(order_size)
+        order_filled_event = self.order_book.fill_order(order.id, price, order_size, commission)
+        return order_filled_event
 
-        return events.OrderFilledEvent(event.asset,
-                                       order_price,
-                                       order_size,
-                                       event.order_volume,
-                                       order_type,
-                                       'buy',
-                                       commission,
-                                       self.context.retrieved_data.time)
-
-    def sell_order_fill_confirmation(self, event):
-        if type(event) == events.MarketSellOrderPlacedEvent:
-            order_price = self.request_market_order_price(event)
-            order_type = 'market'
-        elif type(event) == events.LimitSellOrderPlacedEvent:
-            order_price = event.order_limit_price
-            order_type = 'limit'
-        else:
-            order_price = None
-            order_type = None
-
-        order_size = event.order_volume * order_price
-        commission = self.calculate_commission(order_size)
-        return events.OrderFilledEvent(event.asset,
-                                       order_price,
-                                       order_size,
-                                       event.order_volume,
-                                       order_type,
-                                       'sell',
-                                       commission,
-                                       self.context.retrieved_data.time)
-
-    def request_market_order_price(self, event) -> float:
-        time_series_data = self.context.retrieved_data[event.asset.ticker]
+    def get_market_order_price(self, order) -> float:
+        price_data = self.context.retrieved_data[order.asset.ticker]
         slippage = BacktestBroker.slippages.pop()
-        if type(event) == events.MarketSellOrderPlacedEvent:
+        if isinstance(order, orders_module.BuyOrder):
             pass
-        elif type(event) == events.MarketBuyOrderPlacedEvent:
+        if isinstance(order, orders_module.SellOrder):
             slippage *= -1
-        return time_series_data['bars'][0].close + slippage
+        return price_data['bars'][0].close + slippage
 
     def calculate_commission(self, order_size: float) -> float:
         """

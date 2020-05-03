@@ -74,43 +74,6 @@ class SignalEventLimitSell(Event, LimitEvent, SellEvent):
         self.order_volume = order_volume
 
 
-class MarketBuyOrderPlacedEvent(Event, MarketEvent, BuyEvent):
-    def __init__(self, asset, order_volume, time_placed):
-        Event.__init__(self, asset)
-        MarketEvent.__init__(self)
-        BuyEvent.__init__(self)
-        self.order_volume = order_volume
-        self.time_placed = time_placed
-
-
-class MarketSellOrderPlacedEvent(Event, MarketEvent, SellEvent):
-    def __init__(self, asset, order_volume, time_placed):
-        super().__init__(asset)
-        Event.__init__(self, asset)
-        MarketEvent.__init__(self)
-        SellEvent.__init__(self)
-        self.order_volume = order_volume
-        self.time_placed = time_placed
-
-
-class LimitBuyOrderPlacedEvent(Event, LimitEvent, BuyEvent):
-    def __init__(self, asset, order_volume, order_limit_price, time_placed):
-        Event.__init__(self, asset)
-        LimitEvent.__init__(self, order_limit_price)
-        BuyEvent.__init__(self)
-        self.order_volume = order_volume
-        self.time_placed = time_placed
-
-
-class LimitSellOrderPlacedEvent(Event, LimitEvent, SellEvent):
-    def __init__(self, asset, order_volume, order_limit_price, time_placed):
-        Event.__init__(self, asset)
-        LimitEvent.__init__(self, order_limit_price)
-        SellEvent.__init__(self)
-        self.order_volume = order_volume
-        self.time_placed = time_placed
-
-
 class StopLossEvent(Event):
     def __init__(self, asset, order_size):
         super().__init__(asset)
@@ -123,22 +86,9 @@ class TrailingStopEvent(Event):
         self.order_size = order_size
 
 
-class PendingMarketOrderEvent(Event, MarketEvent):
-    def __init__(self, asset, volume, side, time):
-        Event.__init__(self, asset)
-        MarketEvent.__init__(self)
-        self.side = side            # 'buy' or 'sell
-        self.order_volume = volume
-        self.time = time
-
-
-class PendingLimitOrderEvent(Event, LimitEvent):
-    def __init__(self, asset, price, volume, side, time):
-        Event.__init__(self, asset)
-        LimitEvent.__init__(self, price)
-        self.side = side           # 'buy' or 'sell
-        self.order_volume = volume
-        self.time = time
+class PendingOrderEvent:
+    def __init__(self, order_id):
+        self.order_id = order_id
 
 
 class OrderFilledEvent(Event):
@@ -146,7 +96,7 @@ class OrderFilledEvent(Event):
         super().__init__(asset)
         self.price = price
         self.order_size = size
-        self.type = type  # 'market' or 'limit'
+        self.type = type        # 'market' or 'limit'
         self.side = side        # 'buy' or 'sell
         self.order_volume = volume
         self.commission = commission

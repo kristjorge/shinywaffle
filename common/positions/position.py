@@ -55,7 +55,7 @@ class Position:
             self.close_price = sum([t.volume * t.price for t in self.transactions]) / sum([t.volume for t in self.transactions])
             self.is_active = False
 
-        return self.is_active, remaining_order_volume
+        return self.is_active, filled_order_volume, remaining_order_volume
 
     def update(self, retrieved_data):
 
@@ -78,6 +78,9 @@ class Position:
             self.time_series['volume remaining'].append(self.time_series['volume remaining'][-1])
         except IndexError:
             self.time_series['volume remaining'].append(self.volume_remaining)
+
+    def __repr__(self):
+        return 'id: {} - volume remaining: {}'.format(self.id, self.volume_remaining)
 
     def self2dict(self):
         data = {

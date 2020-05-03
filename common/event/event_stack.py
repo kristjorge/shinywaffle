@@ -19,12 +19,14 @@ class EventStack:
         self.events = list()
         self.past_events = {
             'time series': 0,
-            'buy signal': 0,
-            'sell signal': 0,
-            'buy limit order': 0,
-            'sell limit order': 0,
-            'buy market order': 0,
-            'sell market order': 0,
+            'market buy signal': 0,
+            'market sell signal': 0,
+            'limit buy signal': 0,
+            'limit sell signal': 0,
+            'market buy order': 0,
+            'market sell order': 0,
+            'limit buy order': 0,
+            'limit sell order': 0,
             'stop loss': 0,
             'trailing stop': 0,
             'order filled': 0
@@ -37,7 +39,7 @@ class EventStack:
         :param event: can either be an event or list of events
         :return: N/A
         """
-        if isinstance(event, events.Event):
+        if isinstance(event, events.Event) or isinstance(event, events.PendingOrderEvent):
             if event is not None:
                 self.events.append(event)
             else:
@@ -64,17 +66,13 @@ class EventStack:
             if type(event) == events.TimeSeriesEvent:
                 self.past_events['time series'] += 1
             elif type(event) == events.SignalEventMarketBuy:
-                self.past_events['buy signal'] += 1
+                self.past_events['market buy signal'] += 1
             elif type(event) == events.SignalEventMarketSell:
-                self.past_events['sell signal'] += 1
-            elif type(event) == events.LimitBuyOrderPlacedEvent:
-                self.past_events['buy limit order'] += 1
-            elif type(event) == events.LimitSellOrderPlacedEvent:
-                self.past_events['sell limit order'] += 1
-            elif type(event) == events.MarketBuyOrderPlacedEvent:
-                self.past_events['buy market order'] += 1
-            elif type(event) == events.MarketSellOrderPlacedEvent:
-                self.past_events['sell market order'] += 1
+                self.past_events['market sell signal'] += 1
+            elif type(event) == events.SignalEventLimitBuy:
+                self.past_events['limit buy signal'] += 1
+            elif type(event) == events.SignalEventLimitSell:
+                self.past_events['limit sell signal'] += 1
             elif type(event) == events.StopLossEvent:
                 self.past_events['stop loss'] += 1
             elif type(event) == events.TrailingStopEvent:

@@ -3,7 +3,7 @@ from backtesting.tradelog import TradeLog
 from common.positions.position_container import PositionContainer
 from common.positions.position import Position
 from common.context import Context
-from backtesting import order
+from backtesting import orders
 
 
 class Account:
@@ -32,10 +32,10 @@ class Account:
         self.times_readable = []
         self.times = []
         self.risk_manager = None
-        self.positions = PositionContainer(context)
         self.broker = context.broker
         self.context = context
         context.account = self
+        self.positions = PositionContainer(context)
 
         try:
             self.risk_manager = context.risk_manager
@@ -58,18 +58,18 @@ class Account:
         if event.order_volume > 0:
             time_placed = self.context.retrieved_data.time
             if type(event) == events.SignalEventMarketBuy:
-                new_order = order.MarketBuyOrder(event.asset,
-                                                 event.order_volume,
-                                                 time_placed)
+                new_order = orders.MarketBuyOrder(event.asset,
+                                                  event.order_volume,
+                                                  time_placed)
 
             elif type(event) == events.SignalEventLimitBuy:
-                new_order = order.LimitBuyOrder(event.asset,
-                                                event.order_volume,
-                                                event.order_limit_price,
-                                                time_placed)
+                new_order = orders.LimitBuyOrder(event.asset,
+                                                 event.order_volume,
+                                                 event.order_limit_price,
+                                                 time_placed)
 
-            order_confirmation_event = self.broker.place_order(new_order)
-            return order_confirmation_event
+            pending_order_event = self.broker.place_order(new_order)
+            return pending_order_event
 
         else:
             return None
@@ -82,18 +82,18 @@ class Account:
         if order_volume > 0:
 
             if type(event) == events.SignalEventMarketSell:
-                new_order = order.MarketSellOrder(event.asset,
+                new_order = orders.MarketSellOrder(event.asset,
+                                                   order_volume,
+                                                   time_placed)
+
+            elif type(event) == events.SignalEventLimitSell:
+                new_order = orders.LimitSellOrder(event.asset,
                                                   order_volume,
+                                                  event.order_limit_price,
                                                   time_placed)
 
-            elif type(event) == events.LimitSellOrderPlacedEvent:
-                new_order = order.LimitSellOrder(event.asset,
-                                                 order_volume,
-                                                 event.order_limit_price,
-                                                 time_placed)
-
-            order_confirmation_event = self.broker.place_order(new_order)
-            return order_confirmation_event
+            pending_order_event = self.broker.place_order(new_order)
+            return pending_order_event
 
         else:
             return None

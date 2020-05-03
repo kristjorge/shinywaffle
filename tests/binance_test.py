@@ -2,7 +2,7 @@ from tools.binance import BinancePublic
 from common.assets import assets
 from common.account import Account
 from backtesting.broker import Binance
-from strategy.random_signal_strategy import RandomSignalStrategy
+from strategy.random_signal_strategy import FixedDatesTransactionsStrategy
 from data.data_provider import LiveDataProvider
 from risk.risk_management import BaseRiskManager
 from common.event.event_handler import EventHandler
@@ -10,7 +10,7 @@ from common.event.event_handler import EventHandler
 
 binance_broker = Binance()
 binance_api = BinancePublic()
-sma_strategy = RandomSignalStrategy("Random strategy")
+sma_strategy = FixedDatesTransactionsStrategy("Random strategy")
 
 
 ether = assets.Cryptocurrency("Ethereum", "ETH", "BTC")
