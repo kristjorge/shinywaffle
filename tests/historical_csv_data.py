@@ -10,7 +10,7 @@ from common.context import Context
 
 context = Context()
 
-broker = BacktestBroker(context, 0, 0, 'USD')
+broker = BacktestBroker(context, 0)
 trading_strategy = FixedDatesTransactionsStrategy(context)
 
 # Nvidia stocks

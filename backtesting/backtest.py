@@ -67,7 +67,6 @@ class Backtester:
     def self2dict(self):
         data = {
             'initial account holding': self.account.initial_holding,
-            'base currency': self.account.base_currency,
             'broker': self.broker.self2dict(),
             'assets': [asset.self2dict() for asset in self.assets.values()],
             'backtest from': self.backtest_from.strftime(self.datetime_format),

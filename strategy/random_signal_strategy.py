@@ -10,12 +10,16 @@ class FixedDatesTransactionsStrategy(TradingStrategy):
     def trading_logic(self, asset):
         if self.context.retrieved_data.time.day == 15:
             order_volume = self.context.account.risk_manager.calculate_position_volume(asset.ticker)
-            return events.SignalEventMarketBuy(asset, order_volume)
+            limit_price = self.context.retrieved_data[asset.ticker]['bars'][-1].close*0.95
+            return events.SignalEventLimitBuy(asset, order_volume, limit_price)
+            # return events.SignalEventMarketBuy(asset, order_volume)
 
         if self.context.retrieved_data.time.day == 1:
             # Selling of entire holding every 1st of each month
             order_volume = self.context.account.assets[asset.ticker]['holding']
-            return events.SignalEventMarketSell(asset, order_volume)
+            limit_price = self.context.retrieved_data[asset.ticker]['bars'][-1].close*1.05
+            return events.SignalEventLimitSell(asset, order_volume, limit_price)
+            # return events.SignalEventMarketSell(asset, order_volume)
 
         else:
             pass

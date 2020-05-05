@@ -1,6 +1,8 @@
-import numpy.random as rand
+import numpy as np
 from common.context import Context
 from backtesting import orders as orders_module
+from data.intrabar_simulation import simulate_intrabar_data
+from datetime import timedelta
 
 
 class BacktestBroker:
@@ -13,15 +15,13 @@ class BacktestBroker:
 
     """
 
-    def __init__(self, context: Context, fee: float, min_order_size: float = None, min_order_currency: str = 'USD'):
+    def __init__(self, context: Context, fee: float):
         self.context = context
         self.name = 'Basic broker'
         self.fee = fee
-        self.min_order_size = min_order_size
-        self.min_order_currency = min_order_currency
         self.total_commission = 0
         self.order_book = orders_module.OrderBook(context)
-        self.slippages = abs(rand.normal(0, 0.05, 100000)).tolist()
+        self.slippages = abs(np.random.normal(0, 0.05, 100000)).tolist()
         context.broker = self
 
     def place_order(self, new_order):
@@ -32,15 +32,42 @@ class BacktestBroker:
         order = self.order_book.get_by_id(order_id)
         event = None
         if isinstance(order, orders_module.MarketOrder):
-            event = self.fill_market_order(order)
+            price = self.get_market_order_price(order)
+            event = self.fill_order(order, price)
 
         elif isinstance(order, orders_module.LimitOrder):
-            print('Checking for limit order filling')
+            event = None
+            if self.is_order_within_bar(order):
+                bar = self.context.retrieved_data[order.asset.ticker]['bars'][-1]
+                previous_bar = self.context.retrieved_data[order.asset.ticker]['bars'][-2]
+                total_t = (bar.time - previous_bar.time).days
+                intra_bar_prices = simulate_intrabar_data(bar, total_t, 0.01)
+
+                # Finding fill price for BuyOrder
+                if isinstance(order, orders_module.BuyOrder):
+                    for price in intra_bar_prices:
+                        if price <= order.order_limit_price:
+                            event = self.fill_order(order, price)
+                            break
+
+                # Finding fill price for SellOrder
+                elif isinstance(order, orders_module.SellOrder):
+                    for price in intra_bar_prices:
+                        if price >= order.order_limit_price:
+                            event = self.fill_order(order, price)
+                            break
 
         return event
 
-    def fill_market_order(self, order):
-        price = self.get_market_order_price(order)
+    def is_order_within_bar(self, order) -> bool:
+        bar = self.context.retrieved_data[order.asset.ticker]['bars'][-1]
+        if bar.low <= order.order_limit_price <= bar.high:
+            return True
+        else:
+            return False
+
+    def fill_order(self, order, price):
+
         order_size = order.volume * price
         commission = self.calculate_commission(order_size)
         order_filled_event = self.order_book.fill_order(order.id, price, order_size, commission)
@@ -53,7 +80,9 @@ class BacktestBroker:
             pass
         if isinstance(order, orders_module.SellOrder):
             slippage *= -1
-        return price_data['bars'][0].close + slippage
+
+        # Open or close price? Should be open price if it is filled during the next bar
+        return price_data['bars'][0].open + slippage
 
     def calculate_commission(self, order_size: float) -> float:
         """
@@ -69,8 +98,6 @@ class BacktestBroker:
         data = {
             'name': self.name,
             'fee': self.fee,
-            'min order size': self.min_order_size,
-            'min order size currency': self.min_order_currency,
             'total commission': self.total_commission
         }
 
