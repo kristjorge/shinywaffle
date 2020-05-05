@@ -10,7 +10,7 @@ from common.context import Context
 
 context = Context()
 
-broker = BacktestBroker(context, 0)
+broker = BacktestBroker(context, 0.)
 trading_strategy = FixedDatesTransactionsStrategy(context)
 
 # Nvidia stocks
@@ -19,17 +19,17 @@ nvidia_bars = BarProvider('D:/PythonProjects/shiny-waffle/data/yahoo_finance/NVD
 nvidia.set_bars(nvidia_bars)
 
 # Oracle stocks
-# oracle = assets.Stock(context, "Oracle", "ORCL", assets.USD())
-# oracle_bars = BarProvider('D:/PythonProjects/shiny-waffle/data/yahoo_finance/ORCL_1D.csv', '%Y-%m-%d')
-# oracle.set_bars(oracle_bars)
-#
+oracle = assets.Stock(context, "Oracle", "ORCL", assets.USD())
+oracle_bars = BarProvider('D:/PythonProjects/shiny-waffle/data/yahoo_finance/ORCL_1D.csv', '%Y-%m-%d')
+oracle.set_bars(oracle_bars)
+
 # # IBM stocks
-# ibm = assets.Stock(context, "IBM", "IBM", assets.USD())
-# ibm_bars = BarProvider('D:/PythonProjects/shiny-waffle/data/yahoo_finance/IBM_1D.csv', '%Y-%m-%d')
-# ibm.set_bars(ibm_bars)
+ibm = assets.Stock(context, "IBM", "IBM", assets.USD())
+ibm_bars = BarProvider('D:/PythonProjects/shiny-waffle/data/yahoo_finance/IBM_1D.csv', '%Y-%m-%d')
+ibm.set_bars(ibm_bars)
 
 # trading_strategy.apply_to_asset(oracle, ibm)
-trading_strategy.apply_to_asset(nvidia)
+trading_strategy.apply_to_asset(nvidia, oracle, ibm)
 
 risk_manager = BaseRiskManager(context)
 account = Account(context, 1000, assets.USD())

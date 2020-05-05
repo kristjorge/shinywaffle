@@ -154,9 +154,9 @@ class Account:
         """
         total_value = self.cash
         for ticker, asset in self.assets.items():
-            asset['asset_data'].latest_bar = self.context.retrieved_data[ticker]['bars'][0]
+            # asset['asset_data'].latest_bar = self.context.retrieved_data[ticker]['bars'][0]
             try:
-                asset['value'] = asset['holding'] * asset['asset_data'].latest_bar.close
+                asset['value'] = asset['holding'] * self.context.retrieved_data[ticker]['bars'][0].close
             except TypeError:
                 # Catching None
                 asset['value'] = 0

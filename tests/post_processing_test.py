@@ -10,11 +10,14 @@ def main(file_path):
     cash = account['cash']
     total_value = account['total value']
     times = account['times']
+    positions = account['positions']
 
-    plt.plot(cash)
-    plt.plot(total_value)
-    plt.show()
+    for id, position in positions.items():
+        values = position['time series']['value']
+        plt.plot(values)
+
+        plt.show()
 
 
 if __name__ == '__main__':
-    main('D:/PythonProjects/shiny-waffle/tests/Summary 05-05-2020 205143.json')
+    main('D:/PythonProjects/shiny-waffle/tests/Summary 05-05-2020 205934.json')

@@ -10,7 +10,7 @@ class FixedDatesTransactionsStrategy(TradingStrategy):
     def trading_logic(self, asset):
         if self.context.retrieved_data.time.day == 15:
             order_volume = self.context.account.risk_manager.calculate_position_volume(asset.ticker)
-            limit_price = self.context.retrieved_data[asset.ticker]['bars'][0].close*0.975
+            limit_price = self.context.retrieved_data[asset.ticker]['bars'][0].close*0.95
             return events.SignalEventLimitBuy(asset, order_volume, limit_price)
             # return events.SignalEventMarketBuy(asset, order_volume)
 

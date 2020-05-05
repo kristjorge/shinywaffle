@@ -83,11 +83,16 @@ class Position:
         return 'id: {} - volume remaining: {}'.format(self.id, self.volume_remaining)
 
     def report(self):
+        try:
+            closed_time = self.closed.strftime("%d-%m-%Y %H:%M:%S")
+        except AttributeError:
+            closed_time = 'still open'
+
         data = {
             'id': self.id,
             'asset': self.asset.name,
             'opened': self.opened.strftime("%d-%m-%Y %H:%M:%S"),
-            'closed': self.closed.strftime("%d-%m-%Y %H:%M:%S"),
+            'closed': closed_time,
             'volume': self.volume,
             'size': self.size,
             'enter price': self.enter_price,
