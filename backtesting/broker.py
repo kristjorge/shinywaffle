@@ -38,8 +38,8 @@ class BacktestBroker:
         elif isinstance(order, orders_module.LimitOrder):
             event = None
             if self.is_order_within_bar(order):
-                bar = self.context.retrieved_data[order.asset.ticker]['bars'][-1]
-                previous_bar = self.context.retrieved_data[order.asset.ticker]['bars'][-2]
+                bar = self.context.retrieved_data[order.asset.ticker]['bars'][0]
+                previous_bar = self.context.retrieved_data[order.asset.ticker]['bars'][1]
                 total_t = (bar.time - previous_bar.time).days
                 intra_bar_prices = simulate_intrabar_data(bar, total_t, 0.01)
 
@@ -47,20 +47,20 @@ class BacktestBroker:
                 if isinstance(order, orders_module.BuyOrder):
                     for price in intra_bar_prices:
                         if price <= order.order_limit_price:
-                            event = self.fill_order(order, price)
+                            event = self.fill_order(order, order.order_limit_price)
                             break
 
                 # Finding fill price for SellOrder
                 elif isinstance(order, orders_module.SellOrder):
                     for price in intra_bar_prices:
                         if price >= order.order_limit_price:
-                            event = self.fill_order(order, price)
+                            event = self.fill_order(order, order.order_limit_price)
                             break
 
         return event
 
     def is_order_within_bar(self, order) -> bool:
-        bar = self.context.retrieved_data[order.asset.ticker]['bars'][-1]
+        bar = self.context.retrieved_data[order.asset.ticker]['bars'][0]
         if bar.low <= order.order_limit_price <= bar.high:
             return True
         else:
@@ -94,7 +94,7 @@ class BacktestBroker:
         self.total_commission += commission
         return commission
 
-    def self2dict(self):
+    def report(self):
         data = {
             'name': self.name,
             'fee': self.fee,

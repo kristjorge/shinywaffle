@@ -5,9 +5,18 @@ from backtesting.stock.stops import TargetStop
 from backtesting.stock.stops import StopHolder
 from data.time_series_data import DataSeriesContainer
 from tools.api_link import APILink
-from strategy.strategy import TradingStrategy
 from utils.misc import daily_datetime_format
 from common.context import Context
+
+
+class BaseAsset:
+    def __init__(self, num_decimal_points):
+        self.name = None
+        self.is_base_asset = True
+        self.num_decimal_points = num_decimal_points
+
+    def report(self):
+        return {'base asset': self.name, 'decimal points': self.num_decimal_points}
 
 
 class Asset:
@@ -19,7 +28,7 @@ class Asset:
         - Cryptocurrencies
     """
 
-    def __init__(self, context: Context, name: str, ticker: str, base_currency: str):
+    def __init__(self, context: Context, name: str, ticker: str, base_currency: BaseAsset):
         self.name = name
         self.ticker = ticker
         self.base_currency = base_currency
@@ -29,6 +38,9 @@ class Asset:
         self.stops = StopHolder()
         self.latest_bar = None
         context.assets[self.ticker] = self
+
+    def __repr__(self):
+        return '{}: {}'.format(self.ticker, self.name)
 
     def set_bars(self, bars):
         assert isinstance(bars, TimeSeries) or isinstance(bars, APILink)
@@ -54,7 +66,7 @@ class Asset:
         elif isinstance(stop_object, TargetStop):
             setattr(self.stops, "target_stop", stop_object)
 
-    def self2dict(self):
+    def report(self):
 
         """
         Returning a serializable dictionary that can be reported in a json file by the reporter class
@@ -64,7 +76,7 @@ class Asset:
         data = {
             'name': self.name,
             'ticker': self.ticker,
-            'base_currency:': self.base_currency
+            'base_currency:': self.base_currency.report()
         }
         return data
 
@@ -93,27 +105,25 @@ class Cryptocurrency(Asset):
         self.num_decimal_points = 8
 
 
-class BaseAsset:
-    def __init__(self, num_decimal_points):
-        self.is_base_asset = True
-        self.num_decimal_points = num_decimal_points
-
-
 class USD(BaseAsset):
     def __init__(self):
         BaseAsset.__init__(self, 2)
+        self.name = 'USD'
 
 
 class USDT(BaseAsset):
     def __init__(self):
         BaseAsset.__init__(self, 2)
+        self.name = 'USD Tether'
 
 
 class BTC(BaseAsset):
     def __init__(self):
         BaseAsset.__init__(self, 8)
+        self.name = 'Bitcoin'
 
 
 class ETH(BaseAsset):
     def __init__(self):
         BaseAsset.__init__(self, 8)
+        self.name = 'Ethereum'

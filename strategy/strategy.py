@@ -23,20 +23,20 @@ Functions:
         self.context.strategies[self.name] = self
 
     def generate_signal(self, asset) -> list:
-        signals = []
-        # for asset in self.assets.values():
-        #     signals.append(self.trading_logic(asset))
-        signals.append(self.trading_logic(asset))
-        if signals:
-            assert all([type(s) == events.SignalEventMarketBuy or
-                        type(s) == events.SignalEventMarketSell or
-                        type(s) == events.SignalEventLimitBuy or
-                        type(s) == events.SignalEventLimitSell or
-                        s is None for
-                        s in signals]), 'Generated event needs to be of the type events.SignalEventMarketBuy, ' \
-                                        'events.SignalEventMarketSell, events.SignalEventLimitBuy or ' \
-                                        'events.SignalEventLimitSell'
-        return signals
+        if asset.ticker in self.assets.keys():
+            signals = [self.trading_logic(asset)]
+            if signals:
+                assert all([type(s) == events.SignalEventMarketBuy or
+                            type(s) == events.SignalEventMarketSell or
+                            type(s) == events.SignalEventLimitBuy or
+                            type(s) == events.SignalEventLimitSell or
+                            s is None for
+                            s in signals]), 'Generated event needs to be of the type events.SignalEventMarketBuy, ' \
+                                            'events.SignalEventMarketSell, events.SignalEventLimitBuy or ' \
+                                            'events.SignalEventLimitSell'
+            return signals
+        else:
+            return [None]
 
     def trading_logic(self, asset):
         """
@@ -53,7 +53,7 @@ Functions:
             assert isinstance(asset, Asset)
             self.assets[asset.ticker] = asset
 
-    def self2dict(self):
+    def report(self):
 
         attributes = [a for a in dir(self) if not a.startswith("__")
                       and not a.startswith("_")

@@ -3,13 +3,14 @@ from datetime import timedelta
 from datetime import datetime
 from common.event.event_handler import EventHandler
 from data.data_provider import BacktestDataProvider
-from backtesting.reporter import Reporter
+from backtesting.reporter import Reporter, Reportable
 from utils.misc import get_backtest_dt, get_datetime_format
 from common.context import Context
 from utils.progress_bar import ProgressBar
 
 
-class Backtester:
+
+class Backtester(Reportable):
 
     """
     Class for holding the backtesting code
@@ -64,22 +65,22 @@ class Backtester:
         else:
             return max([s.bars[0].datetime for ticker, s in self.assets.items()])
 
-    def self2dict(self):
+    def report(self):
         data = {
-            'initial account holding': self.account.initial_holding,
-            'broker': self.broker.self2dict(),
-            'assets': [asset.self2dict() for asset in self.assets.values()],
+            'initial holding': self.account.initial_holding,
+            'broker': self.broker.report(),
+            'assets': [asset.report() for asset in self.assets.values()],
             'backtest from': self.backtest_from.strftime(self.datetime_format),
             'backtest to': self.backtest_to.strftime(self.datetime_format),
-            'account': self.account.self2dict(),
-            'events': self.event_handler.event_stack.self2dict()
+            'account': self.account.report(),
+            'events': self.event_handler.event_stack.report()
         }
         return data
 
     def run(self):
         self.context.progress_bar = ProgressBar(len(self.times))
         self.event_handler = EventHandler(self.context, data_provider=self.data_provider)
-        self.reporter.aggregate_report(self.self2dict())
+        self.reporter.aggregate_report(self.report())
 
 
 class BacktestContainer:
@@ -97,7 +98,7 @@ class BacktestContainer:
         self.stochastic_run_no = stochastic_run_no
         self.json_path = self.backtester.reporter.path + "/" + self.backtester.reporter.filename + ".json"
 
-    def self2dict(self):
+    def report(self):
         data = {
             'name': self.name,
             'parameters': self.parameters,

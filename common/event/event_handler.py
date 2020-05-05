@@ -24,6 +24,10 @@ class EventHandler:
             try:
                 # Detecting any new events and getting the latest time series data
                 new_events = self.data_provider.retrieve_time_series_data()
+                # print('\n')
+                # print(self.context.retrieved_data['ORCL']['bars'][-1].close)
+                # print(self.context.retrieved_data['ORCL']['bars'][-1].time)
+                # print(self.context.retrieved_data.time)
             except data.data_provider.BacktestCompleteException:
                 break
             else:
@@ -39,7 +43,7 @@ class EventHandler:
                     break
 
             self.account.update()
-            if not self.event_stack and not self.post_event_stack:
+            if not self.event_stack.events and not self.post_event_stack.events:
                 try:
                     print("Sleeping {} seconds".format(data_provider.sleep_time))
                     time.sleep(data_provider.sleep_time)

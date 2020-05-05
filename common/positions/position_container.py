@@ -7,20 +7,17 @@ class PositionContainer:
     Positions are closed FIFO
     """
 
-    # TODO: Consider stop using class variables for incrementing ID. Can cause problems in multithreading during workflow
-    latest_active_id = 0
-
     def __init__(self, context: Context):
         self.active_positions = {asset: [] for asset in context.assets.keys()}
         self.exited_positions = {asset: [] for asset in context.assets.keys()}
         self.account = context.account
         self.context = context
-        PositionContainer.latest_active_id = 0
+        self.latest_active_id = 0
 
     def enter_position(self, p):
         self.active_positions[p.asset.ticker].append(p)
-        self.active_positions[p.asset.ticker][-1].id = PositionContainer.latest_active_id
-        PositionContainer.latest_active_id += 1
+        self.active_positions[p.asset.ticker][-1].id = self.latest_active_id
+        self.latest_active_id += 1
 
     def sell_off_position(self, ticker, volume, price, time):
 
@@ -49,9 +46,9 @@ class PositionContainer:
     def report(self):
         data = {}
         for p in self.iter_active():
-            data[p.id] = p.self2dict()
+            data[p.id] = p.report()
         for p in self.iter_exited():
-            data[p.id] = p.self2dict()
+            data[p.id] = p.report()
         return data
 
     def iter_active(self):

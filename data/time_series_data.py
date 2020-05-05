@@ -70,7 +70,10 @@ class TimeSeries:
 
     def extend(self, other):
         if type(other) == list:
-            self.data += other
+            # self.data += other
+            other.reverse()
+            for data_point in other:
+                self.data.insert(0, data_point)
         if other:
             self.update_attributes(other[0])
 

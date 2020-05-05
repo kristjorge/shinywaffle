@@ -229,7 +229,7 @@ class BacktestWorkflow:
             'optimisation datetimes': [(d[0].strftime("%d-%m-%Y %H:%M:%S"), d[1].strftime("%d-%m-%Y %H:%M:%S")) for d in self._optimisation_datetimes],
             'out of sample datetimes': [(d[0].strftime("%d-%m-%Y %H:%M:%S"), d[1].strftime("%d-%m-%Y %H:%M:%S")) for d in self._out_of_sample_datetimes],
             'parameters': {param: param_values for param, param_values in self.parameters.items()},
-            'runs': [b.self2dict() for b in self.backtests]
+            'runs': [b.report() for b in self.backtests]
         }
 
         # Dump as json to file

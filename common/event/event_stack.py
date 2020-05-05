@@ -23,13 +23,13 @@ class EventStack:
             'market sell signal': 0,
             'limit buy signal': 0,
             'limit sell signal': 0,
-            'market buy order': 0,
-            'market sell order': 0,
-            'limit buy order': 0,
-            'limit sell order': 0,
+            'market buy filled': 0,
+            'market sell filled': 0,
+            'limit buy filled': 0,
+            'limit sell filled': 0,
+            'total filled': 0,
             'stop loss': 0,
-            'trailing stop': 0,
-            'order filled': 0
+            'trailing stop': 0
         }
 
     def add(self, event):
@@ -73,18 +73,29 @@ class EventStack:
                 self.past_events['limit buy signal'] += 1
             elif type(event) == events.SignalEventLimitSell:
                 self.past_events['limit sell signal'] += 1
+            elif type(event) == events.OrderFilledEvent:
+                if event.type == 'market':
+                    if event.side == 'sell':
+                        self.past_events['market sell filled'] += 1
+                    elif event.side == 'buy':
+                        self.past_events['market buy filled'] += 1
+                elif event.type == 'limit':
+                    if event.side == 'sell':
+                        self.past_events['limit sell filled'] += 1
+                    elif event.side == 'buy':
+                        self.past_events['limit buy filled'] += 1
             elif type(event) == events.StopLossEvent:
                 self.past_events['stop loss'] += 1
             elif type(event) == events.TrailingStopEvent:
                 self.past_events['trailing stop'] += 1
             elif type(event) == events.OrderFilledEvent:
-                self.past_events['order filled'] += 1
+                self.past_events['total filled'] += 1
 
             return event
         except IndexError:
             raise EventStackEmptyError
 
-    def self2dict(self):
+    def report(self):
         return self.past_events
 
 
@@ -97,6 +108,7 @@ class PostEventStack(EventStack):
         events = self.events
         self.events = []
         return events
+
 
 class EventStackEmptyError(Exception):
     pass

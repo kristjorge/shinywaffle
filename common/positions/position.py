@@ -73,7 +73,7 @@ class Position:
         self.time_series['return'].append(remaining_value + self.partial_closed_amount - self.volume * self.enter_price)
         self.time_series['return percentage'].append(self.time_series['return'][-1] / self.size)
         self.time_series['times'].append(current_time.strftime("%d-%m-%Y %H:%M:%S"))
-        self.time_in_trade += (current_time - self.opened).days
+        self.time_in_trade = (current_time - self.opened).days
         try:
             self.time_series['volume remaining'].append(self.time_series['volume remaining'][-1])
         except IndexError:
@@ -82,11 +82,12 @@ class Position:
     def __repr__(self):
         return 'id: {} - volume remaining: {}'.format(self.id, self.volume_remaining)
 
-    def self2dict(self):
+    def report(self):
         data = {
             'id': self.id,
             'asset': self.asset.name,
             'opened': self.opened.strftime("%d-%m-%Y %H:%M:%S"),
+            'closed': self.closed.strftime("%d-%m-%Y %H:%M:%S"),
             'volume': self.volume,
             'size': self.size,
             'enter price': self.enter_price,

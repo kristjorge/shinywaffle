@@ -119,7 +119,7 @@ class Account:
 
         self.trade_log.new_trade(event.asset, event.order_size,
                                  event.price, event.order_volume,
-                                 event.type, event.time, event.commission)
+                                 event.type, event.side, event.time, event.commission)
 
         if event.side == 'buy':
             position = Position(event.time,
@@ -168,12 +168,12 @@ class Account:
         self.total_value = total_value
         self.time_series['total value'].append(total_value)
         self.time_series['cash'].append(self.cash)
-        self.time_series['number of active positions'].append(self.trade_log.active_trades)
+        # self.time_series['number of active positions'].append(self.trade_log.active_trades)
         self.positions.update_positions()
 
-    def self2dict(self):
+    def report(self):
         data = {
-            'trades': self.trade_log.self2dict(),
+            'trades': self.trade_log.report(),
             'times': self.times_readable,
             'total value': self.time_series['total value'],
             'cash': self.time_series['cash'],
