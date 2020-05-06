@@ -58,7 +58,8 @@ Functions:
         attributes = [a for a in dir(self) if not a.startswith("__")
                       and not a.startswith("_")
                       and a not in dir("__builtins__")
-                      and not hasattr(getattr(self, a), "__call__")]
+                      and not hasattr(getattr(self, a), "__call__")
+                      and not a == 'context' and not a == 'assets']
 
         data = {a: getattr(self, a) for a in attributes}
 

@@ -1,15 +1,14 @@
-from backtesting.backtest import Backtester
-from backtesting.backtest import BacktestContainer
+from backtesting.backtest import Backtester, BacktestContainer
 from backtesting.workflow.test_train_split import TestTrainSplit
 from backtesting.workflow.uncertainty_variable import UncertaintyVariable
 from data.bar import Bar
 from data.time_series_data import TimeSeries
+import numpy as np
 import pandas as pd
 import os
 import types
 from datetime import datetime, timedelta
 import json
-import copy
 
 skippable_types = (str,
                    float,
@@ -33,19 +32,16 @@ class BacktestWorkflow:
 
     wfa_types = ("rolling", "anchored")
 
-    def __init__(self, context, backtester, name, runs, sub_runs=1, stochastic_runs=1, path=os.getcwd(),
+    def __init__(self, context, uncertainty_context, backtester, name, runs, sub_runs=1, stochastic_runs=1, path=os.getcwd(),
                  out_of_sample_size=0.2, wfa='rolling'):
 
-        assert isinstance(backtester, Backtester)
-        assert isinstance(name, str)
-        assert isinstance(path, str)
-        assert isinstance(out_of_sample_size, float)
         assert isinstance(wfa, str) and wfa in BacktestWorkflow.wfa_types
         assert isinstance(runs, int) and runs > 0
         assert isinstance(sub_runs, int) and sub_runs > 0
         assert isinstance(stochastic_runs, int) and stochastic_runs > 0
 
         self.context = context
+        self.context.uncertainty_context = uncertainty_context
         self._backtester = backtester
         self.workflow_name = name
         self.path = path
@@ -125,12 +121,16 @@ class BacktestWorkflow:
         """
 
         # Preparations
-        self._prepare_backtests()
-        self._setup2json()
-        for backtest in self.backtests:
+        self.prepare_backtests()
+        self.report()
+        for i, backtest in enumerate(self.backtests):
+            print('Running backtest {} / {}'.format(i+1, self.total_number_of_runs))
+            print('  Run: {}'.format(backtest.run_no+1))
+            print('  Sub run: {}'.format(backtest.sub_run_no+1))
+            print('  Stochastic run: {}'.format(backtest.stochastic_run_no+1))
             backtest.backtester.run()
 
-    def _prepare_backtests(self):
+    def prepare_backtests(self):
 
         """
         This method prepares the list of backtests in the workflow object. The backtests is a list of container object
@@ -154,15 +154,18 @@ class BacktestWorkflow:
                     if self.enable_stochastic:
                         name += " stochastic_{}".format(stochastic_run_no)
 
-                    new_backtester = Backtester(self.context.copy, self._backtester.time_increment, backtest_from,
-                                                backtest_to,path, name)
+                    new_context = self.context.copy()
+                    self.substitute_uncertainty_variable(new_context.strategies, run_no)
+                    self.substitute_uncertainty_variable(new_context.risk_manager, run_no)
+                    self.substitute_uncertainty_variable(new_context.account, run_no)
+                    new_context.broker.slippages = abs(np.random.normal(0, 0.05, 100000)).tolist()
+
+                    new_backtester = Backtester(new_context, self._backtester.time_increment, backtest_from,
+                                                backtest_to, path, name)
 
                     # Append to list of backtests
                     self.backtests.append(BacktestContainer(name, params, new_backtester,
                                                             path, run_no, sub_run_no, stochastic_run_no))
-
-                    # Substitute parameters. Storing the variables that were substituted in a list
-                    self.substitute_uncertainty_variable(self.backtests[-1].backtester, run_no)
 
         # Check that all parameters provided in list of parameters are actually subbed out
         to_be_removed = list()
@@ -179,44 +182,50 @@ class BacktestWorkflow:
     def substitute_uncertainty_variable(self, obj, param_no):
 
         attributes = [a for a in dir(obj) if not a.startswith("_")
-                      and a not in dir("__builtins__")]
+                      and a not in dir("__builtins__")
+                      and not hasattr(getattr(obj, a), '__call__')
+                      and not a == 'context' and not a == 'account' and not a == 'broker']
 
-        for attr in attributes:
-            new_obj = getattr(obj, attr)
-            new_obj_type = type(new_obj)
+        if attributes:
+            for attr in attributes:
+                new_obj = getattr(obj, attr)
+                new_obj_type = type(new_obj)
 
-            # If uncertainty value then substitute the object with a value from the dictionary
-            if new_obj_type == UncertaintyVariable:
-                variable_name = new_obj.param_name
-                variable_value = self.parameters[variable_name][param_no]
-                setattr(obj, attr, variable_value)
+                # If uncertainty value then substitute the object with a value from the dictionary
+                if new_obj_type == UncertaintyVariable:
+                    variable_name = new_obj.param_name
+                    variable_value = self.parameters[variable_name][param_no]
+                    setattr(obj, attr, variable_value)
 
-                # Returns the name of the variable substituted
-                self.subbed_parameters.append(new_obj.param_name)
+                    # Returns the name of the variable substituted
+                    self.subbed_parameters.append(new_obj.param_name)
 
-            # If a list or a tuple
-            # Run substitution recursion on all items in list / tuple
-            elif new_obj_type == list or new_obj_type == tuple:
-                for i in new_obj:
-                    self.substitute_uncertainty_variable(i, param_no)
+                # If a list or a tuple
+                # Run substitution recursion on all items in list / tuple
+                elif new_obj_type == list or new_obj_type == tuple:
+                    for i in new_obj:
+                        self.substitute_uncertainty_variable(i, param_no)
 
-            # if dict
-            # Run substitution recursion on all values in dictionary
-            elif new_obj_type == dict:
-                for key, value in new_obj.items():
-                    self.substitute_uncertainty_variable(value, param_no)
+                # if dict
+                # Run substitution recursion on all values in dictionary
+                elif new_obj_type == dict:
+                    for key, value in new_obj.items():
+                        self.substitute_uncertainty_variable(value, param_no)
 
-            # If a function then continue to next attribute
-            elif hasattr(new_obj, '__call__'):
-                continue
+                elif isinstance(new_obj, skippable_types):
+                    continue
 
-            elif isinstance(new_obj, skippable_types):
-                continue
+                else:
+                    self.substitute_uncertainty_variable(new_obj, param_no)
+        elif type(obj) == dict:
+            for item in obj.values():
+                self.substitute_uncertainty_variable(item, param_no)
 
-            else:
-                self.substitute_uncertainty_variable(new_obj, param_no)
+        elif type(obj) == list:
+            for item in obj:
+                self.substitute_uncertainty_variable(item, param_no)
 
-    def _setup2json(self):
+    def report(self):
         data = {
             'name': self.workflow_name,
             'path': self.path,
@@ -226,8 +235,10 @@ class BacktestWorkflow:
             'total number of runs': self.total_number_of_runs,
             'walk-forward analysis': self.wfa,
             'out of sample size': self.out_of_sample_size,
-            'optimisation datetimes': [(d[0].strftime("%d-%m-%Y %H:%M:%S"), d[1].strftime("%d-%m-%Y %H:%M:%S")) for d in self._optimisation_datetimes],
-            'out of sample datetimes': [(d[0].strftime("%d-%m-%Y %H:%M:%S"), d[1].strftime("%d-%m-%Y %H:%M:%S")) for d in self._out_of_sample_datetimes],
+            'optimisation datetimes': [(d[0].strftime("%d-%m-%Y %H:%M:%S"), d[1].strftime("%d-%m-%Y %H:%M:%S"))
+                                       for d in self._optimisation_datetimes],
+            'out of sample datetimes': [(d[0].strftime("%d-%m-%Y %H:%M:%S"), d[1].strftime("%d-%m-%Y %H:%M:%S"))
+                                        for d in self._out_of_sample_datetimes],
             'parameters': {param: param_values for param, param_values in self.parameters.items()},
             'runs': [b.report() for b in self.backtests]
         }
@@ -235,5 +246,3 @@ class BacktestWorkflow:
         # Dump as json to file
         with open(self.workflow_run_path + "/workflow_summary.json", "w") as json_out:
             json.dump(data, json_out, sort_keys=True, indent=3)
-
-

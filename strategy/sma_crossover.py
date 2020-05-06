@@ -35,11 +35,12 @@ class AverageCrossOver(TradingStrategy):
             long_previous = simple_moving_average(bars, self.long, ["close", "high", "low"], offset=1)
 
             if short_current > long_current and short_previous < long_previous:
-                order_volume = self.context.risk_manager.calculate_position_volume(asset.ticker)
-                return events.SignalEventMarketBuy(asset, order_volume)
+                order_volume = self.context.account.risk_manager.calculate_position_volume(asset.ticker)
+                limit_price = self.context.retrieved_data[asset.ticker]['bars'][0].close*0.95
+                return events.SignalEventLimitBuy(asset, order_volume, limit_price)
+                # return events.SignalEventMarketBuy(asset, order_volume)
             elif short_current < long_current and short_previous > long_previous:
-                # TODO: Implement method to get remaining volume of first position to be exited
-                order_volume = 5
+                order_volume = self.context.account.assets[asset.ticker]['holding']
                 return events.SignalEventMarketSell(asset, order_volume)
             else:
                 pass

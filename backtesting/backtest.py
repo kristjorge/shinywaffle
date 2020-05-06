@@ -3,14 +3,13 @@ from datetime import timedelta
 from datetime import datetime
 from common.event.event_handler import EventHandler
 from data.data_provider import BacktestDataProvider
-from backtesting.reporter import Reporter, Reportable
+from backtesting.reporter import Reporter
 from utils.misc import get_backtest_dt, get_datetime_format
 from common.context import Context
 from utils.progress_bar import ProgressBar
 
 
-
-class Backtester(Reportable):
+class Backtester:
 
     """
     Class for holding the backtesting code
@@ -70,6 +69,7 @@ class Backtester(Reportable):
             'initial holding': self.account.initial_holding,
             'broker': self.broker.report(),
             'assets': [asset.report() for asset in self.assets.values()],
+            'strategies': [s.report() for s in self.context.strategies.values()],
             'backtest from': self.backtest_from.strftime(self.datetime_format),
             'backtest to': self.backtest_to.strftime(self.datetime_format),
             'account': self.account.report(),
