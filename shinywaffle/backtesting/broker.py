@@ -1,8 +1,7 @@
 import numpy as np
-from common.context import Context
-from backtesting import orders as orders_module
-from data.intrabar_simulation import simulate_intrabar_data
-from datetime import timedelta
+from shinywaffle.common.context import Context
+from shinywaffle.backtesting import orders as orders_module
+from shinywaffle.data.intrabar_simulation import simulate_intrabar_data
 
 
 class BacktestBroker:

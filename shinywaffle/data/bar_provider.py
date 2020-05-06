@@ -1,6 +1,6 @@
 import pandas as pd
-from data.bar import Bar
-from data.time_series_data import TimeSeries
+from shinywaffle.data.bar import Bar
+from shinywaffle.data.time_series_data import TimeSeries
 from datetime import datetime
 
 

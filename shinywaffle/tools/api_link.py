@@ -1,9 +1,9 @@
 import abc
 import requests
 from datetime import datetime
-from data.bar import Bar
-from data.time_series_data import TimeSeries
-from utils.misc import epoch_to_datetime
+from shinywaffle.data.bar import Bar
+from shinywaffle.data.time_series_data import TimeSeries
+from shinywaffle.utils.misc import epoch_to_datetime
 
 
 class APILink(abc.ABC):

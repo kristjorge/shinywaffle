@@ -1,4 +1,4 @@
-from common.context import Context
+from shinywaffle.common.context import Context
 
 
 class PositionContainer:

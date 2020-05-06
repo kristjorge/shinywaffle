@@ -1,7 +1,6 @@
-from strategy.strategy import TradingStrategy
-from common.event import events
-from technical_indicators.simple_moving_average import simple_moving_average
-from technical_indicators import TooSmallWindowException
+from shinywaffle.strategy.strategy import TradingStrategy
+from shinywaffle.common.event import events
+from shinywaffle.technical_indicators.simple_moving_average import simple_moving_average
 
 
 class AverageCrossOver(TradingStrategy):

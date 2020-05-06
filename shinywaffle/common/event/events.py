@@ -1,4 +1,4 @@
-from common.assets import assets
+from shinywaffle.common.assets import assets
 
 
 class Event:

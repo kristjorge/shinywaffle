@@ -1,4 +1,4 @@
-from technical_indicators import TooSmallWindowException
+from shinywaffle.technical_indicators import TooSmallWindowException
 import numpy as np
 
 

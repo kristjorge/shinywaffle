@@ -1,6 +1,6 @@
-from tools.api_link import APILink
+from shinywaffle.tools.api_link import APILink
+from shinywaffle.common.event.events import TimeSeriesEvent
 from datetime import datetime
-from common.event.events import TimeSeriesEvent
 
 
 class DataProvider:

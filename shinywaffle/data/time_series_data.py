@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime
-from utils.misc import get_datetime_format
-from common.context import Context
+from shinywaffle.utils.misc import get_datetime_format
+from shinywaffle.common.context import Context
 from _collections import defaultdict
 
 

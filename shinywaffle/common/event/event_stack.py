@@ -1,4 +1,4 @@
-from common.event import events
+from shinywaffle.common.event import events
 
 
 class EventStack:

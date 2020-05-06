@@ -1,16 +1,15 @@
-from common.event.event_stack import EventStack, PostEventStack
-from common.event.event_stack import EventStackEmptyError
-from common.event import events
-import data.data_provider
+from shinywaffle.common.event.event_stack import EventStack, PostEventStack
+from shinywaffle.common.event.event_stack import EventStackEmptyError
+from shinywaffle.common.event import events
+import shinywaffle.data.data_provider
 import time
 from ..context import Context
 from typing import Type
-from datetime import datetime
 
 
 class EventHandler:
 
-    def __init__(self, context: Context, data_provider: Type[data.data_provider.DataProvider]):
+    def __init__(self, context: Context, data_provider: Type[shinywaffle.data.data_provider.DataProvider]):
 
         self.context = context
         self.account = context.account
@@ -24,11 +23,7 @@ class EventHandler:
             try:
                 # Detecting any new events and getting the latest time series data
                 new_events = self.data_provider.retrieve_time_series_data()
-                # print('\n')
-                # print(self.context.retrieved_data['ORCL']['bars'][-1].close)
-                # print(self.context.retrieved_data['ORCL']['bars'][-1].time)
-                # print(self.context.retrieved_data.time)
-            except data.data_provider.BacktestCompleteException:
+            except shinywaffle.data.data_provider.BacktestCompleteException:
                 break
             else:
                 self.event_stack.add(new_events)

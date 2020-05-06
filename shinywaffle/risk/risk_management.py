@@ -1,5 +1,5 @@
-from common.context import Context
-from utils.misc import round_down
+from shinywaffle.common.context import Context
+from shinywaffle.utils.misc import round_down
 
 
 class RiskManager:

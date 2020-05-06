@@ -1,5 +1,5 @@
-from common.context import Context
-from common.event import events
+from shinywaffle.common.context import Context
+from shinywaffle.common.event import events
 
 
 class TradingStrategy:
@@ -48,7 +48,7 @@ Functions:
         raise NotImplementedError
 
     def apply_to_asset(self, *assets):
-        from common.assets.assets import Asset
+        from shinywaffle.common.assets.assets import Asset
         for asset in assets:
             assert isinstance(asset, Asset)
             self.assets[asset.ticker] = asset

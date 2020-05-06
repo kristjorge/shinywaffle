@@ -1,12 +1,12 @@
-from data.time_series_data import TimeSeries
-from backtesting.stock.stops import TrailingStop
-from backtesting.stock.stops import StopLoss
-from backtesting.stock.stops import TargetStop
-from backtesting.stock.stops import StopHolder
-from data.time_series_data import DataSeriesContainer
-from tools.api_link import APILink
-from utils.misc import daily_datetime_format
-from common.context import Context
+from shinywaffle.data.time_series_data import TimeSeries
+from shinywaffle.backtesting.stock.stops import TrailingStop
+from shinywaffle.backtesting.stock.stops import StopLoss
+from shinywaffle.backtesting.stock.stops import TargetStop
+from shinywaffle.backtesting.stock.stops import StopHolder
+from shinywaffle.data.time_series_data import DataSeriesContainer
+from shinywaffle.tools.api_link import APILink
+from shinywaffle.utils.misc import daily_datetime_format
+from shinywaffle.common.context import Context
 
 
 class BaseAsset:

@@ -1,9 +1,9 @@
-from common.event import events
-from backtesting.tradelog import TradeLog
-from common.positions.position_container import PositionContainer
-from common.positions.position import Position
-from common.context import Context
-from backtesting import orders
+from shinywaffle.common.event import events
+from shinywaffle.backtesting.tradelog import TradeLog
+from shinywaffle.common.positions.position_container import PositionContainer
+from shinywaffle.common.positions.position import Position
+from shinywaffle.common.context import Context
+from shinywaffle.backtesting import orders
 
 
 class Account:

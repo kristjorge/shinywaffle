@@ -1,12 +1,12 @@
 import os
 from datetime import timedelta
 from datetime import datetime
-from common.event.event_handler import EventHandler
-from data.data_provider import BacktestDataProvider
-from backtesting.reporter import Reporter
-from utils.misc import get_backtest_dt, get_datetime_format
-from common.context import Context
-from utils.progress_bar import ProgressBar
+from shinywaffle.common.event.event_handler import EventHandler
+from shinywaffle.data.data_provider import BacktestDataProvider
+from shinywaffle.backtesting.reporter import Reporter
+from shinywaffle.utils.misc import get_backtest_dt, get_datetime_format
+from shinywaffle.common.context import Context
+from shinywaffle.utils.progress_bar import ProgressBar
 
 
 class Backtester:
