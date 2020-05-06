@@ -1,5 +1,5 @@
 from backtesting.workflow.workflow import BacktestWorkflow
-from backtesting.workflow.uncertainty_variable import UncertaintyVariable, UncertaintyContext
+from backtesting.workflow.uncertainty_variable import UncertaintyVariable
 from datetime import datetime
 from data.bar_provider import BarProvider
 from backtesting.backtest import Backtester
@@ -7,18 +7,15 @@ from risk.risk_management import BaseRiskManager
 from common.assets import assets
 from common.account import Account
 from backtesting.broker import BacktestBroker
-from strategy import random_signal_strategy, sma_crossover
+from strategy import sma_crossover
 from common.context import Context
 
 context = Context()
-uncertainty_context = UncertaintyContext()
 
 broker = BacktestBroker(context, 0.)
 trading_strategy = sma_crossover.AverageCrossOver(context=context,
                                                   short=UncertaintyVariable('short'),
                                                   long=UncertaintyVariable('long'))
-
-uncertainty_context.set_variables(trading_strategy.short, trading_strategy.long)
 
 
 # Nvidia stocks
@@ -41,7 +38,7 @@ trading_strategy.apply_to_asset(nvidia, oracle, ibm)
 risk_manager = BaseRiskManager(context)
 account = Account(context, 1000, assets.USD())
 backtester = Backtester(context, 'daily', run_from=datetime(2011, 1, 1), run_to=datetime(2020, 1, 1))
-workflow = BacktestWorkflow(context, uncertainty_context, backtester, "Simple SMA workflow sample ",
+workflow = BacktestWorkflow(context, backtester, "Simple SMA workflow sample ",
                             path="D:/PythonProjects/shiny-waffle/backtesting/runs",
                             runs=1, sub_runs=1, out_of_sample_size=0.2, wfa='anchored', stochastic_runs=2)
 

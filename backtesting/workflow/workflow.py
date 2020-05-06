@@ -20,8 +20,6 @@ skippable_types = (str,
                    Bar,
                    TimeSeries)
 
-# TODO: Clean up this mess code. Remember to reset the Event and Trade class variables between runs
-
 
 class BacktestWorkflow:
 
@@ -32,8 +30,21 @@ class BacktestWorkflow:
 
     wfa_types = ("rolling", "anchored")
 
-    def __init__(self, context, uncertainty_context, backtester, name, runs, sub_runs=1, stochastic_runs=1, path=os.getcwd(),
+    def __init__(self, context, backtester, name, runs, sub_runs=1, stochastic_runs=1, path=os.getcwd(),
                  out_of_sample_size=0.2, wfa='rolling'):
+
+        """
+
+        :param context: The context object containing assets, strategies, broker, account
+        :param backtester: The default backtester object used to create the copies from
+        :param name: Name of workflow
+        :param runs: Number of runs
+        :param sub_runs: Number of sub runs
+        :param stochastic_runs: Number of stochastic runs per sub run
+        :param path: Path to the root directory for storing backtest simulation results
+        :param out_of_sample_size: Percentage of total sample size is used for out of sample simulation
+        :param wfa: Walk-forward-analysis method. Either 'anchored' or 'rolling'
+        """
 
         assert isinstance(wfa, str) and wfa in BacktestWorkflow.wfa_types
         assert isinstance(runs, int) and runs > 0
@@ -41,7 +52,6 @@ class BacktestWorkflow:
         assert isinstance(stochastic_runs, int) and stochastic_runs > 0
 
         self.context = context
-        self.context.uncertainty_context = uncertainty_context
         self._backtester = backtester
         self.workflow_name = name
         self.path = path
@@ -57,7 +67,7 @@ class BacktestWorkflow:
         self.backtests = list()
         self.subbed_parameters = list()
 
-        # Setting up folder structure
+        # Creating main workflow results folder
         self.workflow_run_path = self.path + "/" + self.workflow_name + " " + datetime.now().strftime("%d-%m-%Y %H %M %S")
         os.mkdir(self.workflow_run_path)
 
@@ -70,21 +80,21 @@ class BacktestWorkflow:
         self._optimisation_datetimes = test_train_split.calc_optimisation_datetimes(datetime_from, datetime_to)
         self._out_of_sample_datetimes = test_train_split.calc_out_of_sample_datetimes(datetime_from, datetime_to)
 
-        # Create folder structure
-        for run_no in range(self.no_runs):
-            run_path = self.workflow_run_path + "/run_{}".format(run_no)
+    def create_results_folder(self, run_no, sub_run_no, stoch_run_no):
+        run_path = self.workflow_run_path + "/run_{}".format(run_no)
+        if not os.path.isdir(run_path):
             os.mkdir(run_path)
 
-            # Create one folder per sub run folder under each run folder
-            for sub_run_no in range(self.no_sub_runs):
-                sub_run_path = run_path + "/sub_run_{}".format(sub_run_no)
-                if self.enable_stochastic:
-                    for stoch_run_no in range(self.no_stochastic_runs):
-                        stoch_run_path = sub_run_path + "_stochastic_{}".format(stoch_run_no)
-                        self.sim_paths.append(stoch_run_path)
-                else:
-                    self.sim_paths.append(sub_run_path)
-                os.mkdir(sub_run_path)
+        # Create one folder per sub run folder under each run folder
+        sub_run_path = run_path + "/sub_run_{}".format(sub_run_no)
+        if self.enable_stochastic:
+            stoch_run_path = sub_run_path + "_stochastic_{}".format(stoch_run_no)
+            self.sim_paths.append(stoch_run_path)
+        else:
+            self.sim_paths.append(sub_run_path)
+
+        if not os.path.isdir(sub_run_path):
+            os.mkdir(sub_run_path)
 
     def set_uncertainty_parameter_values(self, param, values=None):
 
@@ -121,7 +131,7 @@ class BacktestWorkflow:
         """
 
         # Preparations
-        self.prepare_backtests()
+        self.make_backtests()
         self.report()
         for i, backtest in enumerate(self.backtests):
             print('Running backtest {} / {}'.format(i+1, self.total_number_of_runs))
@@ -130,21 +140,32 @@ class BacktestWorkflow:
             print('  Stochastic run: {}'.format(backtest.stochastic_run_no+1))
             backtest.backtester.run()
 
-    def prepare_backtests(self):
+    def make_backtests(self):
 
         """
-        This method prepares the list of backtests in the workflow object. The backtests is a list of container object
-         for backtester objects as well as other information as name, path, number of runs etc
+        This method creates a list of Backtester objects which are later run with the run() method.
+        For each run_no, sub_run_no and stochastic_run_no, a results folder is first generated (if it is not already
+        in place). Then parameters are drawn from the self.parameters dictionary corresponding to the run_no.
 
-        Substituting uncertainty parameters from the uncertainty parameters list to the appropriate parameters in the
-        various objects
+        The context object is copied using deep copy to break all pointers and then the substitute_uncertainty_variable
+        method is called on new_context.strategies, new_context.risk_manager and new_context.account to substitute all
+        UncertaintyVariable objects with the appropriate variable value collected from the self.parameters dictionary.
 
-        :return:
+        A new Backtester object is then created with the new_context object and the new backtest_from and backtest_to
+        times calculated from the test_train_split method. The slippages in the broker object have to be drawn from the
+        normal distribution again and injected into the new_context.broker object. A BacktesterContainer object
+        is created with the new Backtester object and is appended to the list of backtests.
+
+        Lastly a check is made to see which (if any) uncertainty variables are not substituted out. If any, they are
+        removed from the parameters dictionary and will not be reported in the final workflow json output.
         """
 
         for run_no in range(self.no_runs):
             for sub_run_no in range(self.no_sub_runs):
                 for stochastic_run_no in range(self.no_stochastic_runs):
+
+                    self.create_results_folder(run_no, sub_run_no, stochastic_run_no)
+
                     params = {p: p_value[run_no] for p, p_value in self.parameters.items()}
                     path = self.workflow_run_path + "/run_{}".format(run_no) + "/sub_run_{}".format(sub_run_no)
                     backtest_from = self._optimisation_datetimes[sub_run_no][0]
@@ -154,10 +175,13 @@ class BacktestWorkflow:
                     if self.enable_stochastic:
                         name += " stochastic_{}".format(stochastic_run_no)
 
+                    # Deep copy
                     new_context = self.context.copy()
                     self.substitute_uncertainty_variable(new_context.strategies, run_no)
                     self.substitute_uncertainty_variable(new_context.risk_manager, run_no)
                     self.substitute_uncertainty_variable(new_context.account, run_no)
+
+                    # The slippages have to be re-drawn to avoid using the same slippage values in every run
                     new_context.broker.slippages = abs(np.random.normal(0, 0.05, 100000)).tolist()
 
                     new_backtester = Backtester(new_context, self._backtester.time_increment, backtest_from,
