@@ -127,6 +127,18 @@ class BacktestBroker:
         return order_filled_event
 
     def get_market_order_price(self, order) -> float:
+
+        """
+        Method to get the fill price for a market order. Assuming the market order is filled at the open of the
+        current bar. This would be valid since it is filled in the bar after it was submitted
+
+        Slippage is taken from the self.slippages list. If the order is a sell order, the slippage is subtracted, and
+        if it is a buy order it is added to the price to produce the final fill price.
+
+        :param order:
+        :return:
+        """
+
         price_data = self.context.retrieved_data[order.asset.ticker]
         slippage = self.slippages.pop()
         if isinstance(order, orders_module.BuyOrder):
