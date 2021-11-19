@@ -3,7 +3,15 @@ import numpy as np
 import math as m
 
 
-def generate_high_low_times(dt, total_t):
+def generate_high_low_times(dt: float, total_t: float) -> tuple:
+    """
+    Function that generates normalized timestamps for when the bar high and low price point occurs within the bar.
+    0 = at the start
+    1 = at the end.
+
+    The function first determines whether or not the high or the low came first (random draw) and then generates the placement of the points accordingly.
+    The parameter boundary_distance determines the minimum normalized distance between the high and the low point.
+    """
     n = round(total_t/dt)
     boundary_distance = 0.2
     if 0 <= random.random() < 0.5:
@@ -20,7 +28,7 @@ def generate_high_low_times(dt, total_t):
 
     low_t = low_t / round(total_t/dt)
     high_t = high_t / round(total_t/dt)
-    return high_t, low_t, 0, 1
+    return high_t, low_t
 
 
 def interp_price_with_noise(s_start, s_end, dt, total_t, sigma, constraints):
@@ -55,12 +63,14 @@ def simulate_intrabar_data(bar, total_t, dt=0.01, stdev_dampening=20, sigma=None
             self.T = T
 
         def __repr__(self):
-            return '{} at {}'.format(self.value, self.T)
+            return '{} at {}/1'.format(self.value, self.T)
 
     if not sigma:
         sigma = np.std([bar.low, bar.high, bar.close, bar.open]) / stdev_dampening
 
-    high_t, low_t, open_t, close_t = generate_high_low_times(dt, total_t)
+    close_t = 1
+    open_t = 0
+    high_t, low_t = generate_high_low_times(dt, total_t)
     price_points = sorted([PricePoint(bar.high, high_t),
                            PricePoint(bar.low, low_t),
                            PricePoint(bar.open, open_t),

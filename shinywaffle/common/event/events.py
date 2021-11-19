@@ -1,7 +1,9 @@
-from shinywaffle.common.assets import assets
+from shinywaffle.common import assets
+from abc import ABC
+from shinywaffle.backtesting import OrderType, OrderSide
 
 
-class Event:
+class Event(ABC):
 
     """
     Event base class is used as super for all other classes
@@ -18,22 +20,22 @@ class Event:
 
 class BuyEvent:
     def __init__(self):
-        self.side = 'buy'
+        self.side = OrderSide.BUY
 
 
 class SellEvent:
     def __init__(self):
-        self.side = 'sell'
+        self.side = OrderSide.SELL
 
 
 class MarketEvent:
     def __init__(self):
-        self.type = 'market'
+        self.type = OrderType.MARKET
 
 
 class LimitEvent:
     def __init__(self, limit_price):
-        self.type = 'limit'
+        self.type = OrderType.LIMIT
         self.order_limit_price = limit_price
 
 
@@ -92,12 +94,12 @@ class PendingOrderEvent:
 
 
 class OrderFilledEvent(Event):
-    def __init__(self, asset, price, size, volume, type, side, commission, time):
+    def __init__(self, asset, price, size, volume, order_type, side, commission, time):
         super().__init__(asset)
         self.price = price
         self.order_size = size
-        self.type = type        # 'market' or 'limit'
-        self.side = side        # 'buy' or 'sell
+        self.type = order_type
+        self.side = side
         self.order_volume = volume
         self.commission = commission
         self.time = time

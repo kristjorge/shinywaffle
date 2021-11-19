@@ -1,7 +1,33 @@
 from datetime import datetime
 import math
+from enum import Enum
 
-daily_datetime_format = "%Y-%m-%d"
+INTRADAY_INTERVALS = (
+    "1min",
+    "5min",
+    "15min",
+    "30min",
+    "60min",
+    "1h",
+    "2h",
+    "4h",
+    "6h",
+    "8h"
+    )
+DAILY_DATETIME_FORMAT = "%Y-%m-%d"
+
+
+class IntradayInterval(Enum):
+    MINUTE_1 = '1min'
+    MINUTE_5 = '5min'
+    MINUTE_15 = '15min'
+    MINUTE_30 = '30min'
+    MINUTE_60 = '60min'
+    HOUR_1 = '1h'
+    HOUR_2 = '2h'
+    HOUR_4 = '4h'
+    HOUR_6 = '6h'
+    HOUR_8 = '8h'
 
 
 def get_datetime_format(interval: str) -> str:
@@ -11,9 +37,9 @@ def get_datetime_format(interval: str) -> str:
     :return: Returns a string with the datetime format used in datetime.strftime() method to output a readable string
     """
 
-    datetime_format = daily_datetime_format
+    datetime_format = DAILY_DATETIME_FORMAT
 
-    if interval == "1min" or interval == "5min" or interval == "15min" or interval == "30min" or interval == "60min":
+    if interval in INTRADAY_INTERVALS:
         datetime_format += " %H:%M:%S"
 
     return datetime_format
@@ -72,7 +98,7 @@ def get_backtest_dt(interval: str) -> float:
         dt = 4 / 24
     elif interval == '2h':
         dt = 1 / 12
-    elif interval == '60min' or interval == '60m':
+    elif interval == '60min' or interval == '60m' or interval == '1h':
         dt = 1 / 24
     elif interval == '30min' or interval == '30m':
         dt = 1 / (24*2)
