@@ -8,15 +8,15 @@ class FixedDatesTransactionsStrategy(TradingStrategy):
         super().__init__(context, 'Random testing strategy')
 
     def trading_logic(self, asset):
-        if self.context.retrieved_data.time.day == 15:
+        if self.context.time.day == 15:
             order_volume = self.context.account.risk_manager.calculate_position_volume(asset.ticker)
-            limit_price = self.context.retrieved_data[asset.ticker]['bars'][0].close*0.95
+            limit_price = asset.bars[0].close * 0.95
             return events.SignalEventLimitBuy(asset, order_volume, limit_price)
             # return events.SignalEventMarketBuy(asset, order_volume)
 
-        if self.context.retrieved_data.time.day == 1:
+        if self.context.time.day == 1:
             # Selling of entire holding every 1st of each month at market
-            order_volume = self.context.account.assets[asset.ticker]['holding']
+            order_volume = self.context.account.base_balance[asset.ticker].balance
             return events.SignalEventMarketSell(asset, order_volume)
 
         else:

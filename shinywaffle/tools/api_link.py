@@ -2,7 +2,6 @@ import abc
 import requests
 from datetime import datetime
 from shinywaffle.data.bar import Bar
-from shinywaffle.data.time_series_data import TimeSeries
 from shinywaffle.utils.misc import epoch_to_datetime
 
 
@@ -27,6 +26,7 @@ class BinancePublicLink(APILink):
         self.interval = interval
 
     def fetch(self):
+        from shinywaffle.data.time_series_data import TimeSeries
         response = requests.get(self.url).json()
         bars = []
         for kline in response:

@@ -23,8 +23,7 @@ class AverageCrossOver(TradingStrategy):
 
         For now only returning a buy signal as I have yet to implement any technical indicators
         """
-
-        bars = self.context.retrieved_data[asset.ticker]['bars']
+        bars = asset.bars
 
         try:
             short_current = simple_moving_average(bars, self.short, ["close", "high", "low"], offset=0)
@@ -35,11 +34,11 @@ class AverageCrossOver(TradingStrategy):
 
             if short_current > long_current and short_previous < long_previous:
                 order_volume = self.context.account.risk_manager.calculate_position_volume(asset.ticker)
-                limit_price = self.context.retrieved_data[asset.ticker]['bars'][0].close*0.95
-                return events.SignalEventLimitBuy(asset, order_volume, limit_price)
-                # return events.SignalEventMarketBuy(asset, order_volume)
+                limit_price = bars[0].close * 0.95
+                #return events.SignalEventLimitBuy(asset, order_volume, limit_price)
+                return events.SignalEventMarketBuy(asset, order_volume)
             elif short_current < long_current and short_previous > long_previous:
-                order_volume = self.context.account.assets[asset.ticker]['holding']
+                order_volume = self.context.account.balances[asset].balance
                 return events.SignalEventMarketSell(asset, order_volume)
             else:
                 pass

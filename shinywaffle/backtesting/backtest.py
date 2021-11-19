@@ -4,28 +4,28 @@ from datetime import datetime
 from shinywaffle.common.event.event_handler import EventHandler
 from shinywaffle.data.data_provider import BacktestDataProvider
 from shinywaffle.backtesting.reporter import Reporter
-from shinywaffle.utils.misc import get_backtest_dt, get_datetime_format
+from shinywaffle.utils import misc
 from shinywaffle.common.context import Context
 from shinywaffle.utils.progress_bar import ProgressBar
+from typing import List
 
 
 class Backtester:
 
     """
     Class for holding the backtesting code
-
     """
 
     def __init__(self, context: Context, time_increment: str, run_from: datetime = None,
                  run_to: datetime = None, path: str = os.getcwd(),
-                 filename: str = "Summary {}".format(datetime.now().strftime("%d-%m-%Y %H%M%S"))):
+                 filename: str = "Backtest {}".format(datetime.now().strftime("%d-%m-%Y %H%M%S"))):
 
         self.context = context
         self.account = context.account
         self.broker = context.broker
         self.assets = context.assets
-        self.time_increment = get_datetime_format(time_increment)
-        self.datetime_format = self.time_increment
+        self.time_increment = time_increment
+        self.datetime_format = misc.get_datetime_format(time_increment)
         self.reporter = Reporter(path=path, filename=filename)
         self.event_handler = None
 
@@ -37,15 +37,13 @@ class Backtester:
         if self.run_to is not None:
             assert isinstance(self.run_to, datetime)
 
-        self.times = list()
-        self.make_times()
+        self.times = self.make_times()
         self.data_provider = BacktestDataProvider(self.context, self.times)
 
-    def make_times(self):
-
-        dt = get_backtest_dt(self.time_increment)
+    def make_times(self) -> List[datetime]:
+        dt = misc.get_backtest_dt(self.time_increment)
         num_steps = int((self.backtest_to - self.backtest_from).days / dt)
-        self.times = [self.backtest_from + i*timedelta(days=dt) for i in range(0, num_steps)]
+        return [self.backtest_from + i*timedelta(days=dt) for i in range(0, num_steps)]
 
     def copy(self):
         return Backtester(self.context.copy(), self.time_increment, self.run_from, self.run_to)

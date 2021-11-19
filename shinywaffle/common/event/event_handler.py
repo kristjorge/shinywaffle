@@ -4,12 +4,11 @@ from shinywaffle.common.event import events
 import shinywaffle.data.data_provider
 import time
 from ..context import Context
-from typing import Type
 
 
 class EventHandler:
 
-    def __init__(self, context: Context, data_provider: Type[shinywaffle.data.data_provider.DataProvider]):
+    def __init__(self, context: Context, data_provider: shinywaffle.data.data_provider.BacktestDataProvider):
 
         self.context = context
         self.account = context.account

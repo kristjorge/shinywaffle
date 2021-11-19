@@ -61,7 +61,7 @@ class EventStack:
         :return: event. If there are no more events in the even stack, return None and False
         """
         try:
-            event = self.events.pop()
+            event = self.events.pop(0)
 
             if type(event) == events.TimeSeriesEvent:
                 self.past_events['time series'] += 1

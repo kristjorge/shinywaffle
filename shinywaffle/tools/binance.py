@@ -1,11 +1,11 @@
-from tools.rest_api import API
-from tools.api_link import BinancePublicLink
-from data.bar import Bar
-from data.time_series_data import TimeSeries
+from shinywaffle.tools.rest_api import API
+from shinywaffle.tools.api_link import BinancePublicLink
+from shinywaffle.data.bar import Bar
+from shinywaffle.data.time_series_data import TimeSeries, TimeSeriesType
 from datetime import datetime
-from utils.misc import datetime_to_epoch
-from utils.misc import epoch_to_datetime
-from utils.misc import query_string
+from shinywaffle.utils.misc import datetime_to_epoch
+from shinywaffle.utils.misc import epoch_to_datetime
+from shinywaffle.utils.misc import query_string
 import requests
 import math as m
 
@@ -58,7 +58,7 @@ class BinancePublic(API):
         super().__init__(token)
         self.base_url = 'https://api.binance.com'
 
-    def get_candlesticks(self, base_asset: str, quote_asset: str, interval: str, limit:int = 500,
+    def get_candlesticks(self, base_asset: str, quote_asset: str, interval: str, limit: int = 500,
                          time_to: datetime = datetime.now(), time_from: datetime = None, return_as_link: bool = False):
 
         param_dict = {
@@ -85,7 +85,7 @@ class BinancePublic(API):
                         num_candles = limit
 
                     param_dict = {
-                        'endTime': str(int(start_time + num_candles * interval_ms)),
+                        'endTime': str(int(start_time + (num_candles - 1) * interval_ms)),
                         'startTime': str(start_time),
                         'limit': str(num_candles)
                     }
@@ -102,7 +102,7 @@ class BinancePublic(API):
                 response += self.query(query_url)
 
             response.reverse()
-            bar_container = TimeSeries(interval)
+            bar_container = TimeSeries()
             bar_container.set(response)
             return bar_container
         else:

@@ -28,6 +28,12 @@ class Bar:
         self.low = float(low)
         self.volume = int(volume)
 
+    def __str__(self):
+        return f'Bar(time open={self.time}, open={self.open}, close={self.close}, high={self.high}, low={self.low}, volume={self.volume})'
+
+    def __repr__(self):
+        return self.__str__()
+
     def __add__(self, other):
         timestamp = max(self.time, other.time)
         opn = self.open + other.open

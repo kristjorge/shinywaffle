@@ -17,4 +17,4 @@ def main(file_path):
 
 
 if __name__ == '__main__':
-    main('D:/PythonProjects/shiny-waffle/tests/Summary 06-05-2020 201427.json')
+    main('C:\PythonProjects\shiny-waffle\Summary 16-01-2021 210100.json')

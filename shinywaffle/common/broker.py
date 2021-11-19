@@ -1,7 +1,12 @@
+from __future__ import annotations
 import numpy as np
 from shinywaffle.common.context import Context
 from shinywaffle.backtesting import orders as orders_module
 from shinywaffle.data.intrabar_simulation import simulate_intrabar_data
+from typing import Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from shinywaffle.backtesting import ValidOrderType
 
 
 class BacktestBroker:
@@ -14,7 +19,7 @@ class BacktestBroker:
 
     """
 
-    def __init__(self, context: Context, fee: float):
+    def __init__(self, context: Context, fee: float, fee_fixed: float, slippage=True):
         """
         Modelling slippage as a normal distribution with mean 0 and standard deviation of 0.05. Generating 100000
         values.
@@ -22,23 +27,27 @@ class BacktestBroker:
         :param context: Context object containing all the cogs
         :param fee: Fee percentage
         """
+        n = 100000
         self.context = context
-        self.name = 'Basic broker'
+        self.name = 'Backtest broker'
         self.fee = fee
+        self.fee_fixed = fee_fixed
         self.total_commission = 0
         self.order_book = orders_module.OrderBook(context)
-        self.slippages = abs(np.random.normal(0, 0.05, 100000)).tolist()
-        context.broker = self
+        if slippage is not True:
+            self.slippages = [0] * n
+        else:
+            self.slippages = abs(np.random.normal(0, 0.05, n)).tolist()
 
-    def place_order(self, new_order):
+    def place_order(self, new_order: ValidOrderType):
 
         """
         :param new_order: The order object received by the broker. Submitted further on to the order_book object
-        and recieves a PendingOrderEvent.
+        and receives a PendingOrderEvent.
         :return: PendingOrderEvent
         """
 
-        pending_order_event = self.order_book.new_order(new_order)
+        pending_order_event = self.order_book.new_order(order=new_order)
         return pending_order_event
 
     def check_for_order_fill(self, order_id):
@@ -46,14 +55,13 @@ class BacktestBroker:
         """
         Method that checks whether or not an order with a given ID will be filled in the current bar.
 
-        The order object is gotten from the order_book by its ID. If it is a market order, then it is automatically
+        The order object is fetched from the order_book by its ID. If it is a market order, then it is automatically
         filled and the price is calculated from the self.get_market_order_price method. If the order is a limit order,
-        then the order limit price is checked versus the current bar to see if it would be possible to fill.
+        then the order limit price is checked against the prices in the current bar to see if the limit price is reached within the bar.
 
-        If is will be filled, then the intra bar prices are simulated using the simulate_intrabar_data method. If the
-        order is a buy order, the order will be filled at the price that is first equal to or below the order limit
-        price. If it is a sell order, then it will be filled at the price that is first equal to or above the
-        order limit price.
+        If so, then the intrabar prices are simulated using the simulate_intrabar_data method. 
+            If the order is a buy order, the order will be filled at the price that is first equal to or below the order limit price. 
+            If it is a sell order, then it will be filled at the price that is first equal to or above the order limit price.
 
         :param order_id: ID of the order to check
         :return: OrderFilledEvent
@@ -61,28 +69,36 @@ class BacktestBroker:
 
         order = self.order_book.get_by_id(order_id)
         event = None
+
+        # If MarketOrder then fill immediately with the price from the get_market_order_price
         if isinstance(order, orders_module.MarketOrder):
             price = self.get_market_order_price(order)
             event = self.fill_order(order, price)
 
+        # If LimitOrder, then check whether or not the limit is reached, and if so simulate the price action.
         elif isinstance(order, orders_module.LimitOrder):
             event = None
             if self.is_order_within_bar(order):
-                bar = self.context.retrieved_data[order.asset.ticker]['bars'][0]
-                previous_bar = self.context.retrieved_data[order.asset.ticker]['bars'][1]
-                total_t = (bar.time - previous_bar.time).days
+                bars = order.asset.bars
+                bar = bars[0]
+                previous_bar = bars[1]
+
+                # total_t = (bar.time - previous_bar.time).days
+                # Total_t = 1 means that bar duration is normalized and the price simulation will then generate 1 / dt price points per bar.
+
+
+                total_t = 1.
                 intra_bar_prices = simulate_intrabar_data(bar, total_t, 0.01)
 
                 # Finding fill price for BuyOrder
-                if isinstance(order, orders_module.BuyOrder):
+                if type(order) == orders_module.LimitBuyOrder:
                     for price in intra_bar_prices:
                         if price <= order.order_limit_price:
-                            # event = self.fill_order(order, order.order_limit_price)
                             event = self.fill_order(order, price)
                             break
 
                 # Finding fill price for SellOrder
-                elif isinstance(order, orders_module.SellOrder):
+                elif type(order) == orders_module.LimitSellOrder:
                     for price in intra_bar_prices:
                         if price >= order.order_limit_price:
                             # event = self.fill_order(order, order.order_limit_price)
@@ -91,7 +107,8 @@ class BacktestBroker:
 
         return event
 
-    def is_order_within_bar(self, order) -> bool:
+    @staticmethod
+    def is_order_within_bar(order: Union[orders_module.LimitBuyOrder, orders_module.LimitSellOrder]) -> bool:
 
         """
         Method that checks whether or not the limit order price is within the latest retrieved bar for a given asset.
@@ -101,11 +118,8 @@ class BacktestBroker:
         :return: True/False
         """
 
-        bar = self.context.retrieved_data[order.asset.ticker]['bars'][0]
-        if bar.low <= order.order_limit_price <= bar.high:
-            return True
-        else:
-            return False
+        bar = order.asset.bars[0]
+        return bar.low <= order.order_limit_price <= bar.high
 
     def fill_order(self, order, price):
 
@@ -125,7 +139,7 @@ class BacktestBroker:
         order_filled_event = self.order_book.fill_order(order.id, price, order_size, commission)
         return order_filled_event
 
-    def get_market_order_price(self, order) -> float:
+    def get_market_order_price(self, order: Union[orders_module.MarketBuyOrder, orders_module.MarketSellOrder]) -> float:
 
         """
         Method to get the fill price for a market order. Assuming the market order is filled at the open of the
@@ -138,15 +152,14 @@ class BacktestBroker:
         :return:
         """
 
-        price_data = self.context.retrieved_data[order.asset.ticker]
         slippage = self.slippages.pop()
-        if isinstance(order, orders_module.BuyOrder):
-            pass
         if isinstance(order, orders_module.SellOrder):
             slippage *= -1
 
-        # Open or close price? Should be open price if it is filled during the next bar
-        return price_data['bars'][0].open + slippage
+        # The final order price is the open price of the bar + the slippage in %
+        # For a sell order the sell price is lower than the open price
+        # For a buy order the buy price is higher than the open price
+        return order.asset.bars[0].open * (1 + slippage)
 
     def calculate_commission(self, order_size: float) -> float:
         """
