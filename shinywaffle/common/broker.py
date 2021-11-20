@@ -179,7 +179,9 @@ class BacktestBroker:
         data = {
             'name': self.name,
             'fee': self.fee,
-            'total commission': self.total_commission
+            'total_commission': self.total_commission,
+            'total_slippage': self.total_slippage,
+            'order_book': self.order_book.report()
         }
 
         return data

@@ -166,3 +166,10 @@ class OrderBook:
                                        order.side,
                                        order.commission,
                                        self.context.time)
+
+    def report(self) -> dict:
+        return {
+            'pending_order': {key.__name__: len(values) for key, values in self.pending_orders.items()},
+            'filled_orders': {key.__name__: len(values) for key, values in self.filled_orders.items()},
+            'cancelled_orders': {key.__name__: len(values) for key, values in self.cancelled_orders.items()}
+        }
