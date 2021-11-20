@@ -247,6 +247,8 @@ class Account:
             'trades': self.trade_log.report(),
             'times': self.times_readable,
             'values': self.time_series['values'],
+            'return': self.time_series['returns'][-1],
+            'return_percent': self.time_series['returns_percent'][-1],
             'returns': self.time_series['returns'],
             'returns_percent': self.time_series['returns_percent'],
             'maximum_drawdown': drawdown(values=self.time_series['values']),
