@@ -98,14 +98,14 @@ class BacktestBroker:
                 intra_bar_prices = simulate_intrabar_data(bar, total_t, 0.01)
 
                 # Finding fill price for BuyOrder
-                if type(order) == orders_module.LimitBuyOrder:
+                if isinstance(order, orders_module.LimitBuyOrder):
                     for price in intra_bar_prices:
                         if price <= order.order_limit_price:
                             event = self.fill_order(order=order, fill_price=price, order_price=price)
                             break
 
                 # Finding fill price for SellOrder
-                elif type(order) == orders_module.LimitSellOrder:
+                elif isinstance(order, orders_module.LimitSellOrder):
                     for price in intra_bar_prices:
                         if price >= order.order_limit_price:
                             event = self.fill_order(order=order, fill_price=price, order_price=price)
