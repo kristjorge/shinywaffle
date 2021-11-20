@@ -40,7 +40,7 @@ class BacktestBroker:
         else:
             self.slippages = abs(np.random.normal(0, 0.05, n)).tolist()
 
-    def place_order(self, new_order: ValidOrderType):
+    def place_order(self, new_order: ANY_ORDER_TYPE):
 
         """
         :param new_order: The order object received by the broker. Submitted further on to the order_book object
@@ -51,7 +51,7 @@ class BacktestBroker:
         pending_order_event = self.order_book.new_order(order=new_order)
         return pending_order_event
 
-    def check_for_order_fill(self, order_id):
+    def check_for_order_fill(self, order_id: int) -> Union[None, OrderFilledEvent]:
 
         """
         Method that checks whether or not an order with a given ID will be filled in the current bar.
@@ -91,8 +91,8 @@ class BacktestBroker:
                 bar = bars[0]
 
                 # total_t = (bar.time - previous_bar.time).days
-                # Total_t = 1 means that bar duration is normalized and the price simulation will then generate 1 / dt price points per bar.
-
+                # Total_t = 1 means that bar duration is normalized
+                # and the price simulation will then generate 1 / dt price points per bar.
 
                 total_t = 1.
                 intra_bar_prices = simulate_intrabar_data(bar, total_t, 0.01)
