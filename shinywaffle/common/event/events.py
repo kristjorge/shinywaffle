@@ -93,7 +93,7 @@ class TrailingStopEvent(Event):
 
 
 class PendingOrderEvent:
-    def __init__(self, order_id: int, expires_at: datetime):
+    def __init__(self, order_id: int, expires_at: Optional[datetime] = None):
         self.order_id = order_id
         self.expires_at = expires_at
 

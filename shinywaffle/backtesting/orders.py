@@ -113,7 +113,7 @@ class OrderBook:
         for order_list in self.pending_orders.values():
             for order in order_list:
                 if order.expires_at is None:
-                    pending_order_events.append(events.PendingOrderEvent(order.id))
+                    pending_order_events.append(events.PendingOrderEvent(order.id, expires_at=order.expires_at))
                 else:
                     if order.expires_at <= self.context.time:
                         pending_order_events.append(events.PendingOrderEvent(order.id, expires_at=order.expires_at))
