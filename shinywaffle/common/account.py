@@ -173,13 +173,15 @@ class Account:
         if isinstance(event, events.SignalEventMarketBuy):
             new_order = orders.MarketBuyOrder(asset=event.asset,
                                               volume=event.order_volume,
-                                              time=time_placed)
+                                              time=time_placed,
+                                              expires_at=event.expires_at)
 
         elif isinstance(event, events.SignalEventLimitBuy):
             new_order = orders.LimitBuyOrder(asset=event.asset,
                                              volume=event.order_volume,
                                              limit_price=event.order_limit_price,
-                                             time=time_placed)
+                                             time=time_placed,
+                                             expires_at=event.expires_at)
         else:
             raise TypeError('Provided buy order event is not of type SignalEventMarketBuy or SignalEventLimitBuy')
 
@@ -191,13 +193,15 @@ class Account:
         if isinstance(event, events.SignalEventMarketSell):
             new_order = orders.MarketSellOrder(asset=event.asset,
                                                volume=order_volume,
-                                               time=time_placed)
+                                               time=time_placed,
+                                               expires_at=event.expires_at)
 
         elif isinstance(event, events.SignalEventLimitSell):
             new_order = orders.LimitSellOrder(asset=event.asset,
                                               volume=order_volume,
                                               limit_price=event.order_limit_price,
-                                              time=time_placed)
+                                              time=time_placed,
+                                              expires_at=event.expires_at)
         else:
             raise TypeError('Provided sell order event is not of type MarketSellOrder or LimitSellOrder')
 

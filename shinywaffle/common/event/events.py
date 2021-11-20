@@ -1,6 +1,8 @@
 from shinywaffle.common import assets
 from abc import ABC
 from shinywaffle.backtesting import OrderType, OrderSide
+from datetime import datetime
+from typing import Optional
 
 
 class Event(ABC):
@@ -19,13 +21,15 @@ class Event(ABC):
 
 
 class BuyEvent:
-    def __init__(self):
+    def __init__(self, expires_at: datetime):
         self.side = OrderSide.BUY
+        self.expires_at = expires_at
 
 
 class SellEvent:
-    def __init__(self):
+    def __init__(self, expires_at: datetime):
         self.side = OrderSide.SELL
+        self.expires_at = expires_at
 
 
 class MarketEvent:
@@ -45,34 +49,34 @@ class TimeSeriesEvent(Event):
 
 
 class SignalEventMarketBuy(Event, MarketEvent, BuyEvent):
-    def __init__(self, asset, order_volume):
+    def __init__(self, asset, order_volume, expires_at: Optional[datetime] = None):
         Event.__init__(self, asset)
         MarketEvent.__init__(self)
-        BuyEvent.__init__(self)
+        BuyEvent.__init__(self, expires_at=expires_at)
         self.order_volume = order_volume
 
 
 class SignalEventLimitBuy(Event, LimitEvent, BuyEvent):
-    def __init__(self, asset, order_volume, order_limit_price):
+    def __init__(self, asset, order_volume, order_limit_price, expires_at: Optional[datetime] = None):
         Event.__init__(self, asset)
         LimitEvent.__init__(self, order_limit_price)
-        BuyEvent.__init__(self)
+        BuyEvent.__init__(self, expires_at=expires_at)
         self.order_volume = order_volume
 
 
 class SignalEventMarketSell(Event, MarketEvent, SellEvent):
-    def __init__(self, asset, order_volume):
+    def __init__(self, asset, order_volume, expires_at: Optional[datetime] = None):
         Event.__init__(self, asset)
         MarketEvent.__init__(self)
-        SellEvent.__init__(self)
+        SellEvent.__init__(self, expires_at=expires_at)
         self.order_volume = order_volume
 
 
 class SignalEventLimitSell(Event, LimitEvent, SellEvent):
-    def __init__(self, asset, order_volume, order_limit_price):
+    def __init__(self, asset, order_volume, order_limit_price, expires_at: Optional[datetime] = None):
         Event.__init__(self, asset)
         LimitEvent.__init__(self, order_limit_price)
-        SellEvent.__init__(self)
+        SellEvent.__init__(self, expires_at=expires_at)
         self.order_volume = order_volume
 
 
@@ -89,8 +93,9 @@ class TrailingStopEvent(Event):
 
 
 class PendingOrderEvent:
-    def __init__(self, order_id):
+    def __init__(self, order_id: int, expires_at: datetime):
         self.order_id = order_id
+        self.expires_at = expires_at
 
 
 class OrderFilledEvent(Event):

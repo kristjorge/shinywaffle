@@ -13,6 +13,7 @@ class Order:
         self.filled_price = None
         self.size = None
         self.commission = None
+        self.expires_at = expires_at
 
 
 class MarketOrder:
@@ -37,29 +38,31 @@ class SellOrder:
 
 
 class MarketBuyOrder(Order, MarketOrder, BuyOrder):
-    def __init__(self, asset, volume, time):
-        Order.__init__(self, asset, volume, time)
+    def __init__(self, asset: Asset, volume: Union[int, float], time: datetime, expires_at: Optional[datetime] = None):
+        Order.__init__(self, asset, volume, time, expires_at=expires_at)
         MarketOrder.__init__(self)
         BuyOrder.__init__(self)
 
 
 class MarketSellOrder(Order, MarketOrder, SellOrder):
-    def __init__(self, asset, volume, time):
-        Order.__init__(self, asset, volume, time)
+    def __init__(self, asset: Asset, volume: Union[int, float], time: datetime, expires_at: Optional[datetime] = None):
+        Order.__init__(self, asset, volume, time, expires_at=expires_at)
         MarketOrder.__init__(self)
         SellOrder.__init__(self)
 
 
 class LimitBuyOrder(Order, LimitOrder, BuyOrder):
-    def __init__(self, asset, volume, limit_price, time):
-        Order.__init__(self, asset, volume, time)
+    def __init__(self, asset: Asset, volume: Union[int, float], limit_price: float, time: datetime,
+                 expires_at: Optional[datetime] = None):
+        Order.__init__(self, asset, volume, time, expires_at=expires_at)
         LimitOrder.__init__(self, limit_price)
         BuyOrder.__init__(self)
 
 
 class LimitSellOrder(Order, LimitOrder, SellOrder):
-    def __init__(self, asset, volume, limit_price, time):
-        Order.__init__(self, asset, volume, time)
+    def __init__(self, asset: Asset, volume: Union[int, float], limit_price: float, time: datetime,
+                 expires_at: Optional[datetime] = None):
+        Order.__init__(self, asset, volume, time, expires_at=expires_at)
         LimitOrder.__init__(self, limit_price)
         SellOrder.__init__(self)
 
@@ -83,11 +86,34 @@ class OrderBook:
             LimitSellOrder: []
         }
 
-    def update_post_event_stack(self):
+        self.cancelled_orders = {
+            MarketBuyOrder: [],
+            LimitBuyOrder: [],
+            MarketSellOrder: [],
+            LimitSellOrder: []
+        }
+
+    def update_post_event_stack(self) -> List[PendingOrderEvent]:
+        """
+        Updates the post event stack in the event handler with a list of pending events.
+
+        If the PendingOrderEvent does not have an expire date, then add it to the list of pending events
+        If the PendingOrderEvent has an expire date, but it's not been reached yet then also add it to the list of
+        pending events
+        However, it the PendingOrderEvent has expired, then do not add it to the list of pending events, but rather
+        to the list of cancelled even
+
+        """
         pending_order_events = []
         for order_list in self.pending_orders.values():
             for order in order_list:
-                pending_order_events.append(events.PendingOrderEvent(order.id))
+                if order.expires_at is None:
+                    pending_order_events.append(events.PendingOrderEvent(order.id))
+                else:
+                    if order.expires_at <= self.context.time:
+                        pending_order_events.append(events.PendingOrderEvent(order.id, expires_at=order.expires_at))
+                    else:
+                        self.cancelled_orders[type(order)].append(order)
 
         return pending_order_events
 
@@ -99,7 +125,7 @@ class OrderBook:
         order.id = self.latest_id + 1
         self.latest_id = order.id
         self.pending_orders[type(order)].append(order)
-        return events.PendingOrderEvent(order.id)
+        return events.PendingOrderEvent(order_id=order.id, expires_at=order.expires_at)
 
     def get_by_id(self, order_id: int) -> Union[MarketBuyOrder, MarketSellOrder, LimitBuyOrder, LimitSellOrder]:
         """ Gets an order by the ID"""
