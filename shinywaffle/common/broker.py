@@ -33,6 +33,7 @@ class BacktestBroker:
         self.fee = fee
         self.fee_fixed = fee_fixed
         self.total_commission = 0
+        self.total_slippage = 0
         self.order_book = orders_module.OrderBook(context)
         if slippage is not True:
             self.slippages = [0] * n
@@ -148,11 +149,14 @@ class BacktestBroker:
         Slippage is taken from the self.slippages list. If the order is a sell order, the slippage is subtracted, and
         if it is a buy order it is added to the price to produce the final fill price.
 
+        self.total_slippage is the cumulative amount of slippage for all orders the broker processes
+
         :param order:
         :return:
         """
 
         slippage = self.slippages.pop()
+        self.total_slippage += order.asset.bars[0].open * slippage
         if isinstance(order, orders_module.SellOrder):
             slippage *= -1
 
