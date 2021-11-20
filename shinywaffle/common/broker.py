@@ -6,7 +6,8 @@ from shinywaffle.data.intrabar_simulation import simulate_intrabar_data
 from typing import Union, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from shinywaffle.backtesting import ValidOrderType
+    from shinywaffle.common.event.events import OrderFilledEvent
+    from shinywaffle.backtesting.orders import ANY_ORDER_TYPE
 
 
 class BacktestBroker:
@@ -72,17 +73,23 @@ class BacktestBroker:
         event = None
 
         # If MarketOrder then fill immediately with the price from the get_market_order_price
-        if isinstance(order, orders_module.MarketOrder):
-            price = self.get_market_order_price(order)
-            event = self.fill_order(order, price)
+        if isinstance(order, orders_module.MarketBuyOrder) or isinstance(order, orders_module.MarketSellOrder):
+            price = self.get_market_order_price(order=order)
+            slippage = self.get_market_order_slippage(order=order)
+
+            # The final order price is the open price of the bar + the slippage in %
+            # For buy order, slippage is positive
+            # For sell order, slippage is negative
+            slipped_price = price * slippage
+            new_price = price + slipped_price
+            self.total_slippage += abs(slipped_price * order.volume)
+            event = self.fill_order(order=order, fill_price=new_price, order_price=price)
 
         # If LimitOrder, then check whether or not the limit is reached, and if so simulate the price action.
-        elif isinstance(order, orders_module.LimitOrder):
-            event = None
+        elif isinstance(order, orders_module.LimitBuyOrder) or isinstance(order, orders_module.LimitSellOrder):
             if self.is_order_within_bar(order):
                 bars = order.asset.bars
                 bar = bars[0]
-                previous_bar = bars[1]
 
                 # total_t = (bar.time - previous_bar.time).days
                 # Total_t = 1 means that bar duration is normalized and the price simulation will then generate 1 / dt price points per bar.
@@ -95,15 +102,14 @@ class BacktestBroker:
                 if type(order) == orders_module.LimitBuyOrder:
                     for price in intra_bar_prices:
                         if price <= order.order_limit_price:
-                            event = self.fill_order(order, price)
+                            event = self.fill_order(order=order, fill_price=price, order_price=price)
                             break
 
                 # Finding fill price for SellOrder
                 elif type(order) == orders_module.LimitSellOrder:
                     for price in intra_bar_prices:
                         if price >= order.order_limit_price:
-                            # event = self.fill_order(order, order.order_limit_price)
-                            event = self.fill_order(order, price)
+                            event = self.fill_order(order=order, fill_price=price, order_price=price)
                             break
 
         return event
@@ -122,7 +128,7 @@ class BacktestBroker:
         bar = order.asset.bars[0]
         return bar.low <= order.order_limit_price <= bar.high
 
-    def fill_order(self, order, price):
+    def fill_order(self, order: ANY_ORDER_TYPE, fill_price: float, order_price: float) -> OrderFilledEvent:
 
         """
         Method that fills an order at a given price.
@@ -130,15 +136,33 @@ class BacktestBroker:
             Commission is calculated from the calculate_commission() method from the order size
 
         The order_book.fill_order is called with the order.ID, size and commission and returns a OrderFilledEvent
-        :param order: Order to fill
-        :param price: Fill price of the order
-        :return: OrderFilledEvent
+        :param order: The order object that was filled
+        :param fill_price: The price the order was filled at
+        :param order_price: The price that the order was sent to the market at
         """
 
-        order_size = order.volume * price
-        commission = self.calculate_commission(order_size)
-        order_filled_event = self.order_book.fill_order(order.id, price, order_size, commission)
+        order_size = order.volume * fill_price
+        commission = self.calculate_commission(order_size=order_size)
+        order_filled_event = self.order_book.fill_order(pending_order_id=order.id,
+                                                        filled_price=fill_price,
+                                                        order_price=order_price,
+                                                        size=order_size,
+                                                        commission=commission)
         return order_filled_event
+
+    def get_market_order_slippage(self, order: Union[orders_module.MarketBuyOrder, orders_module.MarketSellOrder]) -> float:
+        """
+        Returns a slippage factor from the slippage factors that have been saved
+
+        If the order is a buy order, the slippage is positive to make the order price larger than the bar price
+        If the order is a sell order, the slippage is negative to make the order price smaller than the bar price
+        """
+
+        slippage = self.slippages.pop(0)
+        if isinstance(order, orders_module.SellOrder):
+            slippage *= -1
+
+        return slippage
 
     def get_market_order_price(self, order: Union[orders_module.MarketBuyOrder, orders_module.MarketSellOrder]) -> float:
 
@@ -146,24 +170,10 @@ class BacktestBroker:
         Method to get the fill price for a market order. Assuming the market order is filled at the open of the
         current bar. This would be valid since it is filled in the bar after it was submitted
 
-        Slippage is taken from the self.slippages list. If the order is a sell order, the slippage is subtracted, and
-        if it is a buy order it is added to the price to produce the final fill price.
-
-        self.total_slippage is the cumulative amount of slippage for all orders the broker processes
-
-        :param order:
-        :return:
+        Returns: the market order price (float) for the order
         """
 
-        slippage = self.slippages.pop()
-        self.total_slippage += order.asset.bars[0].open * slippage
-        if isinstance(order, orders_module.SellOrder):
-            slippage *= -1
-
-        # The final order price is the open price of the bar + the slippage in %
-        # For a sell order the sell price is lower than the open price
-        # For a buy order the buy price is higher than the open price
-        return order.asset.bars[0].open * (1 + slippage)
+        return order.asset.bars[0].open
 
     def calculate_commission(self, order_size: float) -> float:
         """

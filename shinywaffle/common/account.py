@@ -145,22 +145,23 @@ class Account:
         :return:
         """
 
-        self.trade_log.new_trade(event.asset, event.order_size,
-                                 event.price, event.order_volume,
-                                 event.type, event.side, event.time, event.commission)
+        self.trade_log.new_trade(asset=event.asset, trade_size=event.order_size,
+                                 fill_price=event.filled_price, order_price=event.order_price,
+                                 trade_volume=event.order_volume, trade_type=event.type,
+                                 trade_side=event.side, timestamp=event.time, commission=event.commission)
 
         if event.side == OrderSide.BUY:
             self.positions[event.asset].enter_position(time=event.time,
                                                        volume=event.order_volume,
                                                        size=event.order_size,
-                                                       price=event.price)
+                                                       price=event.filled_price)
             self.withdraw(event.order_size)
             self.withdraw(event.commission)
             self.balances[event.asset].add_to_balance(volume=event.order_volume)
 
         elif event.side == OrderSide.SELL:
             self.positions[event.asset].sell_off(volume=event.order_volume,
-                                                 price=event.price,
+                                                 price=event.filled_price,
                                                  time=event.time)
 
             self.deposit(event.order_size)

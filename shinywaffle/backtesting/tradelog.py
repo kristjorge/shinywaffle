@@ -8,16 +8,21 @@ if TYPE_CHECKING:
 
 
 class Trade:
-    def __init__(self, asset: Asset, size: float, price: float, volume: Union[int, float], time: datetime,
+    def __init__(self, asset: Asset, size: float, fill_price: float, order_price: float, volume: Union[int, float], time: datetime,
                  commission: float, trade_side: OrderSide, trade_type: OrderType):
         self.asset = asset
         self.size = size
-        self.price = price
+        self.fill_price = fill_price
+        self.order_price = order_price
         self.volume = volume
         self.time = time
         self.commission = commission
         self.trade_side = trade_side
         self.trade_type = trade_type
+
+    @property
+    def slippage_cost(self) -> float:
+        return abs(self.volume * (self.fill_price - self.order_price))
 
 
 class TradeLog:
@@ -25,12 +30,14 @@ class TradeLog:
         self.num_trades = 0
         self.all_trades = []
 
-    def new_trade(self, asset: Asset, trade_size: float, trade_price: float,
+    def new_trade(self, asset: Asset, trade_size: float, fill_price: float, order_price: float,
                   trade_volume: Union[int, float], trade_type: OrderType, trade_side: OrderSide, timestamp: datetime,
                   commission: float):
 
-        t = Trade(asset=asset, size=trade_size, price=trade_price, volume=trade_volume, time=timestamp,
-                  commission=commission, trade_side=trade_side, trade_type=trade_type)
+        t = Trade(asset=asset, size=trade_size, fill_price=fill_price, order_price=order_price,
+                  volume=trade_volume, time=timestamp, commission=commission, trade_side=trade_side,
+                  trade_type=trade_type)
+
         self.num_trades += 1
         self.all_trades.append(t)
 
@@ -42,10 +49,12 @@ class TradeLog:
                 'asset': trade.asset.name,
                 'type': trade.trade_type.value,
                 'side': trade.trade_side.value,
-                'trade size': trade.size,
-                'trade price': trade.price,
-                'trade volume': trade.volume,
-                'trade commission': trade.commission
+                'size': trade.size,
+                'fill price': trade.fill_price,
+                'order price': trade.order_price,
+                'slippage cost': trade.slippage_cost,
+                'volume': trade.volume,
+                'commission': trade.commission
             }
             all_dicts.append(trade_data)
 

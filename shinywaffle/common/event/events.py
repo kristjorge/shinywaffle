@@ -99,9 +99,10 @@ class PendingOrderEvent:
 
 
 class OrderFilledEvent(Event):
-    def __init__(self, asset, price, size, volume, order_type, side, commission, time):
+    def __init__(self, asset, filled_price, order_price, size, volume, order_type, side, commission, time):
         super().__init__(asset)
-        self.price = price
+        self.filled_price = filled_price
+        self.order_price = order_price
         self.order_size = size
         self.type = order_type
         self.side = side

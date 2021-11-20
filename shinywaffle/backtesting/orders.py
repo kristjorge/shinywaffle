@@ -15,11 +15,15 @@ class Order:
         self.asset = asset
         self.volume = volume
         self.time = time
+        self.order_price = None
         self.filled_price = None
         self.size = None
         self.commission = None
         self.expires_at = expires_at
 
+    @property
+    def slippage_cost(self) -> float:
+        return abs((self.filled_price-self.order_price) * self.volume)
 
 class MarketOrder:
     def __init__(self):
@@ -70,6 +74,9 @@ class LimitSellOrder(Order, LimitOrder, SellOrder):
         Order.__init__(self, asset, volume, time, expires_at=expires_at)
         LimitOrder.__init__(self, limit_price)
         SellOrder.__init__(self)
+
+
+ANY_ORDER_TYPE = Union[MarketBuyOrder, MarketSellOrder, LimitBuyOrder, LimitSellOrder]
 
 
 class OrderBook:
@@ -141,14 +148,16 @@ class OrderBook:
             except IndexError:
                 continue
 
-    def fill_order(self, pending_order_id: int, price: float, size: Union[int, float], commission: float):
+    def fill_order(self, pending_order_id: int, filled_price: float, order_price: float, size: Union[int, float],
+                   commission: float) -> events.OrderFilledEvent:
         """
         Fills a pending order
 
         Returns a OrderFilledEvent
         """
         order = self.get_by_id(pending_order_id)
-        order.filled_price = price
+        order.filled_price = filled_price
+        order.order_price = order_price
         order.size = size
         order.commission = commission
 
@@ -158,14 +167,15 @@ class OrderBook:
                 self.filled_orders[type(order)].append(filled_order)
                 break
 
-        return events.OrderFilledEvent(order.asset,
-                                       order.filled_price,
-                                       order.size,
-                                       order.volume,
-                                       order.type,
-                                       order.side,
-                                       order.commission,
-                                       self.context.time)
+        return events.OrderFilledEvent(asset=order.asset,
+                                       filled_price=order.filled_price,
+                                       order_price=order.order_price,
+                                       size=order.size,
+                                       volume=order.volume,
+                                       order_type=order.type,
+                                       side=order.side,
+                                       commission=order.commission,
+                                       time=self.context.time)
 
     def report(self) -> dict:
         return {
