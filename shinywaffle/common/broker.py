@@ -20,7 +20,7 @@ class BacktestBroker:
 
     """
 
-    def __init__(self, context: Context, fee: float, fee_fixed: float, slippage=True):
+    def __init__(self, context: Context, fee: float, slippage=True):
         """
         Modelling slippage as a normal distribution with mean 0 and standard deviation of 0.05. Generating 100000
         values.
@@ -32,7 +32,6 @@ class BacktestBroker:
         self.context = context
         self.name = 'Backtest broker'
         self.fee = fee
-        self.fee_fixed = fee_fixed
         self.total_commission = 0
         self.total_slippage = 0
         self.order_book = orders_module.OrderBook(context)
