@@ -1,11 +1,16 @@
+from __future__ import annotations
+from datetime import datetime
 from shinywaffle.common.event import events
 from shinywaffle.common.event.events import PendingOrderEvent
 from shinywaffle.backtesting import OrderSide, OrderType
-from typing import Union
+from typing import Union, TYPE_CHECKING, Optional, List
+
+if TYPE_CHECKING:
+    from shinywaffle.common.assets import Asset
 
 
 class Order:
-    def __init__(self, asset, volume, time):
+    def __init__(self, asset: Asset, volume: Union[int, float], time: datetime, expires_at: datetime):
         self.id = None
         self.asset = asset
         self.volume = volume
