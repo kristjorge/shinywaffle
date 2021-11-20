@@ -116,16 +116,30 @@ class OrderBook:
         to the list of cancelled even
 
         """
-        pending_order_events = []
+        pending_order_events = list()
+        order_ids_to_cancel = list()
         for order_list in self.pending_orders.values():
             for order in order_list:
                 if order.expires_at is None:
+                    # Order is still active
                     pending_order_events.append(events.PendingOrderEvent(order.id, expires_at=order.expires_at))
                 else:
                     if order.expires_at <= self.context.time:
+                        # Order is still active
                         pending_order_events.append(events.PendingOrderEvent(order.id, expires_at=order.expires_at))
                     else:
-                        self.cancelled_orders[type(order)].append(order)
+                        # Order has expired
+                        order_ids_to_cancel.append(order.id)
+
+        # For all ids in the list of cancelled order ids
+        # Get the order object and find the index of the order object in the pending orders list
+        # Then pop that order and put it in the cancelled orders
+        for order_id in order_ids_to_cancel:
+            order = self.get_by_id(order_id=order_id)
+            for ind, pending_order in enumerate(self.pending_orders[type(order)]):
+                if pending_order.id == order_id:
+                    cancelled_order = self.pending_orders[type(order)].pop(ind)
+                    self.cancelled_orders[type(order)].append(cancelled_order)
 
         return pending_order_events
 
