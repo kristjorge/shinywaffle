@@ -15,16 +15,17 @@ class TestTrainSplit:
         self.calc_out_of_sample_splits()
 
     def calc_optimisation_splits(self):
+        from shinywaffle.backtesting.study.study import TypeWFA
         splits = list()
         in_sample_testing = 1 - self.out_of_sample_size
         sub_run_test_size = in_sample_testing / self.no_sub_runs
-        if self.wfa == 'rolling':
+        if self.wfa == TypeWFA.ROLLING:
             for sub_run_no in range(self.no_sub_runs):
                 splits.append(
                     (sub_run_no*sub_run_test_size, (1+sub_run_no)*sub_run_test_size)
                 )
 
-        elif self.wfa == 'anchored':
+        elif self.wfa == TypeWFA.ANCHORED:
             for sub_run_no in range(self.no_sub_runs):
                 splits.append(
                     (0, (1+sub_run_no)*sub_run_test_size)
