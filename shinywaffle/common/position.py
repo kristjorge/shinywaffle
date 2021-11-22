@@ -102,7 +102,6 @@ class Position:
 
         _ = self.shares.sell_off(num_shares=order_volume)
 
-        #if self.volume == 0:
         if self.volume - filled_order_volume == 0:
             self.close_out(time=time)
 
