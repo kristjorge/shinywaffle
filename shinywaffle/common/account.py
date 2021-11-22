@@ -243,6 +243,12 @@ class Account:
             position_container.update_position()
 
     def report(self):
+        num_winning = sum([pos.num_winning_positions for pos in self.positions.values()])
+        num_losing = sum([pos.num_losing_positions for pos in self.positions.values()])
+        tot_win_return = sum([pos.tot_win_pos_return for pos in self.positions.values()])
+        tot_los_return = sum([pos.tot_los_pos_return for pos in self.positions.values()])
+        tot_win_return_percent = sum([pos.tot_win_pos_return_percent for pos in self.positions.values()])
+        tot_los_return_percent = sum([pos.tot_los_pos_return_percent for pos in self.positions.values()])
         data = {
             'trades': self.trade_log.report(),
             'times': self.times_readable,
@@ -255,7 +261,14 @@ class Account:
             'base_balances': self.time_series['base_balances'],
             'active trades': self.time_series['number of active positions'],
             'balances': self.time_series['balances'],
-            'positions': [pos.report() for pos in self.positions.values()]
+            'positions': [pos.report() for pos in self.positions.values()],
+            'num_winning_positions': num_winning,
+            'num_losing_positions': num_losing,
+            'frac_winning': num_winning / (num_winning + num_losing),
+            'avg_win_return': tot_win_return / num_winning,
+            'avg_los_return': tot_los_return / num_losing,
+            'avg_win_return_percent': tot_win_return_percent / num_winning,
+            'avg_los_return_percent': tot_los_return_percent / num_losing
         }
 
         return data

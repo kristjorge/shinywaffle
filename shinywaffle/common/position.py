@@ -2,7 +2,7 @@ from datetime import datetime
 from shinywaffle.common.context import Context
 from shinywaffle.common.assets import Asset
 from shinywaffle.backtesting.orders import OrderSide
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 from shinywaffle.common.metrics import drawdown
 
 
@@ -58,6 +58,7 @@ class Position:
         self.enter_price = price
         self.closed_amount = 0
         self.total_return = None
+        self.winning = None
         self.total_return_percent = None
         self.closed_time = None
         self.avg_close_price = None
@@ -129,6 +130,7 @@ class Position:
         self.total_return = self.current_return
         self.total_return_percent = self.current_return_percent
         self.is_active = False
+        self.winning = True if self.total_return > 0 else False
 
     @property
     def total_buy_size(self) -> float:
@@ -220,10 +222,50 @@ class PositionContainer:
 
     def __init__(self, asset: Asset, context: Context):
         self.position: Union[Position, None] = None
-        self.exited_positions = list()
+        self.exited_positions: List[Position] = list()
         self.context = context
         self.asset = asset
         self.latest_active_id = 0
+
+    @property
+    def winning_positions(self) -> List[Position]:
+        """ Returns the list of all exited positions with winning = True"""
+        return [p for p in self.exited_positions if p.winning]
+
+    @property
+    def losing_positions(self) -> List[Position]:
+        """ Returns the list of all exited positions with winning = False """
+        return [p for p in self.exited_positions if not p.winning]
+
+    @property
+    def num_winning_positions(self) -> int:
+        """ Returns the number of positions with winning = True"""
+        return len(self.winning_positions)
+
+    @property
+    def num_losing_positions(self) -> int:
+        """ Returns the number of positions with winning = False """
+        return len(self.losing_positions)
+
+    @property
+    def tot_win_pos_return(self) -> float:
+        """ Returns the total winning position returns """
+        return sum([p.total_return for p in self.winning_positions])
+
+    @property
+    def tot_win_pos_return_percent(self) -> float:
+        """ Returns the sum of all the winning position percentage returns """
+        return sum([p.total_return_percent for p in self.winning_positions])
+
+    @property
+    def tot_los_pos_return_percent(self) -> float:
+        """ Returns the sum of all the losing position percentage returns """
+        return sum([p.total_return_percent for p in self.losing_positions])
+
+    @property
+    def tot_los_pos_return(self) -> float:
+        """ Returns the total losing position returns"""
+        return sum([p.total_return for p in self.losing_positions])
 
     def enter_position(self, time: datetime, volume: Union[int, float], size: float, price: float) -> None:
         """
