@@ -8,7 +8,7 @@ setup(
     author="Kristian Jørgensen",
     packages=[
         'shinywaffle/backtesting/stock',
-        'shinywaffle/backtesting/workflow',
+        'shinywaffle/backtesting/study',
         'shinywaffle/backtesting',
         'shinywaffle/common',
         'shinywaffle/common/event',
