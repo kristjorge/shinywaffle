@@ -71,6 +71,7 @@ class Backtester:
             'backtest from': self.backtest_from.strftime(self.datetime_format),
             'backtest to': self.backtest_to.strftime(self.datetime_format),
             'account': self.account.report(),
+            'times': [t.strftime(self.datetime_format) for t in self.context.times],
             'events': self.event_handler.event_stack.report()
         }
         return data
