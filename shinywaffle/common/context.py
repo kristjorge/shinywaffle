@@ -27,6 +27,7 @@ class Context:
         self.risk_manager = None
         self.time_series = defaultdict(lambda: TimeSeriesContainer())
         self.time = datetime(1900, 1, 1)
+        self.times = list()
 
     def set_broker(self, broker: BacktestBroker):
         self.broker = broker
@@ -35,6 +36,7 @@ class Context:
         self.account = account
 
     def update_time(self, time: datetime):
+        self.times.append(self.time)
         self.time = time
 
     def copy(self):

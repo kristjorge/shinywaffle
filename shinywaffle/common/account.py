@@ -73,8 +73,6 @@ class Account:
         }
 
         self.trade_log = TradeLog()
-        self.times_readable = []
-        self.times = []
         self.risk_manager = risk_manager
         self.context = context
 
@@ -229,8 +227,6 @@ class Account:
         returns = self.value - self.initial_holding
         returns_percent = returns / self.initial_holding
 
-        self.times.append(self.context.time)
-        self.times_readable.append(self.context.time.strftime('%d-%m-%Y %H:%M:%S'))
         self.time_series['values'].append(self.value)
         self.time_series['base_balances'].append(self.base_balance.balance)
         self.time_series['returns'].append(returns)
@@ -251,7 +247,6 @@ class Account:
         tot_los_return_percent = sum([pos.tot_los_pos_return_percent for pos in self.positions.values()])
         data = {
             'trades': self.trade_log.report(),
-            'times': self.times_readable,
             'values': self.time_series['values'],
             'return': self.time_series['returns'][-1],
             'return_percent': self.time_series['returns_percent'][-1],
