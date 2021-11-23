@@ -198,3 +198,32 @@ class BacktestStudy:
         # Dump as json to file
         with open(self.workflow_run_path + "/workflow_summary.json", "w") as json_out:
             json.dump(data, json_out, sort_keys=True, indent=4)
+
+
+class BacktestContainer:
+
+    def __init__(self,
+                 name: str, parameters: dict, backtester: Backtester, path: str,
+                 run_no: int, sub_run_no: int, stochastic_run_no: int):
+
+        self.name = name
+        self.parameters = parameters
+        self.backtester = backtester
+        self.path = path
+        self.run_no = run_no
+        self.sub_run_no = sub_run_no
+        self.stochastic_run_no = stochastic_run_no
+        self.json_path = self.backtester.reporter.path + "/" + self.backtester.reporter.filename + ".json"
+
+    def report(self):
+        data = {
+            'name': self.name,
+            'parameters': self.parameters,
+            'path': self.path,
+            'run number': self.run_no,
+            'sub run number': self.sub_run_no,
+            'stochastic run number': self.stochastic_run_no,
+            'summary file path': self.json_path,
+        }
+
+        return data

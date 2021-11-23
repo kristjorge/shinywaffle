@@ -80,32 +80,3 @@ class Backtester:
         self.context.progress_bar = ProgressBar(len(self.times))
         self.event_handler = EventHandler(self.context, data_provider=self.data_provider)
         self.reporter.aggregate_report(self.report())
-
-
-class BacktestContainer:
-
-    def __init__(self,
-                 name: str, parameters: dict, backtester: Backtester, path: str,
-                 run_no: int, sub_run_no: int, stochastic_run_no: int):
-
-        self.name = name
-        self.parameters = parameters
-        self.backtester = backtester
-        self.path = path
-        self.run_no = run_no
-        self.sub_run_no = sub_run_no
-        self.stochastic_run_no = stochastic_run_no
-        self.json_path = self.backtester.reporter.path + "/" + self.backtester.reporter.filename + ".json"
-
-    def report(self):
-        data = {
-            'name': self.name,
-            'parameters': self.parameters,
-            'path': self.path,
-            'run number': self.run_no,
-            'sub run number': self.sub_run_no,
-            'stochastic run number': self.stochastic_run_no,
-            'summary file path': self.json_path,
-        }
-
-        return data
