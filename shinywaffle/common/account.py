@@ -280,7 +280,7 @@ class Account:
             'returns_percent': self.time_series['returns_percent'],
             'maximum_drawdown': drawdown(values=self.time_series['values']),
             'base_balances': self.time_series['base_balances'],
-            'active trades': self.time_series['number of active positions'],
+            'active_trades': self.time_series['number of active positions'],
             'balances': self.time_series['balances'],
             'positions': [pos.report() for pos in self.positions.values()],
             'num_winning_positions': num_winning,

@@ -64,12 +64,12 @@ class Backtester:
 
     def report(self):
         data = {
-            'initial holding': self.account.initial_holding,
+            'initial_holding': self.account.initial_holding,
             'broker': self.broker.report(),
             'assets': [asset.report() for asset in self.assets.values()],
             'strategies': [s.report() for s in self.context.strategies.values()],
-            'backtest from': self.backtest_from.strftime(self.datetime_format),
-            'backtest to': self.backtest_to.strftime(self.datetime_format),
+            'backtest_from': self.backtest_from.strftime(self.datetime_format),
+            'backtest_to': self.backtest_to.strftime(self.datetime_format),
             'account': self.account.report(),
             'times': [t.strftime(self.datetime_format) for t in self.context.times],
             'events': self.event_handler.event_stack.report()
