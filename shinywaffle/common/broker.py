@@ -20,7 +20,7 @@ class BacktestBroker:
 
     """
 
-    def __init__(self, context: Context, fee: float, slippage=True):
+    def __init__(self, context: Context, fee: float, slippage=True, slippage_mean=0.01, slippage_stdev=0.02):
         """
         Modelling slippage as a normal distribution with mean 0 and standard deviation of 0.05. Generating 100000
         values.
@@ -38,7 +38,9 @@ class BacktestBroker:
         if slippage is not True:
             self.slippages = [0] * n
         else:
-            self.slippages = abs(np.random.normal(0, 0.05, n)).tolist()
+            self.slippages = abs(np.random.normal(loc=slippage_mean,
+                                                  scale=slippage_stdev,
+                                                  size=n)).tolist()
 
     def place_order(self, new_order: ANY_ORDER_TYPE):
 
