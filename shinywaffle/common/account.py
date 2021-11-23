@@ -266,6 +266,10 @@ class Account:
         except ZeroDivisionError:
             avg_los_return_percent = 0.
 
+        try:
+            frac_winning = num_winning / (num_winning + num_losing)
+        except ZeroDivisionError:
+            frac_winning = 0.
 
         data = {
             'trades': self.trade_log.report(),
@@ -281,7 +285,7 @@ class Account:
             'positions': [pos.report() for pos in self.positions.values()],
             'num_winning_positions': num_winning,
             'num_losing_positions': num_losing,
-            'frac_winning': num_winning / (num_winning + num_losing),
+            'frac_winning': frac_winning,
             'avg_win_return': avg_win_return,
             'avg_los_return': avg_los_return,
             'avg_win_return_percent': avg_win_return_percent,
