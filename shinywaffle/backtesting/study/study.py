@@ -80,7 +80,6 @@ class BacktestStudy:
         to the list of simulation paths
         """
         run_path = self.workflow_run_path + "/run_{}".format(run_no)
-        os.makedirs(run_path, exist_ok=True)
 
         # Create one folder per sub run folder under each run folder
         sub_run_path = run_path + "/sub_run_{}".format(sub_run_no)
