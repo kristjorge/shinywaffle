@@ -2,6 +2,7 @@ from datetime import datetime
 from shinywaffle.common.context import Context
 from shinywaffle.common.assets import Asset
 from shinywaffle.backtesting.orders import OrderSide
+from shinywaffle.backtesting import DATETIME_FORMAT
 from typing import Union, Tuple, List
 from shinywaffle.common.metrics import drawdown
 
@@ -44,7 +45,7 @@ class Transaction:
         self.price = price
         self.size = volume * price
         self.side = side
-        self.time = time.strftime("%d-%m-%Y %H:%M:%S")
+        self.time = time.strftime(DATETIME_FORMAT)
 
 
 class Position:
@@ -165,7 +166,7 @@ class Position:
         self.time_series['return'].append(self.current_return)
         self.time_series['return_percent'].append(self.current_return_percent)
         self.time_series['closed_amount'].append(self.closed_amount)
-        self.time_series['times'].append(current_time.strftime("%d-%m-%Y %H:%M:%S"))
+        self.time_series['times'].append(current_time.strftime(DATETIME_FORMAT))
         self.time_in_trade = (current_time - self.opened_time)
 
     def __repr__(self):
@@ -173,14 +174,14 @@ class Position:
 
     def report(self):
         try:
-            closed_time = self.closed_time.strftime("%d-%m-%Y %H:%M:%S")
+            closed_time = self.closed_time.strftime(DATETIME_FORMAT)
         except AttributeError:
             closed_time = None
 
         # TODO Find a way to get the base asset in here as well
         data = {
             'id': self.id,
-            'opened_time': self.opened_time.strftime("%d-%m-%Y %H:%M:%S"),
+            'opened_time': self.opened_time.strftime(DATETIME_FORMAT),
             'closed_time': closed_time,
             'enter_price': self.enter_price,
             'avg_close_price': self.avg_close_price,
@@ -206,7 +207,7 @@ class Position:
         }
 
         try:
-            data['closed'] = self.closed_time.strftime("%d-%m-%Y %H:%M:%S")
+            data['closed'] = self.closed_time.strftime(DATETIME_FORMAT)
         except AttributeError:
             data['closed'] = "Position not closed"
 
