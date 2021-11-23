@@ -307,11 +307,11 @@ class PositionContainer:
             self.position.update()
 
     def report(self):
-        data = {}
+        data = list()
         if self.position is not None:
-            data[self.position.id] = self.position.report()
+            data.append(self.position.report())
         for p in self.iter_exited():
-            data[p.id] = p.report()
+            data.append(p.report())
         return data
 
     def iter_active(self):

@@ -282,7 +282,7 @@ class Account:
             'base_balances': self.time_series['base_balances'],
             'active_trades': self.time_series['number of active positions'],
             'balances': self.time_series['balances'],
-            'positions': [pos.report() for pos in self.positions.values()],
+            'positions': {asset.ticker: pos.report() for asset, pos in self.positions.items()},
             'num_winning_positions': num_winning,
             'num_losing_positions': num_losing,
             'frac_winning': frac_winning,
