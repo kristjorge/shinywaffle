@@ -245,6 +245,28 @@ class Account:
         tot_los_return = sum([pos.tot_los_pos_return for pos in self.positions.values()])
         tot_win_return_percent = sum([pos.tot_win_pos_return_percent for pos in self.positions.values()])
         tot_los_return_percent = sum([pos.tot_los_pos_return_percent for pos in self.positions.values()])
+
+        try:
+            avg_win_return = tot_win_return / num_winning
+        except ZeroDivisionError:
+            avg_win_return = 0.
+
+        try:
+            avg_los_return = tot_los_return / num_losing
+        except ZeroDivisionError:
+            avg_los_return = 0.
+
+        try:
+            avg_win_return_percent = tot_win_return_percent / num_winning
+        except ZeroDivisionError:
+            avg_win_return_percent = 0.
+
+        try:
+            avg_los_return_percent = tot_los_return_percent / num_losing
+        except ZeroDivisionError:
+            avg_los_return_percent = 0.
+
+
         data = {
             'trades': self.trade_log.report(),
             'values': self.time_series['values'],
@@ -260,10 +282,10 @@ class Account:
             'num_winning_positions': num_winning,
             'num_losing_positions': num_losing,
             'frac_winning': num_winning / (num_winning + num_losing),
-            'avg_win_return': tot_win_return / num_winning,
-            'avg_los_return': tot_los_return / num_losing,
-            'avg_win_return_percent': tot_win_return_percent / num_winning,
-            'avg_los_return_percent': tot_los_return_percent / num_losing
+            'avg_win_return': avg_win_return,
+            'avg_los_return': avg_los_return,
+            'avg_win_return_percent': avg_win_return_percent,
+            'avg_los_return_percent': avg_los_return_percent
         }
 
         return data
