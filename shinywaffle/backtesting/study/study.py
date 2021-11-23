@@ -1,7 +1,6 @@
-from shinywaffle.backtesting.backtest import Backtester, BacktestContainer
+from shinywaffle.backtesting.backtest import Backtester
 from shinywaffle.backtesting.study.test_train_split import TestTrainSplit
-from shinywaffle.backtesting.study.uncertainy import UncertaintyVariable, \
-    UncertaintyVariableSwappable, UncertaintyVariableManifest
+from shinywaffle.backtesting.study.uncertainy import UncertaintyVariableManifest
 import numpy as np
 import pandas as pd
 import os
@@ -75,7 +74,11 @@ class BacktestStudy:
     def enable_stochastic(self):
         return True if self.no_stochastic_runs > 1 else False
 
-    def create_results_folder(self, run_no: int, sub_run_no: int, stochastic_run_no: int):
+    def create_results_folder(self, run_no: int, sub_run_no: int, stochastic_run_no: int) -> None:
+        """
+        Creates the results folders for the summary json files to sit in. Also appends the backtest json file paths
+        to the list of simulation paths
+        """
         run_path = self.workflow_run_path + "/run_{}".format(run_no)
         os.makedirs(run_path, exist_ok=True)
 
@@ -90,8 +93,8 @@ class BacktestStudy:
         os.makedirs(sub_run_path, exist_ok=True)
 
     def set_uncertainty_parameter_values(self, param_file: str):
-
         """
+        Sets the uncertainty parameters of the study
 
         :param param_file: Either the name of parameter or a path to a csv file containing a list of param values.
                         Parameter name is them the header in the csv file
@@ -150,7 +153,9 @@ class BacktestStudy:
             for sub_run_no in range(self.no_sub_runs):
                 for stochastic_run_no in range(self.no_stochastic_runs):
 
-                    self.create_results_folder(run_no, sub_run_no, stochastic_run_no)
+                    self.create_results_folder(run_no=run_no,
+                                               sub_run_no=sub_run_no,
+                                               stochastic_run_no=stochastic_run_no)
 
                     params = self.parameters[run_no]
                     self.variable_swap_manifest.perform_swaps(realization=params)
