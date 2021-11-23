@@ -1,5 +1,4 @@
 from __future__ import annotations
-from shinywaffle.tools.api_link import APILink
 from shinywaffle.utils.misc import DAILY_DATETIME_FORMAT
 
 from abc import ABC
