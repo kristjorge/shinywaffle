@@ -60,6 +60,7 @@ class Asset(ABC):
         """
 
         data = {
+            'type': self.type.value,
             'name': self.name,
             'ticker': self.ticker
         }
