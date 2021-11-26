@@ -22,7 +22,7 @@ class BacktestStudy:
     """
     def __init__(self, context: Context, backtester: Backtester, study_name: str,
                  variable_swap_manifest: UncertaintyVariableManifest, num_runs: int, num_sub_runs: int = 1,
-                 num_stochastic_runs: int = 1, path: str = os.getcwd(), out_of_sample_size: float = 0.2,
+                 num_stochastic_runs: int = 1, save_path: str = os.getcwd(), out_of_sample_size: float = 0.2,
                  wfa=TypeWFA.ROLLING):
 
         """
@@ -33,7 +33,7 @@ class BacktestStudy:
         :param num_runs: Number of runs
         :param num_sub_runs: Number of sub runs
         :param num_stochastic_runs: Number of stochastic runs per sub run
-        :param path: Path to the root directory for storing backtest simulation results
+        :param save_path: Path to the root directory for storing backtest simulation results
         :param out_of_sample_size: Percentage of total sample size is used for out of sample simulation
         :param wfa: Walk-forward-analysis method. Either 'anchored' or 'rolling'
         """
@@ -44,7 +44,7 @@ class BacktestStudy:
         self.context = context
         self._backtester = backtester
         self.study_name = study_name
-        self.path = path
+        self.save_path = save_path
         self.no_runs = num_runs
         self.no_sub_runs = num_sub_runs
         self.no_stochastic_runs = num_stochastic_runs
@@ -58,7 +58,7 @@ class BacktestStudy:
         self.variable_swap_manifest = variable_swap_manifest
 
         # Creating main study results folder
-        self.workflow_run_path = self.path + "/" + self.study_name + " " + datetime.now().strftime("%d-%m-%Y %H %M %S")
+        self.workflow_run_path = self.save_path + "/" + self.study_name + " " + datetime.now().strftime("%d-%m-%Y %H %M %S")
         os.makedirs(self.workflow_run_path, exist_ok=True)
 
         # Making tuples with optimisation splits and out of sample splits
@@ -184,7 +184,7 @@ class BacktestStudy:
     def report(self):
         data = {
             'name': self.study_name,
-            'path': self.path,
+            'path': self.save_path,
             'number of runs': self.no_runs,
             'number of sub runs': self.no_sub_runs,
             'number of stochastic runs': self.no_stochastic_runs,
