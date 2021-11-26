@@ -41,6 +41,8 @@ class BacktestBroker:
             self.slippages = abs(np.random.normal(loc=slippage_mean,
                                                   scale=slippage_stdev,
                                                   size=n)).tolist()
+        self._slippage_mean = slippage_mean
+        self._slippage_stdev = slippage_stdev
 
     def place_order(self, new_order: ANY_ORDER_TYPE):
 
