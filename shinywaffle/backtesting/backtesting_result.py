@@ -96,5 +96,25 @@ class BacktestResult:
         self.account = ResultAccount(data=data['account'])
 
 
+class BacktestRealization:
+    def __init__(self, data: dict):
+        self.name = data['name']
+        self.parameters = data['parameters']
+        self.run_number = data['run number']
+        self.sub_run_number = data['sub run number']
+        self.runs = [BacktestResult(json_path=p) for p in data['runs']]
 
 
+class BacktestEnsemble:
+    def __init__(self, json_path: str):
+        self.realization = list()
+
+        with open(json_path, 'r') as f:
+            data = json.load(fp=f)
+
+        num_runs = data['number of runs']
+        num_sub_runs = data['number of sub runs']
+        num_stochastic_runs = data['number of stochastic runs']
+
+        for run in data['runs']:
+            self.realization.append(BacktestRealization(data=run))
