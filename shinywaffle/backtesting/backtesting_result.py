@@ -107,7 +107,7 @@ class BacktestRealization:
 
 class BacktestEnsemble:
     def __init__(self, json_path: str):
-        self.realization = list()
+        self.realizations = list()
 
         with open(json_path, 'r') as f:
             data = json.load(fp=f)
@@ -117,4 +117,4 @@ class BacktestEnsemble:
         num_stochastic_runs = data['number of stochastic runs']
 
         for run in data['runs']:
-            self.realization.append(BacktestRealization(data=run))
+            self.realizations.append(BacktestRealization(data=run))
