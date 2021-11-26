@@ -1,13 +1,10 @@
 from datetime import timedelta, datetime
-from typing import List, Tuple, TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from shinywaffle.backtesting.study.study import TypeWFA
+from typing import List, Tuple
 
 
 class TestTrainSplit:
 
-    def __init__(self, wfa: TypeWFA, out_of_sample_size: float, no_sub_runs: int):
+    def __init__(self, wfa, out_of_sample_size: float, no_sub_runs: int):
         """
         Class for calculating the train test splits of datetime ranges used in backtests.
 
