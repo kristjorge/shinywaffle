@@ -125,8 +125,9 @@ class BacktestStudy:
             print('Running backtest {} / {}'.format(i+1, self.total_number_of_runs))
             print('  Run: {}'.format(backtest.run_no+1))
             print('  Sub run: {}'.format(backtest.sub_run_no+1))
-            print('  Stochastic run: {}'.format(backtest.stochastic_run_no+1))
-            backtest.backtester.run()
+            for sim_no, simulation in enumerate(backtest.backtests):
+                print('  Stochastic run: {}'.format(sim_no+1))
+                simulation['backtest'].run()
 
     def make_backtests(self):
 
@@ -143,43 +144,41 @@ class BacktestStudy:
         times calculated from the test_train_split method. The slippages in the broker object have to be drawn from the
         normal distribution again and injected into the new_context.broker object. A BacktesterContainer object
         is created with the new Backtester object and is appended to the list of backtests.
-
-        Lastly a check is made to see which (if any) uncertainty variables are not substituted out. If any, they are
-        removed from the parameters dictionary and will not be reported in the final study json output.
         """
 
         for run_no in range(self.no_runs):
+            params = self.parameters[run_no]
+            self.variable_swap_manifest.perform_swaps(realization=params)
             for sub_run_no in range(self.no_sub_runs):
+                path = self.workflow_run_path + "/run_{}".format(run_no) + "/sub_run_{}".format(sub_run_no)
+                run_from = self._optimisation_datetimes[sub_run_no][0]
+                run_to = self._optimisation_datetimes[sub_run_no][1]
+                name = f"run_{run_no} sub_run_{sub_run_no}"
+                backtest_container = BacktestContainer(name=name, parameters=params,
+                                                       run_no=run_no, sub_run_no=sub_run_no)
                 for stochastic_run_no in range(self.no_stochastic_runs):
-
                     self.create_results_folder(run_no=run_no,
                                                sub_run_no=sub_run_no,
                                                stochastic_run_no=stochastic_run_no)
-
-                    params = self.parameters[run_no]
-                    self.variable_swap_manifest.perform_swaps(realization=params)
-
-                    path = self.workflow_run_path + "/run_{}".format(run_no) + "/sub_run_{}".format(sub_run_no)
-                    run_from = self._optimisation_datetimes[sub_run_no][0]
-                    run_to = self._optimisation_datetimes[sub_run_no][1]
-                    name = "run_{} sub_run_{}".format(run_no, sub_run_no)
-
                     if self.enable_stochastic:
-                        name += " stochastic_{}".format(stochastic_run_no)
+                        name = f"run_{run_no} sub_run_{sub_run_no} stochastic_{stochastic_run_no}"
 
                     # Deep copy
                     new_context = self.context.copy()
 
                     # The slippages have to be re-drawn to avoid using the same slippage values in every run
-                    new_context.broker.slippages = abs(np.random.normal(0, 0.05, 100000)).tolist()
+                    new_context.broker.slippages = abs(np.random.normal(new_context.broker._slippage_mean,
+                                                                        new_context.broker._slippage_stdev,
+                                                                        100000)).tolist()
 
-                    new_backtester = Backtester(context=new_context, time_increment=self._backtester.time_increment,
+                    new_backtester = Backtester(context=new_context,
+                                                time_increment=self._backtest_template.time_increment,
                                                 run_from=run_from, run_to=run_to, path=path, filename=name)
 
-                    # Append to list of backtests
-                    self.backtests.append(BacktestContainer(name=name, parameters=params, backtester=new_backtester,
-                                                            path=path, run_no=run_no, sub_run_no=sub_run_no,
-                                                            stochastic_run_no=stochastic_run_no))
+                    result_path = f'{new_backtester.reporter.path}/{name}.json'
+                    backtest_container.add_backtest(backtest=new_backtester,
+                                                    result_path=result_path)
+                self.backtests.append(backtest_container)
 
     def report(self):
         data = {
@@ -205,29 +204,27 @@ class BacktestStudy:
 
 
 class BacktestContainer:
-
-    def __init__(self,
-                 name: str, parameters: dict, backtester: Backtester, path: str,
-                 run_no: int, sub_run_no: int, stochastic_run_no: int):
-
+    def __init__(self, name: str, parameters: dict, run_no: int, sub_run_no: int):
         self.name = name
         self.parameters = parameters
-        self.backtester = backtester
-        self.path = path
         self.run_no = run_no
         self.sub_run_no = sub_run_no
-        self.stochastic_run_no = stochastic_run_no
-        self.json_path = self.backtester.reporter.path + "/" + self.backtester.reporter.filename + ".json"
+        self.backtests = list()
+
+    def add_backtest(self, backtest: Backtester, result_path: str) -> None:
+        self.backtests.append({
+            'backtest': backtest,
+            'result_path': result_path
+        })
+
+    def stochastic_result_path(self, backtest: Backtester):
+        return f'{backtest.reporter.save_path}/{backtest.reporter.filename}.json'
 
     def report(self):
-        data = {
+        return {
             'name': self.name,
             'parameters': self.parameters,
-            'path': self.path,
             'run number': self.run_no,
             'sub run number': self.sub_run_no,
-            'stochastic run number': self.stochastic_run_no,
-            'summary file path': self.json_path,
+            'runs': [s['result_path'] for s in self.backtests]
         }
-
-        return data
