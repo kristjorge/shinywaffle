@@ -81,7 +81,7 @@ class ResultAccount:
         self.avg_los_return_percent = data['avg_los_return_percent']
 
 
-class BacktestingResult:
+class BacktestResult:
     def __init__(self, json_path: str):
         with open(json_path, 'r') as f:
             data = json.load(fp=f)
