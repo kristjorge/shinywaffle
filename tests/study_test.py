@@ -10,8 +10,7 @@ from shinywaffle.strategy import sma_crossover
 from shinywaffle.common.context import Context
 from shinywaffle.tools.binance import BinancePublic
 from shinywaffle.backtesting.study.study import BacktestStudy
-from shinywaffle.backtesting.study.study import UncertaintyVariable, \
-    UncertaintyVariableSwappable, UncertaintyVariableManifest
+from shinywaffle.backtesting.study.uncertainy import UncertaintyVariableSwappable, UncertaintyVariableManifest
 from shinywaffle.backtesting.study.study import TypeWFA
 
 
@@ -62,13 +61,13 @@ def main():
     swappable_manifest.add_swappable(swappable=[swappable_sma_long, swappable_sma_short])
 
     backtester = Backtester(context=context, time_increment=time_increment, run_from=backtest_from, run_to=backtest_to)
-    workflow = BacktestStudy(context=context, backtester=backtester, study_name="Simple SMA study sample ",
-                             path="C:/PythonProjects/shiny-waffle/simulations/",
-                             num_runs=3, num_sub_runs=1, out_of_sample_size=0.2,
-                             wfa=TypeWFA.ANCHORED, num_stochastic_runs=1, variable_swap_manifest=swappable_manifest)
+    study = BacktestStudy(context=context, backtester=backtester, study_name="Simple SMA study sample ",
+                          save_path="C:/PythonProjects/shiny-waffle/simulations/",
+                          num_runs=2, num_sub_runs=2, out_of_sample_size=0.2,
+                          wfa=TypeWFA.ANCHORED, num_stochastic_runs=2, variable_swap_manifest=swappable_manifest)
 
-    workflow.set_uncertainty_parameter_values("C:/PythonProjects/shiny-waffle/tests/parameters.csv")
-    workflow.run()
+    study.set_uncertainty_parameter_values("C:/PythonProjects/shiny-waffle/tests/parameters.csv")
+    study.run()
 
 
 if __name__ == '__main__':
