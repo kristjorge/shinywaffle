@@ -26,7 +26,11 @@ class ResultPosition:
     def __init__(self, data: dict):
         self.id = data['id']
         self.opened_time = datetime.strptime(data['opened_time'], DATETIME_FORMAT)
-        self.closed_time = datetime.strptime(data['closed_time'], DATETIME_FORMAT) if data['closed_time'] is not None else None
+        try:
+            self.closed_time = datetime.strptime(data['closed_time'], DATETIME_FORMAT)
+        except TypeError:
+            self.closed_time = None
+
         self.enter_price = data['enter_price']
         self.avg_close_price = data['avg_close_price']
         self.total_return = data['total_return']
