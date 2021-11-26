@@ -58,6 +58,7 @@ class DictResultHolder:
         for key, value in data.items():
             setattr(self, key, value)
 
+
 class ResultAccount:
     def __init__(self, data: dict):
         self.trades = [DictResultHolder(data=t) for t in data['trades']]
