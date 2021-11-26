@@ -9,3 +9,6 @@ class OrderSide(str, Enum):
 class OrderType(str, Enum):
     MARKET = 'market'
     LIMIT = 'limit'
+
+
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
