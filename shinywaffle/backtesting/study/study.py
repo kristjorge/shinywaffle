@@ -42,7 +42,7 @@ class BacktestStudy:
             raise TypeError('Walk forward analysis must be of type TypeWFA')
 
         self.context = context
-        self._backtester = backtester
+        self._backtest_template = backtester
         self.study_name = study_name
         self.save_path = save_path
         self.no_runs = num_runs
@@ -63,8 +63,8 @@ class BacktestStudy:
 
         # Making tuples with optimisation splits and out of sample splits
         # Tuples consist of from an to splits in terms of percentage of the total data set
-        datetime_from = self._backtester.times[0]
-        datetime_to = self._backtester.times[-1]
+        datetime_from = self._backtest_template.times[0]
+        datetime_to = self._backtest_template.times[-1]
 
         test_train_split = TestTrainSplit(self.wfa, self.out_of_sample_size, self.no_sub_runs)
         self._optimisation_datetimes = test_train_split.calc_optimisation_datetimes(datetime_from, datetime_to)
