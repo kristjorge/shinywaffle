@@ -76,16 +76,6 @@ class Account:
         self.risk_manager = risk_manager
         self.context = context
 
-        try:
-            self.risk_manager = context.risk_manager
-        except AttributeError:
-            pass
-
-        try:
-            context.risk_manager.account = self
-        except AttributeError:
-            pass
-
     def deposit(self, amount: float):
         """ Debit an amount into the account"""
         self.base_balance.deposit(amount=amount)

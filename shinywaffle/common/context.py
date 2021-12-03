@@ -33,6 +33,7 @@ class Context:
 
     def set_account(self, account: Account) -> None:
         self.account = account
+        self.risk_manager = account.risk_manager
 
     def update_time(self, time: datetime) -> None:
         """ Saves the current time to the list of datetimes and changes self.time to the newly provided timestamp"""
