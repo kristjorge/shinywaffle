@@ -104,14 +104,9 @@ class Account:
 
         Returns a PendingOrder object to be handled by the event handler.
         """
-        max_vol = self.balances[event.asset].balance
-        order_volume = min(max_vol, event.order_volume)
-        if order_volume > 0:
-            new_order = self.handle_sell_order_event(order_volume=order_volume, event=event)
-            pending_order_event = self.context.broker.place_order(new_order)
-            return pending_order_event
-        else:
-            return None
+        new_order = self.handle_sell_order_event(event=event)
+        pending_order_event = self.context.broker.place_order(new_order)
+        return pending_order_event
 
     def complete_order(self, event: events.OrderFilledEvent) -> None:
         """
