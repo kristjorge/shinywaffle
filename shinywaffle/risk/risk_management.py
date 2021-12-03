@@ -36,6 +36,15 @@ class RiskManager(ABC):
         """
         pass
 
+    def stop_loss_exit(self, asset: Asset) -> Union[None, StopLoss]:
+        pass
+
+    def target_exit(self, asset: Asset) -> Union[None, TargetStop]:
+        pass
+
+    def trailing_stop_exit(self, asset: Asset) -> Union[None, TrailingStop]:
+        pass
+
 
 class BaseRiskManager(RiskManager):
 

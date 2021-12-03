@@ -90,12 +90,13 @@ class Account:
 
         Returns a PendingOrder object to be handled by the event handler.
         """
-        if event.order_volume > 0:  # ???
-            new_order = self.handle_buy_order_event(event=event)
-            pending_order_event = self.context.broker.place_order(new_order)
-            return pending_order_event
-        else:
-            return None
+        new_order = self.handle_buy_order_event(event=event)
+        pending_order_event = self.context.broker.place_order(new_order)
+        stop_loss = self.risk_manager.stop_loss_exit(asset=event.asset)
+        trailing_stop = self.risk_manager.trailing_stop_exit(asset=event.asset)
+        target_exit = self.risk_manager.target_exit(asset=event.asset)
+
+        return pending_order_event
 
     def place_sell_order(self, event: Union[events.SignalEventMarketSell, events.SignalEventLimitSell]) -> Union[None, PendingOrderEvent]:
         """
