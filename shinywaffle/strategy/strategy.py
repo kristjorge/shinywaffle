@@ -1,7 +1,9 @@
 from shinywaffle.common.context import Context
 from shinywaffle.common.event import events
 from shinywaffle.common.assets import Asset
+from shinywaffle.backtesting.orders import ANY_ORDER_TYPE
 from abc import ABC, abstractmethod
+from typing import List, Union
 
 
 class TradingStrategy(ABC):
@@ -24,7 +26,7 @@ class TradingStrategy(ABC):
         self.context = context
         self.context.strategies[self.name] = self
 
-    def generate_signal(self, asset: Asset) -> list:
+    def generate_signal(self, asset: Asset) -> List[Union[ANY_ORDER_TYPE, None]]:
         """
         A function that calls the trading logic function that evaluates the latest time series data and generates
         trading signal based on the coded rules of the strategy. This method compares the asset.ticker with the
@@ -40,23 +42,25 @@ class TradingStrategy(ABC):
         Returns: A list of events to be handles by the event handler
         """
         if asset.ticker in self.assets.keys():
-            signals = [self.trading_logic(asset)]
-            if signals:
-                assert all([type(s) == events.SignalEventMarketBuy or
-                            type(s) == events.SignalEventMarketSell or
-                            type(s) == events.SignalEventLimitBuy or
-                            type(s) == events.SignalEventLimitSell or
-                            s is None for
-                            s in signals]), 'Generated event needs to be of the type events.SignalEventMarketBuy, ' \
-                                            'events.SignalEventMarketSell, events.SignalEventLimitBuy or ' \
-                                            'events.SignalEventLimitSell'
+            signals = self.trading_logic(asset=asset)
+            if not isinstance(signals, list):
+                raise TypeError('Generated signals from trading strategy must be returned in the form of a list')
+
+            for signal in signals:
+                if not isinstance(signal, events.SignalEventMarketBuy) and \
+                        not isinstance(signal, events.SignalEventMarketSell) and \
+                        not isinstance(signal, events.SignalEventLimitSell) and \
+                        not isinstance(signal, events.SignalEventLimitBuy):
+                    raise TypeError('Generated event needs to be of the type SignalEventMarketBuy, ' \
+                                    'SignalEventMarketSell, SignalEventLimitBuy or ' \
+                                    f'SignalEventLimitSell. The signal was of type {type(signal)}')
+
             return signals
         else:
-            pass  # Do not need to return [None] if the trading_logic method didn't return any events?
-            # return [None]
+            return []
 
     @abstractmethod
-    def trading_logic(self, asset: Asset):
+    def trading_logic(self, asset: Asset) -> List[ANY_ORDER_TYPE]:
         """
         This method needs to be overridden to include the logic behind the signal generation. This method needs to
         return events to the generate_signal method which will then be appended to a list of events and passed to the

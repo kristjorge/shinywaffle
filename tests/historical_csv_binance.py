@@ -16,16 +16,17 @@ np.random.seed(seed=0)
 
 
 def main():
-    context = Context()
 
     time_increment = '2h'
-    time_from = datetime(2019, 1, 1, 0, 0, 0)
+    time_from = datetime(2018, 1, 1, 0, 0, 0)
     time_to = datetime(2021, 1, 1, 0, 0, 0)
 
-    backtest_from = datetime(2019, 2, 1)
-    backtest_to = datetime(2020, 1, 1)
+    context = Context(start_time=time_from)
 
-    broker = BacktestBroker(context=context, fee=0., fee_fixed=0.)
+    backtest_from = datetime(2018, 2, 1)
+    backtest_to = datetime(2021, 1, 1)
+
+    broker = BacktestBroker(context=context, fee=0.001)
     trading_strategy = sma_crossover.AverageCrossOver(context=context, short=15, long=40)
 
     # USDT

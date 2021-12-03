@@ -9,6 +9,12 @@ if TYPE_CHECKING:
     from shinywaffle.common.assets import Asset
 
 
+class EmptyOrderError(Exception):
+    def __init__(self):
+        """ Exception raised when trying to sell off a position for an asset does not have a balance """
+        super().__init__()
+
+
 class Order:
     def __init__(self, asset: Asset, volume: Union[int, float], time: datetime, expires_at: datetime):
         self.id = None
@@ -21,9 +27,13 @@ class Order:
         self.commission = None
         self.expires_at = expires_at
 
+        if self.volume == 0:
+            raise EmptyOrderError
+
     @property
     def slippage_cost(self) -> float:
         return abs((self.filled_price-self.order_price) * self.volume)
+
 
 class MarketOrder:
     def __init__(self):

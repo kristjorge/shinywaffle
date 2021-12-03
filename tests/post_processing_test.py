@@ -1,20 +1,24 @@
-import json
+from shinywaffle.backtesting.backtesting_result import BacktestEnsemble
 from matplotlib import pyplot as plt
 
 
-def main(file_path):
-    with open(file_path, 'r') as data_file:
-        data_dict = json.load(data_file)
+def main():
+    ensemble = BacktestEnsemble(json_path="C:\PythonProjects\shiny-waffle\simulations\Simple SMA study sample  24-11-2021 23 06 19\workflow_summary.json")
 
-    account = data_dict['account']
-    cash = account['cash']
-    total_value = account['total value']
-    times = account['times']
-    positions = account['positions']
+    fig, ax = plt.subplots(figsize=(16, 9))
+    all_times = list()
 
-    plt.plot(total_value)
+    for realization in ensemble.realizations:
+        for run in realization.runs:
+            times = run.times[1:]
+            values = run.account.values[1:]
+            all_times.append(times)
+
+            ax.plot(times, values)
+
     plt.show()
 
 
+
 if __name__ == '__main__':
-    main('C:\PythonProjects\shiny-waffle\Summary 16-01-2021 210100.json')
+    main()

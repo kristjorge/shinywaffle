@@ -3,7 +3,8 @@ from shinywaffle.common.event.event_stack import EventStackEmptyError
 from shinywaffle.common.event import events
 import shinywaffle.data.data_provider
 import time
-from ..context import Context
+from shinywaffle.common.context import Context
+from shinywaffle.backtesting.orders import EmptyOrderError
 
 
 class EventHandler:
@@ -57,20 +58,36 @@ class EventHandler:
             self.handle_time_series_events(event)
 
         elif type(event) == events.SignalEventMarketBuy:
-            new_event = self.account.place_buy_order(event)
-            self.post_event_stack.add(new_event)
+            try:
+                new_event = self.account.place_buy_order(event)
+                if new_event is not None:
+                    self.post_event_stack.add(new_event)
+            except EmptyOrderError:
+                pass
 
         elif type(event) == events.SignalEventLimitBuy:
-            new_event = self.account.place_buy_order(event)
-            self.post_event_stack.add(new_event)
+            try:
+                new_event = self.account.place_buy_order(event)
+                if new_event is not None:
+                    self.post_event_stack.add(new_event)
+            except EmptyOrderError:
+                pass
 
         elif type(event) == events.SignalEventMarketSell:
-            new_event = self.account.place_sell_order(event)
-            self.post_event_stack.add(new_event)
+            try:
+                new_event = self.account.place_sell_order(event)
+                if new_event is not None:
+                    self.post_event_stack.add(new_event)
+            except EmptyOrderError:
+                pass
 
         elif type(event) == events.SignalEventLimitSell:
-            new_event = self.account.place_sell_order(event)
-            self.post_event_stack.add(new_event)
+            try:
+                new_event = self.account.place_sell_order(event)
+                if new_event is not None:
+                    self.post_event_stack.add(new_event)
+            except EmptyOrderError:
+                pass
 
         elif type(event) == events.StopLossEvent:
             pass

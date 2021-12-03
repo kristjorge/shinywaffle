@@ -76,16 +76,6 @@ class Account:
         self.risk_manager = risk_manager
         self.context = context
 
-        try:
-            self.risk_manager = context.risk_manager
-        except AttributeError:
-            pass
-
-        try:
-            context.risk_manager.account = self
-        except AttributeError:
-            pass
-
     def deposit(self, amount: float):
         """ Debit an amount into the account"""
         self.base_balance.deposit(amount=amount)
@@ -100,12 +90,13 @@ class Account:
 
         Returns a PendingOrder object to be handled by the event handler.
         """
-        if event.order_volume > 0:  # ???
-            new_order = self.handle_buy_order_event(event=event)
-            pending_order_event = self.context.broker.place_order(new_order)
-            return pending_order_event
-        else:
-            return None
+        new_order = self.handle_buy_order_event(event=event)
+        pending_order_event = self.context.broker.place_order(new_order)
+        stop_loss = self.risk_manager.stop_loss_exit(asset=event.asset)
+        trailing_stop = self.risk_manager.trailing_stop_exit(asset=event.asset)
+        target_exit = self.risk_manager.target_exit(asset=event.asset)
+
+        return pending_order_event
 
     def place_sell_order(self, event: Union[events.SignalEventMarketSell, events.SignalEventLimitSell]) -> Union[None, PendingOrderEvent]:
         """
@@ -114,14 +105,9 @@ class Account:
 
         Returns a PendingOrder object to be handled by the event handler.
         """
-        max_vol = self.balances[event.asset].balance
-        order_volume = min(max_vol, event.order_volume)
-        if order_volume > 0:
-            new_order = self.handle_sell_order_event(order_volume=order_volume, event=event)
-            pending_order_event = self.context.broker.place_order(new_order)
-            return pending_order_event
-        else:
-            return None
+        new_order = self.handle_sell_order_event(event=event)
+        pending_order_event = self.context.broker.place_order(new_order)
+        return pending_order_event
 
     def complete_order(self, event: events.OrderFilledEvent) -> None:
         """
@@ -166,18 +152,19 @@ class Account:
             self.withdraw(event.commission)
             self.balances[event.asset].deduct_from_balance(volume=event.order_volume)
 
-    def handle_buy_order_event(self, event: Union[events.SignalEventLimitBuy, events.SignalEventMarketBuy]) -> Union[None, orders.MarketBuyOrder, orders.LimitBuyOrder]:
+    def handle_buy_order_event(self, event: Union[events.SignalEventLimitBuy, events.SignalEventMarketBuy]) -> Union[orders.MarketBuyOrder, orders.LimitBuyOrder]:
         """ Returns a MarketBuyOrder or LimitBuyOrder depending on the signal received"""
         time_placed = self.context.time
+        order_volume = self.risk_manager.position_size_entry(asset=event.asset)
         if isinstance(event, events.SignalEventMarketBuy):
             new_order = orders.MarketBuyOrder(asset=event.asset,
-                                              volume=event.order_volume,
+                                              volume=order_volume,
                                               time=time_placed,
                                               expires_at=event.expires_at)
 
         elif isinstance(event, events.SignalEventLimitBuy):
             new_order = orders.LimitBuyOrder(asset=event.asset,
-                                             volume=event.order_volume,
+                                             volume=order_volume,
                                              limit_price=event.order_limit_price,
                                              time=time_placed,
                                              expires_at=event.expires_at)
@@ -186,9 +173,15 @@ class Account:
 
         return new_order
 
-    def handle_sell_order_event(self, order_volume: Union[int, float], event: Union[events.SignalEventMarketSell, events.SignalEventLimitSell]) -> Union[None, orders.MarketSellOrder, orders.LimitSellOrder]:
+    def handle_sell_order_event(self, event: Union[events.SignalEventMarketSell, events.SignalEventLimitSell]) -> Union[orders.MarketSellOrder, orders.LimitSellOrder]:
         """ Returning a MarketSellOrder or LimitSellOrder depending on the signal received"""
         time_placed = self.context.time
+        order_volume = self.risk_manager.position_size_exit(asset=event.asset)
+
+        # Cap the order volume to the asset balance
+        if order_volume > self.balances[event.asset].balance:
+            order_volume = self.balances[event.asset].balance
+
         if isinstance(event, events.SignalEventMarketSell):
             new_order = orders.MarketSellOrder(asset=event.asset,
                                                volume=order_volume,

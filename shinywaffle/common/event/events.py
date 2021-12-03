@@ -49,35 +49,31 @@ class TimeSeriesEvent(Event):
 
 
 class SignalEventMarketBuy(Event, MarketEvent, BuyEvent):
-    def __init__(self, asset, order_volume, expires_at: Optional[datetime] = None):
+    def __init__(self, asset, expires_at: Optional[datetime] = None):
         Event.__init__(self, asset)
         MarketEvent.__init__(self)
         BuyEvent.__init__(self, expires_at=expires_at)
-        self.order_volume = order_volume
 
 
 class SignalEventLimitBuy(Event, LimitEvent, BuyEvent):
-    def __init__(self, asset, order_volume, order_limit_price, expires_at: Optional[datetime] = None):
+    def __init__(self, asset, order_limit_price, expires_at: Optional[datetime] = None):
         Event.__init__(self, asset)
         LimitEvent.__init__(self, order_limit_price)
         BuyEvent.__init__(self, expires_at=expires_at)
-        self.order_volume = order_volume
 
 
 class SignalEventMarketSell(Event, MarketEvent, SellEvent):
-    def __init__(self, asset, order_volume, expires_at: Optional[datetime] = None):
+    def __init__(self, asset, expires_at: Optional[datetime] = None):
         Event.__init__(self, asset)
         MarketEvent.__init__(self)
         SellEvent.__init__(self, expires_at=expires_at)
-        self.order_volume = order_volume
 
 
 class SignalEventLimitSell(Event, LimitEvent, SellEvent):
-    def __init__(self, asset, order_volume, order_limit_price, expires_at: Optional[datetime] = None):
+    def __init__(self, asset, order_limit_price, expires_at: Optional[datetime] = None):
         Event.__init__(self, asset)
         LimitEvent.__init__(self, order_limit_price)
         SellEvent.__init__(self, expires_at=expires_at)
-        self.order_volume = order_volume
 
 
 class StopLossEvent(Event):
