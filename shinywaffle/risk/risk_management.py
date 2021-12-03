@@ -3,6 +3,12 @@ from shinywaffle.utils.misc import round_down
 from abc import ABC, abstractmethod
 from typing import Union
 
+from shinywaffle.common.event.events import SignalEventMarketBuy, SignalEventLimitBuy, SignalEventLimitSell, SignalEventMarketSell
+from shinywaffle.common.assets import Asset
+from shinywaffle.common.stops import StopLoss, TargetStop, TrailingStop
+TradeEventBuy = Union[SignalEventMarketBuy, SignalEventLimitBuy]
+TradeEventSell = Union[SignalEventLimitSell, SignalEventMarketSell]
+
 
 class RiskManager(ABC):
 
