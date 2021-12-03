@@ -3,7 +3,7 @@ from shinywaffle.common.event import events
 from shinywaffle.common.assets import Asset
 from shinywaffle.backtesting.orders import ANY_ORDER_TYPE
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Union
 
 
 class TradingStrategy(ABC):
@@ -26,7 +26,7 @@ class TradingStrategy(ABC):
         self.context = context
         self.context.strategies[self.name] = self
 
-    def generate_signal(self, asset: Asset) -> List[ANY_ORDER_TYPE]:
+    def generate_signal(self, asset: Asset) -> List[Union[ANY_ORDER_TYPE, None]]:
         """
         A function that calls the trading logic function that evaluates the latest time series data and generates
         trading signal based on the coded rules of the strategy. This method compares the asset.ticker with the

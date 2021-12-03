@@ -16,8 +16,6 @@ class BacktestBroker:
     Base class for broker objects.
     Will contain logic for getting order prices
 
-
-
     """
 
     def __init__(self, context: Context, fee: float, slippage=True, slippage_mean=0.01, slippage_stdev=0.02):
@@ -34,7 +32,7 @@ class BacktestBroker:
         self.fee = fee
         self.total_commission = 0
         self.total_slippage = 0
-        self.order_book = orders_module.OrderBook(context)
+        self.order_book = orders_module.OrderBook(context=context)
         if slippage is not True:
             self.slippages = [0] * n
         else:

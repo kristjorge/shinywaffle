@@ -25,6 +25,7 @@ class Order:
     def slippage_cost(self) -> float:
         return abs((self.filled_price-self.order_price) * self.volume)
 
+
 class MarketOrder:
     def __init__(self):
         self.type = OrderType.MARKET
