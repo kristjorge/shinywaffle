@@ -17,7 +17,7 @@ class Context:
     Context class representing a holder for assets, broker and account. This object will be
     """
 
-    def __init__(self):
+    def __init__(self, start_time: datetime):
         from shinywaffle.data.time_series_data import TimeSeriesContainer
         self.assets = {}
         self.strategies = {}
@@ -25,7 +25,7 @@ class Context:
         self.account = None
         self.risk_manager = None
         self.time_series = defaultdict(lambda: TimeSeriesContainer())
-        self.time = datetime(1900, 1, 1)
+        self.time = start_time
         self.times = list()
 
     def set_broker(self, broker: BacktestBroker) -> None:
