@@ -9,10 +9,6 @@ class RiskManager(ABC):
     def __init__(self, context: Context):
         context.risk_manager = self
         self.context = context
-        try:
-            self.account = context.account
-        except AttributeError:
-            pass
 
     @abstractmethod
     def position_size_entry(self, asset: Asset) -> Union[int, float]:
