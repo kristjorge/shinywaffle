@@ -42,23 +42,25 @@ class TradingStrategy(ABC):
         Returns: A list of events to be handles by the event handler
         """
         if asset.ticker in self.assets.keys():
-            signals = [self.trading_logic(asset)]
+            signals = self.trading_logic(asset=asset)
+            if not isinstance(signals, list):
+                raise TypeError('Generated signals from trading strategy must be returned in the form of a list')
+
             for signal in signals:
-                if not isinstance(signal, events.SignalEventMarketBuy) or \
-                        not isinstance(signal, events.SignalEventMarketSell) or \
-                        not isinstance(signal, events.SignalEventLimitSell) or \
+                if not isinstance(signal, events.SignalEventMarketBuy) and \
+                        not isinstance(signal, events.SignalEventMarketSell) and \
+                        not isinstance(signal, events.SignalEventLimitSell) and \
                         not isinstance(signal, events.SignalEventLimitBuy):
-                    raise TypeError('Generated event needs to be of the type events.SignalEventMarketBuy, ' \
-                                    'events.SignalEventMarketSell, events.SignalEventLimitBuy or ' \
-                                    'events.SignalEventLimitSell')
+                    raise TypeError('Generated event needs to be of the type SignalEventMarketBuy, ' \
+                                    'SignalEventMarketSell, SignalEventLimitBuy or ' \
+                                    f'SignalEventLimitSell. The signal was of type {type(signal)}')
 
             return signals
         else:
-            pass  # Do not need to return [None] if the trading_logic method didn't return any events?
-            # return [None]
+            return []
 
     @abstractmethod
-    def trading_logic(self, asset: Asset) -> ANY_ORDER_TYPE:
+    def trading_logic(self, asset: Asset) -> List[ANY_ORDER_TYPE]:
         """
         This method needs to be overridden to include the logic behind the signal generation. This method needs to
         return events to the generate_signal method which will then be appended to a list of events and passed to the
